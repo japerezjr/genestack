@@ -1,3 +1,4 @@
+---
 sortOptions:
   order: fifo
 resources:
@@ -5,10 +6,10 @@ resources:
   - neutron-rabbitmq-queue.yaml
   - all.yaml
   - hpa-neutron-server.yaml
-  - hpa-neutron-rpc-server.yaml
   - policies.yaml
 
 patches:
+  - path: patch-ovn-tls-optional.yaml
   - target:
       kind: ConfigMap
       name: neutron-bin

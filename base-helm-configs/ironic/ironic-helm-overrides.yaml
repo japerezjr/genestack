@@ -6,41 +6,42 @@
 ---
 images:
   tags:
-    ironic_manage_cleaning_network: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    ironic_retrive_cleaning_network: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    ironic_retrive_swift_config: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    bootstrap: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    db_drop: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    db_init: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    ironic_db_sync: "quay.io/rackspace/rackerlabs-ironic:2024.1-ubuntu_jammy"
-    ks_user: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    ks_service: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    ks_endpoints: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    rabbit_init: "quay.io/rackspace/rackerlabs-rabbitmq:3.13-management"
-    ironic_api: "quay.io/rackspace/rackerlabs-ironic:2024.1-ubuntu_jammy"
-    ironic_conductor: "quay.io/rackspace/rackerlabs-ironic:2024.1-ubuntu_jammy"
-    ironic_pxe: "quay.io/rackspace/rackerlabs-ironic:2024.1-ubuntu_jammy"
-    ironic_pxe_init: "quay.io/rackspace/rackerlabs-ironic:2024.1-ubuntu_jammy"
+    ironic_manage_cleaning_network: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    ironic_retrive_cleaning_network: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    ironic_retrive_swift_config: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    bootstrap: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    db_drop: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    db_init: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    ironic_db_sync: "ghcr.io/rackerlabs/genestack-images/ironic-api:2024.1-latest"
+    ks_user: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    ks_service: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    ks_endpoints: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    rabbit_init: null
+    ironic_api: "ghcr.io/rackerlabs/genestack-images/ironic-api:2024.1-latest"
+    ironic_conductor: "ghcr.io/rackerlabs/genestack-images/ironic-conductor:2024.1-latest"
+    ironic_pxe: "ghcr.io/rackerlabs/genestack-images/ironic-pxe:2024.1-latest"
+    ironic_pxe_init: "ghcr.io/rackerlabs/genestack-images/ironic-pxe:2024.1-latest"
     ironic_pxe_http: "docker.io/nginx:1.13.3" # Retained from openstack-helm default
-    ironic_inspector: "quay.io/rackspace/rackerlabs-ironic-inspector:2024.1-ubuntu_jammy"
-    ironic_inspector_db_sync: "quay.io/rackspace/rackerlabs-ironic-inspector:2024.1-ubuntu_jammy"
-    dep_check: "quay.io/rackspace/rackerlabs-kubernetes-entrypoint:latest-ubuntu_jammy"
-    image_repo_sync: "quay.io/rackspace/rackerlabs-docker:17.07.0"
+    ironic_inspector: "ghcr.io/rackerlabs/genestack-images/ironic-inspector:2024.1-latest"
+    ironic_inspector_db_sync: "ghcr.io/rackerlabs/genestack-images/ironic-inspector:2024.1-latest"
+    dep_check: "ghcr.io/rackerlabs/genestack-images/kubernetes-entrypoint:latest"
+    image_repo_sync: null
   pull_policy: "IfNotPresent"
 
 conf:
   ironic:
     DEFAULT:
       log_config_append: /etc/ironic/logging.conf
-      tempdir: /var/lib/openstack-helm/tmp # Matches openstack-helm default
+      tempdir: /tmp
       default_deploy_interface: "direct"
-      default_inspect_interface: "inspector"
+      default_inspect_interface: "agent"
       default_network_interface: "neutron"
       enabled_hardware_types: "ipmi,redfish"
       enabled_boot_interfaces: "pxe,ipxe"
       enabled_deploy_interfaces: "direct,ramdisk"
-      enabled_inspect_interfaces: "inspector,no-inspect"
+      enabled_inspect_interfaces: "agent,no-inspect,redfish"
       enabled_management_interfaces: "ipmitool,redfish"
+      enabled_network_interfaces: "flat,neutron"
       enabled_power_interfaces: "ipmitool,redfish"
       enabled_raid_interfaces: "no-raid"
     database:
@@ -75,7 +76,7 @@ conf:
       rabbit_interval_max: 10
       heartbeat_rate: 3
       heartbeat_timeout_threshold: 60
-      heartbeat_in_pthread: True # Note: Deprecation warning for 2024.2
+      heartbeat_in_pthread: true # Note: Deprecation warning for 2024.2
       kombu_reconnect_delay: 0.5
     pxe:
       pxe_append_params: "nofb nomodeset vga=normal ipa-debug=1"
@@ -86,6 +87,8 @@ conf:
       pxe_bootfile_name: "undionly.kpxe"
       uefi_pxe_bootfile_name: "ipxe.efi"
       ipxe_enabled: true
+    service_catalog:
+      valid_interfaces: public
   ironic_inspector:
     DEFAULT:
       processing_hooks: "$processing.default_hooks,ramdisk_error"
@@ -102,15 +105,41 @@ network:
   backend:
     - ovn
   pxe:
-    device: ironic-pxe
-    neutron_network_name: baremetal
-    neutron_subnet_name: baremetal
-    neutron_provider_network: ironic
+    device: br-host
+    neutron_network_name: baremetal-provisioning-network
+    neutron_subnet_name: baremetal-provisioning-network
+    neutron_provider_network: physnet2
     neutron_subnet_gateway: 172.24.6.1/24
     neutron_subnet_cidr: 172.24.6.0/24
     neutron_subnet_alloc_start: 172.24.6.100
     neutron_subnet_alloc_end: 172.24.6.200
     neutron_subnet_dns_nameserver: 8.8.8.8 # Aligned with Neutron's OVN DNS
+
+bootstrap:
+  image:
+    enabled: true
+    openstack:
+      enabled: true
+      ks_user: ironic
+    # NOTE: if source_base is null the source will be used as is
+    source_base: http://tarballs.openstack.org/ironic-python-agent/tinyipa/files
+    structured:
+      ironic-agent.initramfs:
+        source: tinyipa-stable-2024.1.gz
+        disk_format: ari
+        container_format: ari
+      ironic-agent.kernel:
+        source: tinyipa-stable-2024.1.vmlinuz
+        disk_format: aki
+        container_format: aki
+  network:
+    enabled: false
+    openstack:
+      enabled: false
+  object_store:
+    enabled: false
+    openstack:
+      enabled: false
 
 dependencies:
   static:
@@ -119,8 +148,6 @@ dependencies:
         - ironic-db-sync
         - ironic-ks-user
         - ironic-ks-endpoints
-        - ironic-manage-cleaning-network
-        - ironic-rabbit-init
       services:
         - endpoint: internal
           service: oslo_db
@@ -133,8 +160,6 @@ dependencies:
         - ironic-db-sync
         - ironic-ks-user
         - ironic-ks-endpoints
-        - ironic-manage-cleaning-network
-        - ironic-rabbit-init
       services:
         - endpoint: internal
           service: oslo_db
@@ -233,12 +258,12 @@ manifests:
   ingress_api: false
   job_bootstrap: false
   job_db_drop: false
-  job_db_init: true
+  job_db_init: false
   job_db_sync: true
   job_ks_endpoints: true
   job_ks_service: true
   job_ks_user: true
-  job_manage_cleaning_network: true
-  job_rabbit_init: true
+  job_manage_cleaning_network: false
+  job_rabbit_init: false
   service_ingress_api: false
   statefulset_conductor: true

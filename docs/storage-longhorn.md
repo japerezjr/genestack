@@ -74,6 +74,23 @@ For additional customization, you can review the full list of supported values i
 kubectl apply -f /etc/genestack/manifests/longhorn/longhorn-namespace.yaml
 ```
 
+### Talos Linux Deployment Preparation
+
+If you are using a Talos Linux cluster, you will need to ensure that the Machine Configurations for the Talos Cluster are configured with additional data path mounts:
+
+``` yaml
+machine:
+  kubelet:
+    extraMounts:
+      - destination: /var/lib/longhorn
+        type: bind
+        source: /var/lib/longhorn
+        options:
+          - bind
+          - rshared
+          - rw
+```
+
 ### Run the Deployment
 
 With your values file in place, you can now deploy Longhorn using the `/opt/genestack/bin/install-longhorn.sh`
@@ -178,6 +195,24 @@ kubectl apply -f /etc/genestack/manifests/longhorn/longhorn-general-storageclass
 ```
 
 With the `general` StorageClass in place, you can now create PVCs that reference it to dynamically provision Longhorn volumes with the desired settings.
+
+### General Multi Attach StorageClass
+
+For the purposes of Genestack, it is recommended that you create the `general-multi-attach` StorageClass to avoid deployment confusion.
+
+!!! example "longhorn-general-multi-attach-storageclass.yaml"
+
+    ``` yaml
+    --8<-- "manifests/longhorn/longhorn-general-multi-attach-storageclass.yaml"
+    ```
+
+Apply the general-multi-attach storage class manifest to create the StorageClass.
+
+``` shell
+kubectl apply -f /etc/genestack/manifests/longhorn/longhorn-general-multi-attach-storageclass.yaml
+```
+
+With the `general-multi-attach` StorageClass in place, you can now create PVCs that reference it to dynamically provision Longhorn volumes with the desired settings.
 
 ### (Optional) Create an Encrypted StorageClass
 

@@ -47,11 +47,23 @@ mysqldump --host=$(kubectl -n openstack get service mariadb-cluster -o jsonpath=
 
 Run the `/opt/genestack/bin/backup-mariadb.sh` script to dump all databases as individual files in `~/backup/mariadb/$(date +%s)`.
 
-??? example "Database Backup Script: `/opt/genestack/bin/backup-mariadb.sh`"
+??? example "Database Backup Script: `/opt/genestack/scripts/backup-mariadb.sh`"
 
     ``` shell
-    --8<-- "bin/backup-mariadb.sh"
+    --8<-- "scripts/backup-mariadb.sh"
     ```
+
+### Automated All Database Backups
+
+The MariaDB Operator automatically creates backups of all databases in the cluster every 6 hours. These backups are stored in the `mariadb-backup` Persistent Volume Claim (PVC) or within a target object storage, depending on your configuration.
+
+It is possible to trigger a manual backup using the automated backup cron job by creating a `Backup` resource. This will create a new backup with the current timestamp.
+
+``` shell
+kubectl -n openstack create job --from=cronjob/mariadb-backup mariadb-backup-$(date +%s)
+```
+
+This command will create a job that runs the backup process immediately, creating a new backup in the same storage location as the automated backups.
 
 ### Individual Database Restores
 
@@ -146,7 +158,7 @@ for more information.
     maria-restore   True       Success   mariadb-cluster   26s
     ```
 
-## Fixing Replication
+## Fixing Master-Slave Replication
 
 The MariaDB Operator can handle most cluster issues automatically, but
 sometimes you’ll need to roll up your sleeves and step in to fix things.
@@ -178,7 +190,7 @@ replication again on the busted pod.
     kubectl -n openstack cp /home/ubuntu/backups/mariadb-cluster-1.sql mariadb-cluster-0:/tmp/mariadb-cluster-1.sql
     ```
 
-4. Restore the backup, depending on its contents it may take a while, be 
+4. Restore the backup, depending on its contents it may take a while, be
    patient.
 
     ``` shell
@@ -204,10 +216,10 @@ Identify master log file and position from the backup file:
 
 ###  Update and Restart Slave
 
-1. Change the values in the following command to include the master log file 
-   and position from your previous grep result, making sure to also replace the 
-   master password value with the one from your cluster along with the real 
-   MASTER_HOST from your environment, then execute it on the broken slave 
+1. Change the values in the following command to include the master log file
+   and position from your previous grep result, making sure to also replace the
+   master password value with the one from your cluster along with the real
+   MASTER_HOST from your environment, then execute it on the broken slave
    pod (in our example, that is mariadb-cluster-0).
 
     ``` shell
@@ -231,9 +243,9 @@ Identify master log file and position from the backup file:
     SHOW ALL REPLICAS STATUS\G
     ```
 
-4. Wait for replication to be caught up, then kill the slave pod. We are 
-   doing this to ensure it comes back online as expected (the operator should 
-   automatically execute CHANGE MASTER for mariadb-operator on the slave). 
+4. Wait for replication to be caught up, then kill the slave pod. We are
+   doing this to ensure it comes back online as expected (the operator should
+   automatically execute CHANGE MASTER for mariadb-operator on the slave).
    When the pod has started; logs should contain something like the following:
 
     ``` text
@@ -244,3 +256,47 @@ Identify master log file and position from the backup file:
     2025-01-28 22:22:55 64 [Note] Master 'mariadb-operator': Slave SQL thread initialized, starting replication in log 'FIRST' at position 4, relay log './mariadb-cluster-relay-bin-mariadb@002doperator.000001' position: 4; GTID position '0-11-638858622'
     2025-01-28 22:22:55 63 [Note] Master 'mariadb-operator': Slave I/O thread: connected to master 'repl@mariadb-cluster-1.mariadb-cluster-internal.openstack.svc.cluster.local:3306',replication starts at GTID position '0-11-638858622'
     ```
+
+## Switching from master/slave replication to galera replication mode
+
+In case the mariadb cluster was originially setup using master/slave
+replication, a switch to galera replication is only possible with a fresh bootstrapped cluster.
+The procedure below will rebuild the entire database and restore the database from
+the most recent backup.
+
+!!! warning
+    Please ensure that you create a database backup before deleting the cluster
+    and that your mariadb operator is running with the version 0.38.1 and higher [see pr #1250](https://github.com/rackerlabs/genestack/pull/1250),
+    before switching the replication mode. Otherwise no automatic failover will work for the galera cluster.
+
+    Check the operator versions with
+    ``` shell
+    kubectl -n mariadb-system get pods -o="custom-columns=NAME:.spec.containers[0].name,IMAGE:.spec.containers[0].image"
+    ```
+
+``` shell
+# Delete the database and persistent volumes
+kubectl -n openstack delete mariadb/mariadb-cluster
+kubectl -n openstack delete pvc -l app.kubernetes.io/instance=mariadb-cluster
+
+# Rebuild the cluster with galera replication
+kubectl -n openstack apply -k /etc/genestack/kustomize/mariadb-cluster/galera
+
+kubectl -n openstack wait mariadb mariadb-cluster --for=condition=Ready
+
+# Restore the database from the last backup
+kubectl -n openstack apply -f - <<EOT
+apiVersion: k8s.mariadb.com/v1alpha1
+kind: Restore
+metadata:
+  name: restore-mariadb
+spec:
+  mariaDbRef:
+    name: mariadb-cluster
+  backupRef:
+    name: mariadb-backup
+EOT
+
+# Delete the restore job
+kubectl -n openstack delete restore/restore-mariadb
+```

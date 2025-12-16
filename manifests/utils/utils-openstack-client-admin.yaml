@@ -6,8 +6,8 @@ metadata:
 spec:
   restartPolicy: Always
   containers:
-    - name: "image-ks-service-registration"
-      image: docker.io/openstackhelm/heat:2023.1-ubuntu_jammy
+    - name: "openstack-admin-client"
+      image: ghcr.io/rackerlabs/genestack-images/openstack-client:latest
       imagePullPolicy: IfNotPresent
       command:
         - sleep

@@ -1,43 +1,37 @@
 ---
 images:
   tags:
-    bootstrap: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    db_drop: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    db_init: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    dep_check: "quay.io/rackspace/rackerlabs-kubernetes-entrypoint:latest-ubuntu_jammy"
-    image_repo_sync: "quay.io/rackspace/rackerlabs-docker:17.07.0"
-    ks_endpoints: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    ks_service: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    ks_user: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    nova_api: "quay.io/rackspace/rackerlabs-nova-efi:2024.1-ubuntu_jammy-1737928811"
-    nova_archive_deleted_rows: "quay.io/rackspace/rackerlabs-nova-efi:2024.1-ubuntu_jammy-1737928811"
-    nova_cell_setup: "quay.io/rackspace/rackerlabs-nova-efi:2024.1-ubuntu_jammy-1737928811"
-    nova_cell_setup_init: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    nova_compute: "quay.io/rackspace/rackerlabs-nova-efi:2024.1-ubuntu_jammy-1737928811"
-    nova_compute_ironic: "docker.io/kolla/ubuntu-source-nova-compute-ironic:wallaby"
-    nova_compute_ssh: "quay.io/rackspace/rackerlabs-nova-efi:2024.1-ubuntu_jammy-1737928811"
-    nova_conductor: "quay.io/rackspace/rackerlabs-nova-efi:2024.1-ubuntu_jammy-1737928811"
-    nova_db_sync: "quay.io/rackspace/rackerlabs-nova-efi:2024.1-ubuntu_jammy-1737928811"
-    nova_novncproxy: "quay.io/rackspace/rackerlabs-nova-efi:2024.1-ubuntu_jammy-1737928811"
-    nova_novncproxy_assets: "quay.io/rackspace/rackerlabs-nova-efi:2024.1-ubuntu_jammy-1737928811"
-    nova_scheduler: "quay.io/rackspace/rackerlabs-nova-efi:2024.1-ubuntu_jammy-1737928811"
+    bootstrap: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    db_drop: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    db_init: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    dep_check: "ghcr.io/rackerlabs/genestack-images/kubernetes-entrypoint:latest"
+    image_repo_sync: null
+    ks_endpoints: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    ks_service: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    ks_user: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    nova_api: "ghcr.io/rackerlabs/genestack-images/nova:2024.1-latest"
+    nova_archive_deleted_rows: "ghcr.io/rackerlabs/genestack-images/nova:2024.1-latest"
+    nova_cell_setup: "ghcr.io/rackerlabs/genestack-images/nova:2024.1-latest"
+    nova_cell_setup_init: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    nova_compute: "ghcr.io/rackerlabs/genestack-images/nova:2024.1-latest"
+    nova_compute_ironic: "ghcr.io/rackerlabs/genestack-images/nova:2024.1-latest"
+    nova_compute_ssh: "ghcr.io/rackerlabs/genestack-images/nova:2024.1-latest"
+    nova_conductor: "ghcr.io/rackerlabs/genestack-images/nova:2024.1-latest"
+    nova_db_sync: "ghcr.io/rackerlabs/genestack-images/nova:2024.1-latest"
+    nova_novncproxy: "ghcr.io/rackerlabs/genestack-images/nova:2024.1-latest"
+    nova_novncproxy_assets: "ghcr.io/rackerlabs/genestack-images/nova:2024.1-latest"
+    nova_scheduler: "ghcr.io/rackerlabs/genestack-images/nova:2024.1-latest"
     nova_service_cleaner: "quay.io/rackspace/rackerlabs-ceph-config-helper:latest-ubuntu_jammy"
-    nova_spiceproxy: "quay.io/rackspace/rackerlabs-nova-efi:2024.1-ubuntu_jammy-1737928811"
-    nova_spiceproxy_assets: "quay.io/rackspace/rackerlabs-nova-efi:2024.1-ubuntu_jammy-1737928811"
+    nova_spiceproxy: "ghcr.io/rackerlabs/genestack-images/nova:2024.1-latest"
+    nova_spiceproxy_assets: "ghcr.io/rackerlabs/genestack-images/nova:2024.1-latest"
     nova_storage_init: "quay.io/rackspace/rackerlabs-ceph-config-helper:latest-ubuntu_jammy"
     nova_wait_for_computes_init: "quay.io/rackspace/rackerlabs-hyperkube-amd64:v1.11.6"
-    rabbit_init: "quay.io/rackspace/rackerlabs-rabbitmq:3.13-management"
-    test: "quay.io/rackspace/rackerlabs-xrally-openstack:2.0.0"
+    rabbit_init: null
+    test: null
 
 network:
   backend:
     - ovn
-  lifecycle:
-    upgrades:
-      daemonsets:
-        compute:
-          enabled: true
-          max_unavailable: 20%
   ssh:
     enabled: true
 
@@ -83,13 +77,13 @@ dependencies:
         - nova-db-sync
 
 conf:
-  ceph:
-    enabled: false
   logging:
     logger_root:
       handlers:
         - stdout
       level: INFO
+  ceph:
+    enabled: false
   nova:
     DEFAULT:
       block_device_allocate_retries: 180
@@ -106,6 +100,9 @@ conf:
       vif_plugging_timeout: 300
       cross_az_attach: true
       network_allocate_retries: 3
+    api:
+      vendordata_providers: ['StaticJSON']
+      vendordata_jsonfile_path: /etc/nova/vendor_data.json
     api_database:
       connection_debug: 0
       connection_recycle_time: 600
@@ -137,6 +134,9 @@ conf:
       use_db_reconnect: true
       pool_timeout: 60
       max_retries: -1
+    filter_scheduler:
+      available_filters: blazarnova.scheduler.filters.blazar_filter.BlazarFilter
+      enabled_filters: BlazarFilter
     glance:
       num_retries: 8
     key_manager:
@@ -150,9 +150,7 @@ conf:
       service_type: compute
     libvirt:
       cpu_mode: host-model
-      max_queues: 8
       num_pcie_ports: 16
-      volume_use_multipath: false
     os_vif_ovs:
       ovsdb_connection: "tcp:127.0.0.1:6640"
     oslo_messaging_rabbit:
@@ -168,12 +166,12 @@ conf:
       heartbeat_rate: 3
       heartbeat_timeout_threshold: 60
       # NOTE (deprecation warning) heartbeat_in_pthread will be deprecated in 2024.2
-      heartbeat_in_pthread: True
+      heartbeat_in_pthread: true
       # Setting lower kombu_reconnect_delay should resolve issue with HA failing when one node is down
       # https://lists.openstack.org/pipermail/openstack-discuss/2023-April/033314.html
       # https://review.opendev.org/c/openstack/oslo.messaging/+/866617
       kombu_reconnect_delay: 0.5
-    schedule:
+    scheduler:
       workers: 2
     workarounds:
       skip_cpu_compare_at_startup: false
@@ -283,6 +281,30 @@ endpoints:
 # hyperconverged lab (/scripts/hyperconverged-lab.sh).
 # limit values based on defaults from the openstack-helm charts unless defined
 pod:
+  lifecycle:
+    upgrades:
+      deployments:
+        revision_history: 3
+        pod_replacement_strategy: RollingUpdate
+        rolling_update:
+          max_unavailable: 20%
+          max_surge: 3
+      daemonsets:
+        pod_replacement_strategy: RollingUpdate
+        compute:
+          enabled: true
+          min_ready_seconds: 0
+          max_unavailable: 20%
+    disruption_budget:
+      metadata:
+        min_available: 0
+      osapi:
+        min_available: 0
+    termination_grace_period:
+      metadata:
+        timeout: 60
+      osapi:
+        timeout: 60
   resources:
     enabled: true
     compute:
@@ -296,19 +318,13 @@ pod:
       requests:
         memory: "384Mi"
         cpu: "300m"
-      limits:
-        memory: "1024Mi"
-        cpu: "2000m"
+      limits: {}
     ssh:
-      requests:
-        memory: "512Mi"
-        cpu: "200m"
-      limits:
-        memory: "4096Mi"
-        cpu: "4000m"
+      requests: {}
+      limits: {}
     api:
       requests:
-        memory: "640Mi"
+        memory: "512Mi"
         cpu: "500m"
       limits: {}
     conductor:
@@ -335,6 +351,43 @@ pod:
           readOnlyRootFilesystem: false
   use_fqdn:
     compute: false
+  mounts:
+    nova_compute:
+      init_container: null
+      nova_compute:
+        volumeMounts:
+          - name: metadata-api-static-vendordata
+            mountPath: /etc/nova/vendor_data.json
+            subPath: vendor_data.json
+            readOnly: true
+        volumes:
+          - name: metadata-api-static-vendordata
+            configMap:
+              name: static-vendor-data
+    nova_compute_ironic:
+      init_container: null
+      nova_compute_ironic:
+        volumeMounts:
+          - name: metadata-api-static-vendordata
+            mountPath: /etc/nova/vendor_data.json
+            subPath: vendor_data.json
+            readOnly: true
+        volumes:
+          - name: metadata-api-static-vendordata
+            configMap:
+              name: static-vendor-data
+    nova_api_metadata:
+      init_container: null
+      nova_api_metadata:
+        volumeMounts:
+          - name: metadata-api-static-vendordata
+            mountPath: /etc/nova/vendor_data.json
+            subPath: vendor_data.json
+            readOnly: true
+        volumes:
+          - name: metadata-api-static-vendordata
+            configMap:
+              name: static-vendor-data
 
 manifests:
   deployment_spiceproxy: false
@@ -352,3 +405,4 @@ manifests:
   service_ingress_osapi: false
   service_ingress_spiceproxy: false
   service_spiceproxy: false
+  statefulset_compute_ironic: false

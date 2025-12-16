@@ -42,6 +42,7 @@ kubectl label node -l beta.kubernetes.io/os=linux kubernetes.io/os=linux
 kubectl label node -l node-role.kubernetes.io/control-plane kube-ovn/role=master
 kubectl label node -l ovn.kubernetes.io/ovs_dp_type!=userspace ovn.kubernetes.io/ovs_dp_type=kernel
 kubectl label node -l node-role.kubernetes.io/control-plane longhorn.io/storage-node=enabled
+kubectl label node --all node.kubernetes.io/exclude-from-external-load-balancers-
 
 if ! kubectl taint nodes -l node-role.kubernetes.io/control-plane node-role.kubernetes.io/control-plane:NoSchedule-; then
   echo "Taint already removed"
@@ -121,7 +122,7 @@ sed -i 's/numberOfReplicas.*/numberOfReplicas: "'"${LONGHORN_STORAGE_REPLICAS:-2
 kubectl apply -f /etc/genestack/manifests/longhorn/longhorn-general-storageclass.yaml
 
 # Deploy prometheus
-/opt/genestack/bin/install-prometheus.sh
+/opt/genestack/bin/install-kube-prometheus-stack.sh
 
 # Deploy metallb
 kubectl apply -f /etc/genestack/manifests/metallb/metallb-namespace.yaml
@@ -135,9 +136,9 @@ kubectl apply -k /etc/genestack/kustomize/openstack/base
 
 # Deploy envoy
 /opt/genestack/bin/install-envoy-gateway.sh
-echo "Waiting for the envoy-gateway to be available"
+echo "Waiting for the envoyproxy-gateway to be available"
 kubectl -n envoyproxy-gateway-system wait --timeout=5m deployments.apps/envoy-gateway --for=condition=available
-GATEWAY_DOMAIN="${GATEWAY_DOMAIN}" ACME_EMAIL="${ACME_EMAIL}" /opt/genestack/bin/setup-envoy-gateway.sh
+/opt/genestack/bin/setup-envoy-gateway.sh -e ${ACME_EMAIL} -d ${GATEWAY_DOMAIN}
 
 # Run a rollout for cert-manager
 echo "Waiting for the cert-manager to be available"
@@ -149,23 +150,36 @@ if ! kubectl create -f /etc/genestack/kubesecrets.yaml; then
   echo "Secrets already created"
 fi
 
+/opt/genestack/bin/create-skyline-secrets.sh
+if ! kubectl create -f /etc/genestack/skylinesecrets.yaml; then
+  echo "Skyline secrets already created"
+fi
+
 # Deploy mariadb
 /opt/genestack/bin/install-mariadb-operator.sh
+echo "Waiting for the mariadb-operator-webhook to be available"
 if ! kubectl -n mariadb-system wait --timeout=1m deployments.apps mariadb-operator-webhook --for=condition=available; then
   echo "Recycling the mariadb-operator pods because sometimes they're stupid"
   kubectl -n mariadb-system get pods -o name | xargs kubectl -n mariadb-system delete
   kubectl -n mariadb-system wait --timeout=5m deployments.apps mariadb-operator-webhook --for=condition=available
 fi
 
-echo "Waiting for the mariadb-operator-webhook to be available"
 kubectl -n openstack apply -k /etc/genestack/kustomize/mariadb-cluster/overlay
 
-# Deploy rabbitmq
-kubectl apply -k /etc/genestack/kustomize/rabbitmq-operator/base
-kubectl apply -k /etc/genestack/kustomize/rabbitmq-topology-operator/base
-echo "Waiting for the rabbitmq-cluster-operator to be available"
-kubectl -n rabbitmq-system wait --timeout=5m deployments.apps rabbitmq-cluster-operator --for=condition=available
-kubectl apply -k /etc/genestack/kustomize/rabbitmq-cluster/overlay
+function create_rabbitmq() {
+  # Deploy rabbitmq
+  kubectl apply -k /etc/genestack/kustomize/rabbitmq-operator/base
+  kubectl apply -k /etc/genestack/kustomize/rabbitmq-topology-operator/base
+  echo "Waiting for the rabbitmq-cluster-operator to be available"
+  kubectl -n rabbitmq-system wait --timeout=5m deployments.apps rabbitmq-cluster-operator --for=condition=available
+  kubectl apply -k /etc/genestack/kustomize/rabbitmq-cluster/overlay
+}
+
+if ! create_rabbitmq; then
+  echo "Recycling the rabbitmq-cluster create because sometimes it is stupid"
+  sleep 5
+  create_rabbitmq
+fi
 
 # Deploy ovn
 kubectl apply -k /etc/genestack/kustomize/ovn/base
@@ -175,3 +189,10 @@ kubectl apply -k /etc/genestack/kustomize/ovn/base
 
 # Deploy libvirt
 /opt/genestack/bin/install-libvirt.sh
+
+# Deploy Redis operator and replication cluster
+/opt/genestack/bin/install-redis-operator.sh
+
+# Deploy Redis Sentinel
+/opt/genestack/bin/install-redis-sentinel.sh
+

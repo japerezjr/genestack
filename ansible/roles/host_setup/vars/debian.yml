@@ -41,8 +41,8 @@ _host_distro_packages:
   - apt-utils
   - bridge-utils
   - cgroup-tools
-  - curl
   - cryptsetup
+  - curl
   - dmeventd
   - dstat
   - ebtables
@@ -50,12 +50,13 @@ _host_distro_packages:
   - iptables
   - irqbalance
   - libkmod2
+  - lldpd
+  - lsscsi
   - lvm2
   - nfs-client
   - nvme-cli
   - open-iscsi
   - rsync
-  - software-properties-common
   - sysstat
   - systemd-timesyncd
   - time
@@ -65,3 +66,5 @@ _host_distro_packages:
 _hosts_package_list:
   - name: ca-certificates
     state: latest
+
+host_lvm_devices_filter_override: []

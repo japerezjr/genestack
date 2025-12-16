@@ -137,6 +137,17 @@
   retries: 5
   delay: 2
 
+# NOTE(cloudnull): This configuration will ensure that LLDP is working on all interfaces
+#                  except our overlay and tenant networks.
+- name: Create base LLDPD configuration
+  ansible.builtin.copy:
+    content: |
+      DAEMON_ARGS="-c -I *,!tap*,!ovn*,!genev*,!mirror*,!o-hm*"
+    dest: /etc/default/lldpd
+    mode: "0644"
+  notify:
+    - Restart lldpd
+
 - name: Ensure timesyncd is running
   ansible.builtin.service:
     name: systemd-timesyncd
@@ -150,3 +161,12 @@
     dest: /etc/systemd/timesyncd.conf
     mode: "0644"
   notify: Reload systemd-timesyncd
+
+- name: Configure custom multipath.conf
+  ansible.builtin.include_tasks: custom_multipath.yml
+
+- name: Configure custom lvm.conf
+  ansible.builtin.include_tasks: lvm_config.yml
+
+- name: Install RAID controller CLI tools
+  ansible.builtin.include_tasks: raid_cli_tools.yml

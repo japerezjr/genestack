@@ -1,37 +1,40 @@
 ---
 images:
   tags:
-    bootstrap: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    db_init: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    db_drop: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    ks_user: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    ks_service: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    ks_endpoints: "quay.io/rackspace/rackerlabs-heat:2024.1-ubuntu_jammy"
-    neutron_db_sync: "quay.io/rackspace/rackerlabs-neutron:2024.1-ubuntu_jammy"
-    neutron_dhcp: "quay.io/rackspace/rackerlabs-neutron:2024.1-ubuntu_jammy"
-    neutron_l3: "quay.io/rackspace/rackerlabs-neutron:2024.1-ubuntu_jammy"
-    neutron_l2gw: "quay.io/rackspace/rackerlabs-neutron:2024.1-ubuntu_jammy"
-    neutron_linuxbridge_agent: "quay.io/rackspace/rackerlabs-neutron:2024.1-ubuntu_jammy"
-    neutron_metadata: "quay.io/rackspace/rackerlabs-neutron:2024.1-ubuntu_jammy"
-    neutron_ovn_metadata: "quay.io/rackspace/rackerlabs-neutron:2024.1-ubuntu_jammy"
-    neutron_ovn_vpn: "quay.io/rackspace/rackerlabs-neutron:2024.1-ubuntu_jammy"
-    neutron_openvswitch_agent: "quay.io/rackspace/rackerlabs-neutron:2024.1-ubuntu_jammy"
-    neutron_server: "quay.io/rackspace/rackerlabs-neutron:2024.1-ubuntu_jammy"
-    neutron_rpc_server: "quay.io/rackspace/rackerlabs-neutron:2024.1-ubuntu_jammy"
-    neutron_bagpipe_bgp: "quay.io/rackspace/rackerlabs-neutron:2024.1-ubuntu_jammy"
-    neutron_netns_cleanup_cron: "quay.io/rackspace/rackerlabs-neutron:2024.1-ubuntu_jammy"
-    test: "quay.io/rackspace/rackerlabs-xrally-openstack:2.0.0"
+    bootstrap: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    db_init: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    db_drop: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    ks_user: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    ks_service: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    ks_endpoints: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    neutron_db_sync: "ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest"
+    neutron_dhcp: "ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest"
+    neutron_l3: "ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest"
+    neutron_l2gw: "ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest"
+    neutron_linuxbridge_agent: "ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest"
+    neutron_metadata: "ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest"
+    neutron_ovn_metadata: "ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest"
+    neutron_ovn_vpn: "ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest"
+    neutron_openvswitch_agent: "ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest"
+    neutron_server: "ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest"
+    neutron_rpc_server: "ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest"
+    neutron_bagpipe_bgp: "ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest"
+    neutron_netns_cleanup_cron: "ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest"
+    test: null
     purge_test: "quay.io/rackspace/rackerlabs-ospurge:latest"
-    rabbit_init: "quay.io/rackspace/rackerlabs-rabbitmq:3.13-management"
-    netoffload: "quay.io/rackspace/rackerlabs-netoffload:v1.0.1"
-    neutron_sriov_agent: "quay.io/rackspace/rackerlabs-neutron:2024.1-ubuntu_jammy"
-    neutron_sriov_agent_init: "quay.io/rackspace/rackerlabs-neutron:2024.1-ubuntu_jammy"
-    neutron_bgp_dragent: "quay.io/rackspace/rackerlabs-neutron:2024.1-ubuntu_jammy"
-    neutron_ironic_agent: "quay.io/rackspace/rackerlabs-neutron:2024.1-ubuntu_jammy"
-    dep_check: "quay.io/rackspace/rackerlabs-kubernetes-entrypoint:latest-ubuntu_jammy"
-    image_repo_sync: "quay.io/rackspace/rackerlabs-docker:17.07.0"
+    rabbit_init: null
+    netoffload: null
+    neutron_sriov_agent: "ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest"
+    neutron_sriov_agent_init: "ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest"
+    neutron_bgp_dragent: "ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest"
+    neutron_ironic_agent: "ghcr.io/rackerlabs/genestack-images/neutron:2024.1-latest"
+    dep_check: "ghcr.io/rackerlabs/genestack-images/kubernetes-entrypoint:latest"
+    image_repo_sync: null
 
 labels:
+  agent:
+    ovn_vpn:
+      node_selector_key: openstack-network-node
   ovs:
     node_selector_key: openstack-network-node
 
@@ -52,6 +55,8 @@ dependencies:
     metadata:
       jobs: null
     ovn_metadata:
+      pod: []
+    ovn_vpn_agent:
       pod: []
     ovs_agent:
       jobs: null
@@ -86,6 +91,83 @@ pod:
         cpu: "3000m"
   use_fqdn:
     neutron_agent: false
+  lifecycle:
+    upgrades:
+      deployments:
+        revision_history: 3
+        pod_replacement_strategy: RollingUpdate
+        rolling_update:
+          max_unavailable: 20%
+          max_surge: 3
+      daemonsets:
+        pod_replacement_strategy: RollingUpdate
+        dhcp_agent:
+          enabled: true
+          min_ready_seconds: 0
+          max_unavailable: 20%
+        l3_agent:
+          enabled: true
+          min_ready_seconds: 0
+          max_unavailable: 20%
+        lb_agent:
+          enabled: true
+          min_ready_seconds: 0
+          max_unavailable: 20%
+        metadata_agent:
+          enabled: true
+          min_ready_seconds: 0
+          max_unavailable: 20%
+        ovn_metadata_agent:
+          enabled: true
+          min_ready_seconds: 0
+          max_unavailable: 20%
+        ovn_vpn_agent:
+          enabled: true
+          min_ready_seconds: 0
+          max_unavailable: 20%
+        ovs_agent:
+          enabled: true
+          min_ready_seconds: 0
+          max_unavailable: 20%
+        sriov_agent:
+          enabled: true
+          min_ready_seconds: 0
+          max_unavailable: 20%
+        netns_cleanup_cron:
+          enabled: true
+          min_ready_seconds: 0
+          max_unavailable: 20%
+    disruption_budget:
+      server:
+        min_available: 0
+    termination_grace_period:
+      server:
+        timeout: 60
+      rpc_server:
+        timeout: 60
+      ironic_agent:
+        timeout: 60
+  mounts:
+    neutron_server:
+      neutron_server:
+        volumes:
+          - name: ovn-tls
+            secret:
+              secretName: ovn-client-tls
+        volumeMounts:
+          - name: ovn-tls
+            mountPath: /etc/neutron/ovn
+            readOnly: true
+    neutron_ovn_metadata_agent:
+      neutron_ovn_metadata_agent:
+        volumes:
+          - name: ovn-tls
+            secret:
+              secretName: ovn-client-tls
+        volumeMounts:
+          - name: ovn-tls
+            mountPath: /etc/neutron/ovn
+            readOnly: true
 
 conf:
   dhcp_agent:
@@ -111,8 +193,21 @@ conf:
       router_scheduler_driver: neutron.scheduler.l3_agent_scheduler.AZLeastRoutersScheduler
       rpc_state_report_workers: 2
       rpc_workers: 2
-      service_plugins: "ovn-router,qos,metering,trunk,segments"
+      # NOTE(cloudnull): in 2025.1 we can add firewall_v2
+      service_plugins: "ovn-router,ovn-vpnaas,qos,metering,trunk,segments"
+    service_providers:
+      service_provider:
+        type: multistring
+        values:
+          - "VPN:strongswan:neutron_vpnaas.services.vpn.service_drivers.ovn_ipsec.IPsecOvnVPNDriver:default"
+          # - "FIREWALL_V2:fwaas_db:neutron_fwaas.services.firewall.service_drivers.ovn.firewall_l3_driver.OVNFwaasDriver:default"
+    fwaas:
+      agent_version: v2
+      driver: neutron_fwaas.services.firewall.service_drivers.ovn.firewall_l3_driver.OVNFwaasDriver
+      # NOTE(cloudnull): in 2025.1 we can enable this
+      enabled: false
     agent:
+      extensions: vpnaas,metadata
       availability_zone: az1
     database:
       connection_debug: 0
@@ -121,6 +216,8 @@ conf:
       idle_timeout: 3600
       mysql_sql_mode: {}
       use_db_reconnect: true
+      max_pool_size: 30
+      max_overflow: 60
       pool_timeout: 60
       max_retries: -1
     oslo_messaging_rabbit:
@@ -136,7 +233,7 @@ conf:
       heartbeat_rate: 3
       heartbeat_timeout_threshold: 60
       # NOTE (deprecation warning) heartbeat_in_pthread will be deprecated in 2024.2
-      heartbeat_in_pthread: True
+      heartbeat_in_pthread: true
       # Setting lower kombu_reconnect_delay should resolve issue with HA failing when one node is down
       # https://lists.openstack.org/pipermail/openstack-discuss/2023-April/033314.html
       # https://review.opendev.org/c/openstack/oslo.messaging/+/866617
@@ -149,6 +246,13 @@ conf:
       ovn_l3_scheduler: leastloaded
       ovn_nb_connection: "tcp:127.0.0.1:6641"
       ovn_sb_connection: "tcp:127.0.0.1:6642"
+    metadata_rate_limiting:
+      rate_limit_enabled: true
+      ip_versions: 4
+      base_window_duration: 60
+      base_query_rate_limit: 60
+      burst_window_duration: 10
+      burst_query_rate_limit: 30
   neutron_api_uwsgi:
     uwsgi:
       processes: 2
@@ -160,11 +264,24 @@ conf:
       metadata_workers: 2
     ovs:
       ovsdb_connection: "tcp:127.0.0.1:6640"
+    ovn:
+      ovn_nb_private_key: /etc/neutron/ovn/key
+      ovn_nb_certificate: /etc/neutron/ovn/cert
+      ovn_nb_ca_cert: /etc/neutron/ovn/cacert
+      ovn_sb_private_key: /etc/neutron/ovn/key
+      ovn_sb_certificate: /etc/neutron/ovn/cert
+      ovn_sb_ca_cert: /etc/neutron/ovn/cacert
+  ovn_vpn_agent:
+    ovs:
+      ovsdb_connection: "tcp:127.0.0.1:6640"
   plugins:
     ml2_conf:
       agent:
         availability_zone: az1
+        # NOTE(cloudnull): in 2025.1 we can add fwaas_v2
         extensions: "fip_qos,gateway_ip_qos"
+      fwaas:
+        firewall_l2_driver: noop
       ml2:
         extension_drivers: "port_security,qos"
         mechanism_drivers: ovn
@@ -180,6 +297,13 @@ conf:
         ovn_metadata_enabled: true
         ovn_nb_connection: "tcp:127.0.0.1:6641"
         ovn_sb_connection: "tcp:127.0.0.1:6642"
+        ovn_nb_private_key: "/etc/neutron/ovn/key"
+        ovn_nb_certificate: "/etc/neutron/ovn/cert"
+        ovn_nb_ca_cert: "/etc/neutron/ovn/cacert"
+        ovn_sb_private_key: "/etc/neutron/ovn/key"
+        ovn_sb_certificate: "/etc/neutron/ovn/cert"
+        ovn_sb_ca_cert: "/etc/neutron/ovn/cacert"
+
     openvswitch_agent:
       agent:
         availability_zone: az1
@@ -257,6 +381,7 @@ manifests:
   daemonset_metadata_agent: false
   daemonset_ovn_metadata_agent: true
   daemonset_ovs_agent: false
+  daemonset_ovn_vpn_agent: true
   ingress_server: false
   job_db_init: false
   job_rabbit_init: false
@@ -265,3 +390,4 @@ manifests:
   secret_ingress_tls: false
   secret_rabbitmq: false
   service_ingress_server: false
+  deployment_rpc_server: false

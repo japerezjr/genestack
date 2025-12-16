@@ -1,11 +1,12 @@
+---
 apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: ironic-api
   namespace: openstack
-  spec:
+spec:
   maxReplicas: 9
-  minReplicas: 1
+  minReplicas: 2
   metrics:
     - resource:
         name: cpu

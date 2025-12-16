@@ -94,7 +94,6 @@ data:
       reclaim_instance_interval: 604800
       service_mapping:
         baremetal: ironic
-        block-storage: cinder
         compute: nova
         container: zun
         container-infra: magnum
@@ -110,6 +109,8 @@ data:
         orchestration: heat
         placement: placement
         sharev2: manilav2
+        volumev3: cinder
+        cloudformation: heat-cfn
       sso_enabled: false
       sso_protocols:
       - openid
@@ -123,6 +124,7 @@ data:
       system_user_domain: 'Default'
       system_user_name: ""
       system_user_password: ""
+      default_domain: 'Default'
     setting:
       base_settings:
       - flavor_families

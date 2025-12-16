@@ -6,8 +6,8 @@ resources:
 
 images:
   - name: keystone-shib
-    newName: ghcr.io/rackerlabs/keystone-rxt/shibd
-    newTag: "1747958286"
+    newName: ghcr.io/rackerlabs/genestack-images/shibd
+    newTag: "latest"
 
 patches:
   - target:
@@ -87,3 +87,10 @@ patches:
               - /var/run/shibboleth/shibd.sock
             initialDelaySeconds: 10
             periodSeconds: 10
+          resources:
+            limits:
+              cpu: "1"
+              memory: 256Mi
+            requests:
+              cpu: 100m
+              memory: 64Mi
