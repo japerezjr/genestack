@@ -1,4 +1,4 @@
-## @section Global parameters
+---
 ## Global Docker image parameters
 ## Please, note that this will override the image parameters, including dependencies, configured to use the global value
 ## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
@@ -8,6 +8,8 @@
 ## @param global.storageClass Global StorageClass for Persistent Volume(s)
 ##
 global:
+  security:
+    allowInsecureImages: true
   imageRegistry: ""
   ## E.g.
   ## imagePullSecrets:
@@ -67,8 +69,8 @@ diagnosticMode:
 ##
 image:
   registry: docker.io
-  repository: bitnami/memcached
-  tag: 1.6.33-debian-12-r0
+  repository: bitnamilegacy/memcached
+  tag: 1.6.39-debian-12-r1
   digest: ""
   ## Specify a imagePullPolicy
   ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
@@ -213,10 +215,12 @@ lifecycleHooks: {}
 ## @param resources.requests.cpu The requested cpu for the Memcached containers
 ##
 resources:
-  limits: {}
+  limits:
+    cpu: "2"
+    memory: 3Gi
   requests:
-    memory: 1G
-    cpu: 250m
+    cpu: 200m
+    memory: 2G
 ## Configure Pods Security Context
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
 ## @param podSecurityContext.enabled Enabled Memcached pods' Security Context
@@ -254,7 +258,8 @@ containerSecurityContext:
   readOnlyRootFilesystem: true
   allowPrivilegeEscalation: false
   capabilities:
-    drop: ["ALL"]
+    drop:
+      - ALL
   seccompProfile:
     type: "RuntimeDefault"
 ## @param automountServiceAccountToken Mount Service Account token in pod
@@ -303,19 +308,12 @@ nodeAffinityPreset:
 ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
 ## Note: podAffinityPreset, podAntiAffinityPreset, and nodeAffinityPreset will be ignored when it's set
 ##
-affinity:
-  nodeAffinity:
-    requiredDuringSchedulingIgnoredDuringExecution:
-      nodeSelectorTerms:
-        - matchExpressions:
-            - key: node-role.kubernetes.io/worker
-              operator: In
-              values:
-                - worker
+affinity: {}
 ## @param nodeSelector Node labels for pod assignment
 ## Ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/
 ##
-nodeSelector: {}
+nodeSelector:
+  openstack-control-plane: enabled
 ## @param tolerations Tolerations for pod assignment
 ## Ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
 ##
@@ -413,7 +411,7 @@ enableServiceLinks: true
 ##
 autoscaling:
   enabled: true
-  minReplicas: 3
+  minReplicas: 1
   maxReplicas: 6
   targetCPU: 50
   targetMemory: 50
@@ -622,7 +620,7 @@ volumePermissions:
   ##
   image:
     registry: docker.io
-    repository: bitnami/os-shell
+    repository: bitnamilegacy/os-shell
     tag: 12-debian-12-r34
     digest: ""
     pullPolicy: IfNotPresent
@@ -668,7 +666,7 @@ metrics:
   ##
   image:
     registry: docker.io
-    repository: bitnami/memcached-exporter
+    repository: bitnamilegacy/memcached-exporter
     tag: 0.15.0-debian-12-r3
     digest: ""
     pullPolicy: IfNotPresent
@@ -690,8 +688,12 @@ metrics:
   ## @param metrics.resources.requests Init container volume-permissions resource requests
   ##
   resources:
-    limits: {}
-    requests: {}
+    limits:
+      cpu: "2"
+      memory: 3Gi
+    requests:
+      cpu: 200m
+      memory: 2G
   ## Configure Metrics Container Security Context
   ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-container
   ## @param metrics.containerSecurityContext.enabled Enabled containers' Security Context
@@ -715,7 +717,8 @@ metrics:
     readOnlyRootFilesystem: true
     allowPrivilegeEscalation: false
     capabilities:
-      drop: ["ALL"]
+      drop:
+        - ALL
     seccompProfile:
       type: "RuntimeDefault"
   ## Configure extra options for Memcached Prometheus exporter containers' liveness, readiness and startup probes

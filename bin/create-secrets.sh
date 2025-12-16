@@ -2,7 +2,7 @@
 # shellcheck disable=SC2086
 
 usage() {
-    echo "Usage: $0 [--region <region> default: RegionOne]"
+    echo "Usage: $0 [--region <region [RegionOne]>"
     exit 1
 }
 
@@ -53,6 +53,9 @@ heat_stack_user_password=$(generate_password 32)
 cinder_rabbitmq_password=$(generate_password 64)
 cinder_db_password=$(generate_password 32)
 cinder_admin_password=$(generate_password 32)
+cloudkitty_rabbitmq_password=$(generate_password 64)
+cloudkitty_db_password=$(generate_password 32)
+cloudkitty_admin_password=$(generate_password 32)
 metadata_shared_secret_password=$(generate_password 32)
 placement_db_password=$(generate_password 32)
 placement_admin_password=$(generate_password 32)
@@ -66,11 +69,8 @@ designate_admin_password=$(generate_password 32)
 neutron_rabbitmq_password=$(generate_password 64)
 neutron_db_password=$(generate_password 32)
 neutron_admin_password=$(generate_password 32)
-horizon_secret_key_password=$(generate_password 64)
+horizon_secret_key=$(generate_password 64)
 horizon_db_password=$(generate_password 32)
-skyline_service_password=$(generate_password 32)
-skyline_db_password=$(generate_password 32)
-skyline_secret_key_password=$(generate_password 32)
 octavia_rabbitmq_password=$(generate_password 64)
 octavia_db_password=$(generate_password 32)
 octavia_admin_password=$(generate_password 32)
@@ -81,6 +81,14 @@ barbican_admin_password=$(generate_password 32)
 magnum_rabbitmq_password=$(generate_password 64)
 magnum_db_password=$(generate_password 32)
 magnum_admin_password=$(generate_password 32)
+masakari_rabbitmq_password=$(generate_password 64)
+masakari_db_password=$(generate_password 32)
+masakari_admin_password=$(generate_password 32)
+manila_rabbitmq_password=$(generate_password 64)
+manila_db_password=$(generate_password 32)
+manila_admin_password=$(generate_password 32)
+manila_ssh_public_key=$(ssh-keygen -qt ed25519 -N '' -C "manila_ssh" -f manila_ssh_key && cat manila_ssh_key.pub)
+manila_ssh_private_key=$(cat manila_ssh_key)
 postgresql_identity_admin_password=$(generate_password 32)
 postgresql_db_admin_password=$(generate_password 32)
 postgresql_db_exporter_password=$(generate_password 32)
@@ -91,11 +99,35 @@ gnocchi_pgsql_password=$(generate_password 32)
 ceilometer_keystone_admin_password=$(generate_password 32)
 ceilometer_keystone_test_password=$(generate_password 32)
 ceilometer_rabbitmq_password=$(generate_password 32)
+swift_rabbitmq_password=$(generate_password 32)
 memcached_shared_secret=$(generate_password 32)
 grafana_secret=$(generate_password 32)
 grafana_root_secret=$(generate_password 32)
+ironic_db_password=$(generate_password 32)
+ironic_rabbitmq_password=$(generate_password 32)
+blazar_rabbitmq_password=$(generate_password 64)
+blazar_db_password=$(generate_password 32)
+blazar_admin_password=$(generate_password 32)
+blazar_keystone_test_password=$(generate_password 32)
+freezer_db_password=$(generate_password 32)
+freezer_admin_password=$(generate_password 32)
+freezer_keystone_test_password=$(generate_password 32)
+freezer_keystone_service_password=$(generate_password 32)
+zaqar_signed_url_secret_key=$(generate_password 64)
+zaqar_rabbitmq_password=$(generate_password 64)
+zaqar_db_password=$(generate_password 32)
+zaqar_admin_password=$(generate_password 32)
+zaqar_keystone_test_password=$(generate_password 32)
 
 OUTPUT_FILE="/etc/genestack/kubesecrets.yaml"
+
+if [[ -f ${OUTPUT_FILE} ]]; then
+    echo "Error: ${OUTPUT_FILE} already exists. Please remove it before running this script."
+    echo "       This will replace an existing file and will lead to mass rotation, which is"
+    echo "       likely not what you want to do. If you really want to break your system, please"
+    echo "       make sure you know what you're doing."
+    exit 99
+fi
 
 cat <<EOF > $OUTPUT_FILE
 ---
@@ -251,6 +283,34 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
+  name: cloudkitty-rabbitmq-password
+  namespace: openstack
+type: Opaque
+data:
+  username: $(echo -n "cloudkitty" | base64)
+  password: $(echo -n $cloudkitty_rabbitmq_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cloudkitty-db-password
+  namespace: openstack
+type: Opaque
+data:
+  password: $(echo -n $cloudkitty_db_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: cloudkitty-admin
+  namespace: openstack
+type: Opaque
+data:
+  password: $(echo -n $cloudkitty_admin_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
   name: metadata-shared-secret
   namespace: openstack
 type: Opaque
@@ -306,12 +366,17 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
-  name: nova-ssh-keypair
+  name: nova-ssh
   namespace: openstack
+  annotations:
+    meta.helm.sh/release-name: nova
+    meta.helm.sh/release-namespace: openstack
+  labels:
+    app.kubernetes.io/managed-by: Helm
 type: Opaque
 data:
-  public_key: $(echo -n $nova_ssh_public_key | base64 -w0)
-  private_key: $(echo -n $nova_ssh_private_key | base64 -w0)
+  public-key: $(echo $nova_ssh_public_key | base64 -w0)
+  private-key: $(echo "$nova_ssh_private_key" | base64 -w0)
 ---
 apiVersion: v1
 kind: Secret
@@ -321,6 +386,25 @@ metadata:
 type: Opaque
 data:
   password: $(echo -n $ironic_admin_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ironic-db-password
+  namespace: openstack
+type: Opaque
+data:
+  password: $(echo -n $ironic_db_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ironic-rabbitmq-password
+  namespace: openstack
+type: Opaque
+data:
+  username: $(echo -n "ironic" | base64)
+  password: $(echo -n $ironic_rabbitmq_password | base64 -w0)
 ---
 apiVersion: v1
 kind: Secret
@@ -366,8 +450,7 @@ metadata:
   namespace: openstack
 type: Opaque
 data:
-  username: $(echo -n "horizon" | base64)
-  password: $(echo -n $horizon_secret_key_password | base64 -w0)
+  horizon_secret_key: $(echo -n $horizon_secret_key | base64 -w0)
 ---
 apiVersion: v1
 kind: Secret
@@ -377,31 +460,6 @@ metadata:
 type: Opaque
 data:
   password: $(echo -n $horizon_db_password | base64 -w0)
----
-apiVersion: v1
-kind: Secret
-metadata:
-  name: skyline-apiserver-secrets
-  namespace: openstack
-type: Opaque
-data:
-  service-username: $(echo -n "skyline" | base64)
-  service-password: $(echo -n $skyline_service_password | base64 -w0)
-  service-domain: $(echo -n "service" | base64)
-  service-project: $(echo -n "service" | base64)
-  service-project-domain: $(echo -n "service" | base64)
-  db-endpoint: $(echo -n "mariadb-cluster-primary.openstack.svc.cluster.local" | base64 -w0)
-  db-name: $(echo -n "skyline" | base64)
-  db-username: $(echo -n "skyline" | base64)
-  db-password: $(echo -n $skyline_db_password | base64 -w0)
-  secret-key: $(echo -n $skyline_secret_key_password | base64 -w0)
-  keystone-endpoint: $(echo -n "http://keystone-api.openstack.svc.cluster.local:5000/v3" | base64 -w0)
-  keystone-username: $(echo -n "skyline" | base64)
-  default-region: $(echo -n "$region" | base64)
-  prometheus_basic_auth_password: $(echo -n "" | base64)
-  prometheus_basic_auth_user: $(echo -n "" | base64)
-  prometheus_enable_basic_auth: $(echo -n "false" | base64)
-  prometheus_endpoint: $(echo -n "http://kube-prometheus-stack-prometheus.prometheus.svc.cluster.local:9090" | base64 -w0)
 ---
 apiVersion: v1
 kind: Secret
@@ -499,6 +557,72 @@ data:
 apiVersion: v1
 kind: Secret
 metadata:
+  name: masakari-rabbitmq-password
+  namespace: openstack
+type: Opaque
+data:
+  username: $(echo -n "masakari" | base64)
+  password: $(echo -n $masakari_rabbitmq_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: masakari-db-password
+  namespace: openstack
+type: Opaque
+data:
+  password: $(echo -n $masakari_db_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: masakari-admin
+  namespace: openstack
+type: Opaque
+data:
+  password: $(echo -n $masakari_admin_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: manila-rabbitmq-password
+  namespace: openstack
+type: Opaque
+data:
+  username: $(echo -n "manila" | base64)
+  password: $(echo -n $manila_rabbitmq_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: manila-db-password
+  namespace: openstack
+type: Opaque
+data:
+  password: $(echo -n $manila_db_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: manila-admin
+  namespace: openstack
+type: Opaque
+data:
+  password: $(echo -n $manila_admin_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: manila-service-keypair
+  namespace: openstack
+type: Opaque
+data:
+  public_key: $(echo $manila_ssh_public_key | base64 -w0)
+  private_key: $(echo "$manila_ssh_private_key" | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
   name: postgresql-identity-admin
   namespace: openstack
 type: Opaque
@@ -584,7 +708,18 @@ metadata:
   namespace: openstack
 type: Opaque
 data:
+  username: $(echo -n "ceilometer" | base64)
   password: $(echo -n $ceilometer_rabbitmq_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: swift-rabbitmq-password
+  namespace: openstack
+type: Opaque
+data:
+  username: $(echo -n "swift" | base64)
+  password: $(echo -n $swift_rabbitmq_password | base64 -w0)
 ---
 apiVersion: v1
 kind: Secret
@@ -613,8 +748,188 @@ data:
   password: $(echo -n $grafana_secret | base64 -w0)
   root-password: $(echo -n $grafana_root_secret | base64 -w0)
   username: $(echo -n grafana | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: etcd-backup-secrets
+  namespace: openstack
+type: Opaque
+data:
+  ACCESS_KEY: $(echo -n "" | base64)
+  SECRET_KEY: $(echo -n "" | base64)
+  S3_HOST: $(echo -n "" | base64)
+  S3_REGION: $(echo -n "$region" | base64)
+  ETCDCTL_API: $(echo -n "3" | base64)
+  ETCDCTL_ENDPOINTS: $(echo -n "https://127.0.0.1:2379" | base64 -w0)
+  ETCDCTL_CACERT: $(echo -n "/etc/ssl/etcd/ssl/ca.pem" | base64 -w0)
+  ETCDCTL_CERT: $(echo -n "" | base64)
+  ETCDCTL_KEY: $(echo -n "" | base64)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: blazar-rabbitmq-password
+  namespace: openstack
+type: Opaque
+data:
+  username: $(echo -n "blazar" | base64)
+  password: $(echo -n $blazar_rabbitmq_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: blazar-db-password
+  namespace: openstack
+type: Opaque
+data:
+  password: $(echo -n $blazar_db_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: blazar-admin
+  namespace: openstack
+type: Opaque
+data:
+  password: $(echo -n $blazar_admin_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: blazar-keystone-test-password
+  namespace: openstack
+type: Opaque
+data:
+  password: $(echo -n $blazar_keystone_test_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: freezer-db-password
+  namespace: openstack
+type: Opaque
+data:
+  password: $(echo -n $freezer_db_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: freezer-admin
+  namespace: openstack
+type: Opaque
+data:
+  password: $(echo -n $freezer_admin_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: freezer-keystone-test-password
+  namespace: openstack
+type: Opaque
+data:
+  password: $(echo -n $freezer_keystone_test_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: freezer-keystone-service-password
+  namespace: openstack
+type: Opaque
+data:
+  password: $(echo -n $freezer_keystone_service_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: keystone-auth-openstack-exporter
+  namespace: prometheus
+type: Opaque
+data:
+  AUTH_URL: $(echo -n $keystone_auth_url | base64 -w0)
+  USERNAME: $(echo -n $keystone_username | base64 -w0)
+  PASSWORD: $(kubectl get secret keystone-admin -n openstack -o jsonpath={.data.password})
+  USER_DOMAIN_NAME: $(echo -n $keystone_user_domain | base64 -w0)
+  PROJECT_NAME: $(echo -n $keystone_project_name | base64 -w0)
+  PROJECT_DOMAIN_NAME: $(echo -n $keystone_project_domain | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: zaqar-signed-url-secret-key
+  namespace: openstack
+type: Opaque
+data:
+  zaqar_signed_url_secret_key: $(echo -n $zaqar_signed_url_secret_key | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: zaqar-rabbitmq-password
+  namespace: openstack
+type: Opaque
+data:
+  username: $(echo -n "zaqar" | base64)
+  password: $(echo -n $zaqar_rabbitmq_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: zaqar-db-password
+  namespace: openstack
+type: Opaque
+data:
+  password: $(echo -n $zaqar_db_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: zaqar-admin
+  namespace: openstack
+type: Opaque
+data:
+  password: $(echo -n $zaqar_admin_password | base64 -w0)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: zaqar-keystone-test-password
+  namespace: openstack
+type: Opaque
+data:
+  password: $(echo -n $zaqar_keystone_test_password | base64 -w0)
 EOF
 
+# Check if skylinesecrets.yaml exists and append it
+SKYLINE_SECRETS_FILE="/etc/genestack/skylinesecrets.yaml"
+if [[ -f ${SKYLINE_SECRETS_FILE} ]]; then
+    echo "Found existing ${SKYLINE_SECRETS_FILE}, appending skyline secrets..."
+    cat ${SKYLINE_SECRETS_FILE} >> ${OUTPUT_FILE}
+    echo "✓ Skyline secrets appended from ${SKYLINE_SECRETS_FILE}"
+else
+    echo "Note: ${SKYLINE_SECRETS_FILE} not found. Run create-skyline-secrets.sh to add skyline secrets."
+fi
+
+# Check if kube-ovn-tls secret exists, and copy to openstack namespace if it does
+if kubectl -n kube-system get secret kube-ovn-tls >/dev/null 2>&1
+then
+    cat <<EOF >> $OUTPUT_FILE
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ovn-client-tls
+  namespace: openstack
+type: Opaque
+data:
+  cacert: $(kubectl -n kube-system get secret kube-ovn-tls -o jsonpath='{.data.cacert}')
+  cert: $(kubectl -n kube-system get secret kube-ovn-tls -o jsonpath='{.data.cert}')
+  key: $(kubectl -n kube-system get secret kube-ovn-tls -o jsonpath='{.data.key}')
+EOF
+fi
+
 rm nova_ssh_key nova_ssh_key.pub
+rm manila_ssh_key manila_ssh_key.pub
 chmod 0640 ${OUTPUT_FILE}
-echo "Secrets YAML file created as ${OUTPUT_FILE}"
+echo ""
+echo "✓ Secrets YAML file created as ${OUTPUT_FILE}"

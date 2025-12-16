@@ -14,19 +14,76 @@ After switch and firewall configuration, deployment nodes are created with in th
 
 ### Ironic Diagram
 
-![conceptual_architecture](./assets/images/ironic-architecture.png)
+``` mermaid
+%%{ init: { "theme": "default",
+            "flowchart": { "curve": "basis", "nodeSpacing": 80, "rankSpacing": 60 } } }%%
+
+flowchart TD
+    %% ──────────── TIER 1 ────────────
+    subgraph UI [" "]
+        CO(["🛠️ Cloud Orchestration"])
+        HR(["🌄 Skyline (UI)"])
+        CO --> HR
+        class CO orchestration;
+        class HR ui;
+    end
+
+    %% ──────────── TIER 2 (APIs) ─────
+    subgraph APIS [" "]
+        direction TB
+        NEU(["🔌 Neutron"])
+        CIN(["🧱 Cinder"])
+        NOV(["🖥️ Nova"])
+        GLA(["🖼️ Glance"])
+        KEY(["🔑 Keystone"])
+        IRO(["⚙️ Ironic"])
+        class NEU,CIN,NOV,GLA,KEY,IRO service;
+    end
+
+    %% ──────────── CORE (Bare Metal) ─
+    BM{{<b>Bare Metal</b>}}
+    class BM metal;
+
+    %% ──────────── LINKING  ──────────
+    %% UI ↔︎ API connections
+    HR  -->|Net| NEU
+    HR  -->|Vol| CIN
+    HR  -->|Comp| NOV
+    HR  -->|Img| GLA
+    HR  -->|Auth| KEY
+
+    %% Keystone as auth hub
+    KEY --> NEU
+    KEY --> CIN
+    KEY --> IRO
+
+    %% Ironic relationships
+    IRO -->|Mgmt| NEU
+    IRO -->|PXE| NOV
+    IRO -->|Img| GLA
+
+    %% Spokes to Bare Metal
+    NEU --> BM
+    CIN --> BM
+    GLA --> BM
+    KEY --> BM
+    IRO --> BM
+
+    classDef orchestration fill:#ffdddd,stroke:#555,color:#000000,font-weight:bold;
+    classDef ui             fill:#fff4e6,stroke:#555,color:#000000;
+    classDef service        fill:#ffe9cc,stroke:#555,color:#000000;
+    classDef metal          fill:#e4f5e4,stroke:#555,color:#000000,font-style:italic;
+```
 
 #### Benefits of Ironic
 
 ​	With a standard API and lightweight footprint, Ironic can serve as a driver for a variety of bare metal infrastructure. Ironic allows users to manage bare metal infrastructure like they would virtual  machines and provides ideal infrastructure to run container  orchestration frameworks like Kubernetes to optimize performance.
 
-
-
 #### Integration Methods and Use-Case
 
 ​	Ironic is being used today to deploy the infrastructure for Rackspace's Openstack public cloud in an internal product known as Undercloud. Undercloud is agnostic to tooling making it flexible to use in local or remote datacenters.
 
-​	For example, a customer in their own datacenter can stand up the reference architecture hardware for Rackspace Clouds and, granting ingress access to DRAC or iLO, allow our engineers to create the Ironic environment and flavors required for the compute hardware.  The servers are identified their first PXE boot and the proper server flavor and image are applied.  When a server goes offline to due hardware or drive failures, it can be re-provisioned after repair back to its original operating system and added back to the Openstack environment through Flex automation.
+​	For example, a customer in their own datacenter can stand up the reference architecture hardware for Rackspace OpenStack and, granting ingress access to DRAC or iLO, allow our engineers to create the Ironic environment and flavors required for the compute hardware.  The servers are identified their first PXE boot and the proper server flavor and image are applied.  When a server goes offline to due hardware or drive failures, it can be re-provisioned after repair back to its original operating system and added back to the Openstack environment through Flex automation.
 
 ### Leaf-Spline Network Architecture
 
@@ -46,7 +103,6 @@ After switch and firewall configuration, deployment nodes are created with in th
 - **Performance.** Protocols such as Shortest Path Bridging  (SPB) and Transparent Interconnection of Lots of Links (TRILL) aid in  avoiding traffic congestion.
 - **Scalability.** Additional spine switches can be added to help avoid oversubscriptionand increase scalability.
 - **Reduces spending.** A spine-leaf architecture increases  the number of connections each switch can handle, so data centers  require fewer devices to deploy.
-
 
 #### Network Design Details
 

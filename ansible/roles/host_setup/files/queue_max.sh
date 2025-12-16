@@ -16,7 +16,7 @@ set -e
 function ethernetDevs () {
     # Returns all physical devices
     ip -details -json link show | jq -r '.[] |
-        if .linkinfo.info_kind // .link_type == "loopback" or (.ifname | test("idrac+")) then
+        if .linkinfo.info_kind // .link_type == "loopback" or (.ifname | test("idrac+")) or (.ifname | test("wlp+")) then
             empty
         else
             .ifname
@@ -25,7 +25,11 @@ function ethernetDevs () {
 }
 
 function functionSetMax () {
-    echo "Setting queue max $dev"
+    if grep -q "0x1af4" /sys/class/net/$1/device/vendor; then
+        echo "Skipping virtio device $1"
+        return
+    fi
+    echo "Setting queue max $1"
     # The RX value is set to 90% of the max value to avoid packet loss
     ethtool -G $1 rx $(ethtool --json -g $1 | jq '.[0] | ."rx-max" * .9 | round')
     # The TX value is set to the max value

@@ -30,9 +30,46 @@ OpenStack Glance is the image service within the OpenStack ecosystem, responsibl
 
     Before running the Glance deployment you should configure the backend which is defined in the `helm-configs/glance/glance-helm-overrides.yaml` file. The default is a making the assumption we're running with Ceph deployed by Rook so the backend is configured to be cephfs with multi-attach functionality. While this works great, you should consider all of the available storage backends and make the right decision for your environment.
 
+## Define policy configuration
+
+!!! note "Information about the default policy rules used"
+
+    The default policy allows only the glance_admin role to publicize images.
+    The default policy allows only the glance_admin role or owner role to download images.
+    These default policy roles are found in genestack/base-helm-configs/glance/glance-helm-overrides.yaml.
+    To modify these policies, follow the policy allow concepts in the 
+    "Policy change to allow admin or owner to publicize image" example.
+
+    ??? example "Default policy rules"
+
+        ``` yaml
+        conf:
+          policy:
+            "admin_required": "role:admin or role:glance_admin"
+            "default": "role:admin or role:glance_admin"
+            "context_is_admin": "role:admin or role:glance_admin"
+            "publicize_image": "role:glance_admin"
+            "is_owner": "tenant:%(owner)s"
+            "download_image": "rule:is_owner or rule:context_is_admin"
+        ```
+
+    ??? example "Policy change to allow admin or owner to publicize image"
+
+        ``` yaml
+        conf:
+          policy:
+            "admin_required": "role:admin or role:glance_admin"
+            "default": "role:admin or role:glance_admin"
+            "context_is_admin": "role:admin or role:glance_admin"
+            "is_owner": "tenant:%(owner)s"
+            "publicize_image": "rule:context_is_admin or role:is_owner"
+            "download_image": "rule:is_owner or rule:context_is_admin"
+        ```
+
+
 ## Run the package deployment
 
-!!! example "Run the Glance deployment Script `bin/install-glance.sh`"
+!!! example "Run the Glance deployment Script `/opt/genestack/bin/install-glance.sh`"
 
     ``` shell
     --8<-- "bin/install-glance.sh"
@@ -52,6 +89,12 @@ OpenStack Glance is the image service within the OpenStack ecosystem, responsibl
 ``` shell
 kubectl --namespace openstack exec -ti openstack-admin-client -- openstack image list
 ```
+
+!!! genestack "External Image Store"
+
+    If glance will be deployed with an external swift storage backend, review the
+    [OpenStack Glance Swift Store](openstack-glance-swift-store.md) operator documentation
+    for additional steps and setup.
 
 ## Demo
 

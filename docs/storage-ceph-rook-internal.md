@@ -8,7 +8,7 @@ hide:
 ## Deploy the Rook operator
 
 ``` shell
-kubectl apply -k /etc/genestack/kustomize/rook-operator/
+kubectl apply -k /etc/genestack/kustomize/rook-operator/base
 ```
 
 !!! tip "Manually specifying the rook-operator image"
@@ -17,7 +17,42 @@ kubectl apply -k /etc/genestack/kustomize/rook-operator/
     example of how one can pin the operator version if so desired.
 
     ``` shell
-    kubectl -n rook-ceph set image deploy/rook-ceph-operator rook-ceph-operator=rook/ceph:v1.13.7
+    kubectl -n rook-ceph set image deploy/rook-ceph-operator rook-ceph-operator=rook/ceph:v1.16.5
+    ```
+
+### Label the Storage Nodes
+
+| <div style="width:220px">key</div> | type | <div style="width:128px">value</div>  | notes |
+|:-----|--|:----------------:|:------|
+| **role** | str | `storage-node` | When set to "storage-node" the node will be used for Ceph OSDs |
+
+Use the following command to label a node to be part of the Ceph storage cluster:
+
+``` shell
+kubectl label node ${NODE_NAME} role=storage-node
+```
+
+Replace `${NODE_NAME}` with the name of your node. If you have multiple storage nodes, run this command against each one.
+
+## Talos Linux
+
+!!! note
+
+    If you are using Talos Linux, You will need to apply the following permissions to the rook-ceph namespace.
+
+    ``` yaml
+    apiVersion: v1
+    kind: Namespace
+    metadata:
+      labels:
+        kubernetes.io/metadata.name: rook-ceph
+        pod-security.kubernetes.io/audit: privileged
+        pod-security.kubernetes.io/audit-version: latest
+        pod-security.kubernetes.io/enforce: privileged
+        pod-security.kubernetes.io/enforce-version: latest
+        pod-security.kubernetes.io/warn: privileged
+        pod-security.kubernetes.io/warn-version: latest
+      name: rook-ceph
     ```
 
 ## Deploy the Rook cluster
@@ -27,7 +62,7 @@ kubectl apply -k /etc/genestack/kustomize/rook-operator/
     Rook will deploy against nodes labeled `role=storage-node`. Make sure to have a look at the `/etc/genestack/kustomize/rook-cluster/rook-cluster.yaml` file to ensure it's setup to your liking, pay special attention to your `deviceFilter` settings, especially if different devices have different device layouts.
 
 ``` shell
-kubectl apply -k /etc/genestack/kustomize/rook-cluster/
+kubectl apply -k /etc/genestack/kustomize/rook-cluster/overlay
 ```
 
 ## Validate the cluster is operational
@@ -45,7 +80,7 @@ kubectl --namespace rook-ceph get cephclusters.ceph.rook.io
 Once the rook cluster is online with a HEALTH status of `HEALTH_OK`, deploy the filesystem, storage-class, and pool defaults.
 
 ``` shell
-kubectl apply -k /etc/genestack/kustomize/rook-defaults
+kubectl apply -k /etc/genestack/kustomize/rook-defaults/base
 ```
 
 !!! note

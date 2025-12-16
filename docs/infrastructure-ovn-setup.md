@@ -14,22 +14,16 @@ Post deployment we need to setup neutron to work with our integrated OVN environ
 |:-----|--|:----------------:|:------|
 | **ovn.openstack.org/int_bridge** | str | `br-int` | The name of the integration bridge that will be used. |
 | **ovn.openstack.org/bridges** | str | `br-ex` | Comma separated list of bridges that will be created and plugged into OVS for a given node. |
-| **ovn.openstack.org/ports** | str | `br-ex:bond1` | Comma separated list of bridge mappings. Maps values from the **bridges** annotation to physical devices on a given node.  |
-| **ovn.openstack.org/mappings** | str | `physnet1:br-ex` | Comma separated list of neutron mappings. Maps a value that will be used in neutron to a value found in the **ports** annotation. |
+| **ovn.openstack.org/ports** | str | `br-ex:bond1` | Comma separated list of bridge mappings. Maps values from the **bridges** annotation to physical devices or bonds on a given node.  |
+| **ovn.openstack.org/bonds** | str | `br-ex:bond0:eno1+eno3:balance-tcp:active` | Comma separated list of bond definitions. Format: `bridge:bondname:member1+member2:mode:lacp`. Creates OVS bonds with specified members. |
+| **ovn.openstack.org/bond-options** | str | `bond0:mii-monitor-interval=100,lacp-time=fast` | Comma separated list of additional bond options. Format: `bondname:option1=value1,option2=value2`. Supports MII monitoring, LACP timing, and other OVS bond parameters. |
+| **ovn.openstack.org/mappings** | str | `physnet1:br-ex` | Comma separated list of neutron mappings. Maps a value that will be used in neutron to a value found in the **ports** or **bonds** annotation. Every provider network name listed in this annotation will have a unique mac address generated per-host. |
 | **ovn.openstack.org/availability_zones** | str | `az1` | Colon separated list of Availability Zones a given node will serve. |
 | **ovn.openstack.org/gateway** | str| `enabled` | If set to `enabled`, the node will be marked as a gateway. |
 
 ### Gather the network enabled nodes
 
-You should set the annotations you need within your environment to meet the needs of your workloads on the hardware you have.
-
-!!! example "Store all of the network nodes"
-
-    The following example gathers all of the network enabled nodes. In production you may have different hardware layouts resulting in a more heterogenous device layout.
-
-    ``` shell
-    export ALL_NODES=$(kubectl get nodes -l 'openstack-network-node=enabled' -o 'jsonpath={.items[*].metadata.name}')
-    ```
+Set the annotations needed within the environment to meet the needs of your workloads on the hardware you have.
 
 !!! tip "Post Deployment"
 
@@ -42,7 +36,7 @@ Set the name of the OVS integration bridge we'll use. In general, this should be
 ``` shell
 kubectl annotate \
         nodes \
-        ${ALL_NODES} \
+        -l openstack-compute-node=enabled -l openstack-network-node=enabled \
         ovn.openstack.org/int_bridge='br-int'
 ```
 
@@ -57,20 +51,91 @@ Set the name of the OVS bridges we'll use. These are the bridges you will use on
 ``` shell
 kubectl annotate \
         nodes \
-        ${ALL_NODES} \
+        -l openstack-compute-node=enabled -l openstack-network-node=enabled \
         ovn.openstack.org/bridges='br-ex'
 ```
 
 ### Set `ovn.openstack.org/ports`
 
-Set the port mapping for OVS interfaces to a local physical interface on a given machine. This option uses a colon between the OVS bridge and the and the physical interface, `OVS_BRIDGE:PHYSICAL_INTERFACE_NAME`. Multiple bridge mappings can be defined by separating values with a comma.
+Set the port mapping for OVS interfaces to a local physical interface on a given machine. This option uses a colon between the OVS bridge and the physical interface, `OVS_BRIDGE:PHYSICAL_INTERFACE_NAME`. Multiple bridge mappings can be defined by separating values with a comma.
+
+!!! note
+
+    If using bonds, the port mapping should reference the bond name (e.g., `br-ex:bond0`) instead of individual physical interfaces. See the bonds section below for configuring bonded interfaces.
 
 ``` shell
 kubectl annotate \
         nodes \
-        ${ALL_NODES} \
+        -l openstack-compute-node=enabled -l openstack-network-node=enabled \
         ovn.openstack.org/ports='br-ex:bond1'
 ```
+
+### Set `ovn.openstack.org/bonds` (Optional)
+
+Configure OVS bonds for link aggregation and redundancy. This annotation creates bonded interfaces using multiple physical network interfaces.
+
+**Format:** `bridge:bondname:member1+member2+member3:mode:lacp`
+
+**Parameters:**
+- `bridge`: The OVS bridge to attach the bond to (e.g., `br-ex`)
+- `bondname`: Name of the bond interface (e.g., `bond0`)
+- `members`: Physical interfaces to include in the bond, separated by `+` (e.g., `eno1+eno3`)
+- `mode`: Bond mode - `balance-slb` (source MAC) or `balance-tcp` (TCP/UDP ports for LACP)
+- `lacp`: LACP mode - `off`, `active`, or `passive`
+
+**Example: LACP Bond**
+``` shell
+kubectl annotate \
+        nodes \
+        -l openstack-network-node=enabled \
+        ovn.openstack.org/bonds='br-ex:bond0:eno1+eno3:balance-tcp:active'
+```
+
+**Example: Multiple Bonds**
+``` shell
+kubectl annotate \
+        nodes \
+        node1 \
+        ovn.openstack.org/bonds='br-ex:bond0:eno1+eno3:balance-tcp:active,br-provider:bond1:eno5+eno7:balance-slb:off'
+```
+
+### Set `ovn.openstack.org/bond-options` (Optional)
+
+Configure additional bond options for fine-tuning bond behavior. This annotation is used in conjunction with `ovn.openstack.org/bonds`.
+
+**Format:** `bondname:option1=value1,option2=value2`
+
+**Supported Options:**
+- `mii-monitor-interval`: MII link monitoring interval in milliseconds (e.g., `100`)
+- `bond-detect-mode`: Link detection method - `miimon` or `carrier`
+- `lacp-time`: LACP heartbeat rate - `fast` (1 second) or `slow` (30 seconds)
+- `lacp-fallback-ab`: Enable fallback to active-backup if LACP fails - `true` or `false`
+- `updelay`: Delay in milliseconds before enabling a link after it comes up
+- `downdelay`: Delay in milliseconds before disabling a link after it goes down
+- `rebalance-interval`: Rebalancing interval in milliseconds (for `balance-slb` mode)
+
+**Example: LACP with MII Monitoring**
+``` shell
+kubectl annotate \
+        nodes \
+        -l openstack-network-node=enabled \
+        ovn.openstack.org/bond-options='bond0:mii-monitor-interval=100,lacp-time=fast,bond-detect-mode=miimon'
+```
+
+**Example: Multiple Bonds with Different Options**
+``` shell
+kubectl annotate \
+        nodes \
+        node1 \
+        ovn.openstack.org/bond-options='bond0:mii-monitor-interval=100,lacp-time=fast,bond1:updelay=500,downdelay=500'
+```
+
+!!! tip "OVS Bond Modes"
+
+    - **balance-slb**: Source Load Balancing - distributes traffic based on source MAC address. Does not require LACP support on the switch.
+    - **balance-tcp**: Balances based on L3/L4 headers (IP addresses and TCP/UDP ports). Requires LACP (`lacp=active` or `lacp=passive`).
+
+    For 802.3ad LACP bonding, use `mode=balance-tcp` with `lacp=active`.
 
 ### Set `ovn.openstack.org/mappings`
 
@@ -83,7 +148,7 @@ Set the Neutron bridge mapping. This maps the Neutron interfaces to the ovs brid
 ``` shell
 kubectl annotate \
         nodes \
-        ${ALL_NODES} \
+        -l openstack-compute-node=enabled -l openstack-network-node=enabled \
         ovn.openstack.org/mappings='physnet1:br-ex'
 ```
 
@@ -94,7 +159,7 @@ Set the OVN availability zones which inturn creates neutron availability zones. 
 ``` shell
 kubectl annotate \
         nodes \
-        ${ALL_NODES} \
+        -l openstack-compute-node=enabled -l openstack-network-node=enabled \
         ovn.openstack.org/availability_zones='az1'
 ```
 
@@ -107,11 +172,12 @@ kubectl annotate \
 ### Set `ovn.openstack.org/gateway`
 
 Define where the gateways nodes will reside. There are many ways to run this, some like every compute node to be a gateway, some like dedicated gateway hardware. Either way you will need at least one gateway node within your environment.
+NOTE: In the following example, we will apply the 'ovn.openstack.org/gateway' to dedicated network nodes.  You will want to change the node filter to the specific nodes you wish to use as ovn gateway nodes.
 
 ``` shell
 kubectl annotate \
         nodes \
-        ${ALL_NODES} \
+        $(kubectl get nodes | awk '/network/ {print $1}') \
         ovn.openstack.org/gateway='enabled'
 ```
 
@@ -120,11 +186,53 @@ kubectl annotate \
 With all of the annotations defined, we can now apply the network policy with the following command.
 
 ``` shell
-kubectl apply -k /etc/genestack/kustomize/ovn
+kubectl apply -k /etc/genestack/kustomize/ovn/base
 ```
 
 After running the setup, nodes will have the label `ovn.openstack.org/configured` with a date stamp when it was configured.
 If there's ever a need to reconfigure a node, simply remove the label and the DaemonSet will take care of it automatically.
+
+### Reconfiguring Nodes
+
+The OVN setup includes intelligent state management that safely handles configuration changes:
+
+**State Tracking:**
+- Previous configuration is stored in per-node ConfigMaps named `ovn-state-<nodename>`
+- The setup script compares previous state with new annotations
+- Changes are applied incrementally to prevent network disruption
+
+**Safe Port Migration:**
+When changing port assignments (e.g., moving from `eno1` to `eno3`), the setup will:
+1. Remove the old port (`eno1`) from the bridge
+2. Add the new port (`eno3`) to the bridge
+3. Update the state ConfigMap
+
+This prevents network loops that could occur if both ports were simultaneously connected to the bridge.
+
+**To reconfigure a node:**
+
+1. Update the node annotations with new configuration
+2. Remove the configured label:
+   ``` shell
+   kubectl label node <node-name> ovn.openstack.org/configured-
+   ```
+3. The DaemonSet will detect the unlabeled node and reapply configuration
+4. Old ports/bonds will be cleaned up, new configuration applied
+
+**Example: Changing from single interface to bonded interfaces**
+
+``` shell
+# Update annotations
+kubectl annotate nodes node1 --overwrite \
+    ovn.openstack.org/ports='br-ex:bond0' \
+    ovn.openstack.org/bonds='br-ex:bond0:eno1+eno3:balance-tcp:active' \
+    ovn.openstack.org/bond-options='bond0:mii-monitor-interval=100,lacp-time=fast'
+
+# Trigger reconfiguration
+kubectl label node node1 ovn.openstack.org/configured-
+```
+
+The setup will remove any existing single interface ports and create the bond configuration.
 
 !!! tip "Setup your OVN backup"
 

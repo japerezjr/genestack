@@ -38,3 +38,41 @@
     name: "queue_max.service"
     state: "restarted"
     enabled: true
+
+- name: Reload systemd-timesyncd
+  ansible.builtin.systemd:
+    name: systemd-timesyncd.service
+    state: "restarted"
+    enabled: true
+
+- name: Restart multipathd and multipath-tools service
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: "restarted"
+    daemon_reload: true
+    enabled: true
+  loop:
+    - multipathd.service
+    - multipath-tools.service
+
+- name: Restart iscsid
+  ansible.builtin.systemd:
+    name: "iscsid.service"
+    state: "restarted"
+    enabled: true
+
+- name: Update apt
+  ansible.builtin.apt:
+    update_cache: yes
+    cache_valid_time: 600
+
+- name: Restart lldpd
+  ansible.builtin.systemd:
+    name: "lldpd.service"
+    state: "restarted"
+    enabled: true
+
+- name: Reload udev rules
+  ansible.builtin.shell: >-
+    udevadm control --reload-rules && udevadm trigger
+  failed_when: false

@@ -26,13 +26,15 @@ lb_mgmt_subnet_gateway: '172.16.29.1'
 amphora_icmp_enabled: true
 amphora_ssh_enabled: true
 lb_health_mgr_secgrp_name: "lb-health-mgr-secgroup"
+lb_worker_secgrp_name: "lb-worker-secgroup"
 lb_mgmt_secgrp_name: "lb-mgmt-secgroup"
 
 # these are the defaults for the flavor, image and ssh keypair
 amphora_ssh_key_name: amphora-ssh-key
 amphora_flavor_name: m1.amphora
-amphora_image_version: focal
+amphora_image_version: noble
 amphora_image_name: amphora-ubuntu-{{ amphora_image_version }}
+amphora_image_url: "https://tarballs.opendev.org/openstack/octavia/test-images/test-only-amphora-x64-haproxy-ubuntu-{{ amphora_image_version }}.qcow2"
 
 # these are the defaults for certs
 octavia_create_certs: true

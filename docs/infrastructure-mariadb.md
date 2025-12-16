@@ -19,13 +19,13 @@
 ## Deploy the mariadb operator
 
 ```
-cluster_name=`kubectl config view --minify -o jsonpath='{.clusters[0].name}'`
-echo $cluster_name
+CLUSTER_NAME=`kubectl config view --minify -o jsonpath='{.clusters[0].name}'`
+echo $CLUSTER_NAME
 ```
 
 If `cluster_name` was anything other than `cluster.local` you should pass that as a parameter to the installer
 
-!!! example "Run the mariadb-operator deployment Script `bin/install-mariadb-operator.sh` You can include cluster_name paramater. No paramaters deploys with `cluster.local` cluster name."
+!!! example "Run the mariadb-operator deployment Script `/opt/genestack/bin/install-mariadb-operator.sh` You can include cluster_name paramater from the output of $CLUSTER_NAME. If no paramaters are provided, the system will deploy with `cluster.local` as the cluster name."
 
     ``` shell
     --8<-- "bin/install-mariadb-operator.sh"
@@ -51,6 +51,14 @@ kubectl --namespace mariadb-system get pods -w
 
     ``` shell
     kubectl --namespace openstack apply -k /etc/genestack/kustomize/mariadb-cluster/overlay
+    ```
+
+=== "Galera"
+
+    MariaDB with Galera Cluster is a popular choice for ensuring high availability and scalability in OpenStack deployments. Galera is a synchronous multi-master replication plugin for MariaDB, allowing all nodes in the cluster to read and write simultaneously while ensuring data consistency across the entire cluster. This setup is particularly advantageous in OpenStack environments, where database operations must be highly reliable and available to support the various services that depend on them. By using Galera with MariaDB, OpenStack deployments can achieve near-instantaneous replication across multiple nodes, enhancing fault tolerance and providing a robust solution for handling the high-demand workloads typical in cloud environments.
+
+    ``` shell
+    kubectl --namespace openstack apply -k /etc/genestack/kustomize/mariadb-cluster/galera
     ```
 
 === "AIO"
