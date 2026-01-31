@@ -11,6 +11,7 @@ OPTIONS:
     -d, --domain DOMAIN         Gateway domain name (default: cluster.local)
     -c, --challenge METHOD      ACME challenge method: http01 or dns01 (default: http01)
     -p, --dns-plugin PLUGIN     DNS01 plugin (only used with dns01)
+    --config FILE               Configuration file for multi-gateway setup (YAML format)
     -h, --help [PLUGIN]         Display this help message, or detailed help for a specific plugin
 
     # Generic credentials (usage depends on --dns-plugin):
@@ -469,6 +470,7 @@ ACME_EMAIL=""
 GATEWAY_DOMAIN=""
 CHALLENGE_METHOD="http01"
 DNS_PLUGIN="godaddy"
+CONFIG_FILE=""
 
 # Generic credential variables
 API_KEY=""
@@ -590,6 +592,11 @@ while [[ $# -gt 0 ]]; do
             ;;
         --tsig-algorithm)
             TSIG_ALGORITHM="$2"
+            INTERACTIVE_MODE=false
+            shift 2
+            ;;
+        --config)
+            CONFIG_FILE="$2"
             INTERACTIVE_MODE=false
             shift 2
             ;;
