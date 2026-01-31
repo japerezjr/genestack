@@ -619,6 +619,38 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Check if config file mode is enabled
+if [ -n "$CONFIG_FILE" ]; then
+    # Source the orchestrator library
+    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    # shellcheck source=/dev/null
+    source "${SCRIPT_DIR}/lib/gateway-orchestrator.sh"
+    
+    # Load and validate configuration
+    if ! load_config "$CONFIG_FILE"; then
+        echo "ERROR: Failed to load configuration file: $CONFIG_FILE"
+        exit 1
+    fi
+    
+    # Check if yq is installed
+    if ! check_yq; then
+        echo "ERROR: yq is required for config file mode"
+        echo "Please install yq: https://github.com/mikefarah/yq"
+        exit 1
+    fi
+    
+    # Setup all gateways from configuration
+    if ! setup_all_gateways; then
+        echo "ERROR: Failed to setup gateways from configuration"
+        exit 1
+    fi
+    
+    echo ""
+    echo "Multi-gateway setup complete!"
+    echo "Use 'kubectl get gateway --all-namespaces' to view all gateways"
+    exit 0
+fi
+
 # Validate challenge method
 if [[ "$CHALLENGE_METHOD" != "http01" && "$CHALLENGE_METHOD" != "dns01" ]]; then
     echo "Error: Invalid challenge method. Must be 'http01' or 'dns01'"
