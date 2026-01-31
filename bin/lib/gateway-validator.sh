@@ -27,8 +27,14 @@ validate_gateway_name() {
         return 1
     fi
     
-    if ! [[ "$gateway_name" =~ ^[a-z0-9-]+$ ]]; then
-        add_error "Gateway name '$gateway_name' contains invalid characters (must be lowercase alphanumeric and hyphens)"
+    # Must start and end with alphanumeric, can contain hyphens in the middle
+    if ! [[ "$gateway_name" =~ ^[a-z0-9]([a-z0-9-]*[a-z0-9])?$ ]]; then
+        add_error "Gateway name '$gateway_name' contains invalid characters (must be lowercase alphanumeric, can contain hyphens but not at start/end)"
+        return 1
+    fi
+    
+    if [ ${#gateway_name} -gt 63 ]; then
+        add_error "Gateway name '$gateway_name' exceeds maximum length of 63 characters"
         return 1
     fi
     
