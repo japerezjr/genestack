@@ -1,0 +1,14 @@
+# Simple Single Gateway Configuration (Backward Compatible)
+# This demonstrates the legacy single-gateway mode for backward compatibility
+
+# Legacy mode - single gateway configuration
+gateway:
+  domain: cloud.local
+  email: admin@example.com
+  challenge: http01
+  dns_plugin: cloudflare
+  api_key: ${CLOUDFLARE_API_KEY}
+  api_secret: ${CLOUDFLARE_API_SECRET}
+
+# This configuration is equivalent to running:
+# ./setup-envoy-gateway.sh -e admin@example.com -d cloud.local -c http01 -p cloudflare

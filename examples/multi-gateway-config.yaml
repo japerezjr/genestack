@@ -1,0 +1,149 @@
+# Multi-Gateway Configuration Example
+# This file demonstrates how to configure multiple Envoy Gateways
+# with different namespaces, certificate management, and DNS providers
+
+gateways:
+  # External gateway for public-facing services
+  external:
+    enabled: true
+    namespace: envoy-gateway-external
+    type: external
+    domain: api.example.com
+    certificate:
+      provider: letsencrypt  # letsencrypt or self-signed
+      email: admin@example.com
+      acme_challenge: dns01  # http01 or dns01
+      dns_provider: cloudflare
+      dns_credentials:
+        api_token: ${CLOUDFLARE_API_TOKEN}
+    metallb_pool: external-pool
+    listeners:
+      - name: https
+        port: 443
+        protocol: HTTPS
+      - name: http
+        port: 80
+        protocol: HTTP
+    routes:
+      - name: keystone
+        hostname: keystone.api.example.com
+        service: keystone
+        namespace: openstack
+        port: 5000
+      - name: nova
+        hostname: nova.api.example.com
+        service: nova-api
+        namespace: openstack
+        port: 8774
+
+  # Internal gateway for internal services
+  internal:
+    enabled: true
+    namespace: envoy-gateway-internal
+    type: internal
+    domain: internal.example.local
+    certificate:
+      provider: self-signed
+    metallb_pool: internal-pool
+    listeners:
+      - name: https
+        port: 443
+        protocol: HTTPS
+      - name: http
+        port: 80
+        protocol: HTTP
+    routes:
+      - name: mariadb
+        hostname: mariadb.internal.example.local
+        service: mariadb
+        namespace: openstack
+        port: 3306
+      - name: rabbitmq
+        hostname: rabbitmq.internal.example.local
+        service: rabbitmq
+        namespace: openstack
+        port: 5672
+
+  # Hybrid gateway for both internal and external services
+  hybrid:
+    enabled: false
+    namespace: envoy-gateway-hybrid
+    type: hybrid
+    domain: cloud.example.com
+    certificate:
+      provider: letsencrypt
+      email: admin@example.com
+      acme_challenge: dns01
+      dns_provider: route53
+      dns_credentials:
+        access_key_id: ${AWS_ACCESS_KEY_ID}
+        secret_access_key: ${AWS_SECRET_ACCESS_KEY}
+        hosted_zone_id: ${AWS_HOSTED_ZONE_ID}
+    metallb_pools:
+      external: external-pool
+      internal: internal-pool
+    listeners:
+      - name: https
+        port: 443
+        protocol: HTTPS
+      - name: http
+        port: 80
+        protocol: HTTP
+    routes:
+      - name: horizon
+        hostname: horizon.cloud.example.com
+        service: horizon
+        namespace: openstack
+        port: 80
+        type: external
+      - name: grafana
+        hostname: grafana.internal.cloud.example.com
+        service: grafana
+        namespace: monitoring
+        port: 3000
+        type: internal
+
+# Global settings
+global:
+  # Enable backward compatibility mode (single gateway)
+  legacy_mode: false
+  
+  # Default certificate provider
+  default_certificate_provider: letsencrypt
+  
+  # Default ACME challenge method
+  default_acme_challenge: http01
+  
+  # Default DNS provider
+  default_dns_provider: cloudflare
+  
+  # Enable namespace isolation
+  namespace_isolation: true
+  
+  # Enable automatic route creation
+  auto_routes: true
+  
+  # Enable automatic listener creation
+  auto_listeners: true
+
+# DNS Providers Configuration
+dns_providers:
+  cloudflare:
+    type: cloudflare
+    credentials:
+      api_token: ${CLOUDFLARE_API_TOKEN}
+  
+  route53:
+    type: route53
+    credentials:
+      access_key_id: ${AWS_ACCESS_KEY_ID}
+      secret_access_key: ${AWS_SECRET_ACCESS_KEY}
+  
+  azure_dns:
+    type: azure_dns
+    credentials:
+      subscription_id: ${AZURE_SUBSCRIPTION_ID}
+      tenant_id: ${AZURE_TENANT_ID}
+      client_id: ${AZURE_CLIENT_ID}
+      client_secret: ${AZURE_CLIENT_SECRET}
+      resource_group: ${AZURE_RESOURCE_GROUP}
