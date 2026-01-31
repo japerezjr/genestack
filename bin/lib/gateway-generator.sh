@@ -233,24 +233,93 @@ EOF
                 cat <<EOF
     - dns01:
         azureDNS:
-          subscriptionID: \${AZURE_SUBSCRIPTION_ID}
-          resourceGroupName: \${AZURE_RESOURCE_GROUP}
-          hostedZoneName: ${domain}
-          environment: AzurePublicCloud
+          subscriptionIDSecretRef:
+            name: ${secret_name}
+            key: subscription-id
+          tenantIDSecretRef:
+            name: ${secret_name}
+            key: tenant-id
+          clientIDSecretRef:
+            name: ${secret_name}
+            key: client-id
           clientSecretSecretRef:
             name: ${secret_name}
             key: client-secret
+          environment: AzurePublicCloud
 EOF
                 ;;
             google)
                 cat <<EOF
     - dns01:
         cloudDNS:
-          project: \${GCP_PROJECT_ID}
           serviceAccountSecretRef:
             name: ${secret_name}
             key: service-account.json
 EOF
+                ;;
+            digitalocean)
+                cat <<EOF
+    - dns01:
+        digitalocean:
+          tokenSecretRef:
+            name: ${secret_name}
+            key: api-token
+EOF
+                ;;
+            godaddy)
+                cat <<EOF
+    - dns01:
+        webhook:
+          groupName: acme.mycompany.com
+          solverName: godaddy
+          config:
+            apiKeySecretRef:
+              name: ${secret_name}
+              key: api-key
+            apiSecretSecretRef:
+              name: ${secret_name}
+              key: api-secret
+EOF
+                ;;
+            rackspace)
+                cat <<EOF
+    - dns01:
+        webhook:
+          groupName: acme.mycompany.com
+          solverName: rackspace
+          config:
+            usernameSecretRef:
+              name: ${secret_name}
+              key: username
+            apiKeySecretRef:
+              name: ${secret_name}
+              key: api-key
+EOF
+                ;;
+            acmedns)
+                cat <<EOF
+    - dns01:
+        acmeDNS:
+          host: \${ACME_DNS_HOST}
+          accountSecretRef:
+            name: ${secret_name}
+            key: api-key
+EOF
+                ;;
+            rfc2136)
+                cat <<EOF
+    - dns01:
+        rfc2136:
+          nameserver: \${RFC2136_NAMESERVER}
+          tsigKeyName: \${RFC2136_TSIG_KEY_NAME}
+          tsigSecretSecretRef:
+            name: ${secret_name}
+            key: tsig-secret
+          tsigAlgorithm: \${RFC2136_TSIG_ALGORITHM:-HMACSHA256}
+EOF
+                ;;
+            *)
+                echo "    # Unsupported DNS provider: ${dns_provider}" >&2
                 ;;
         esac
     fi

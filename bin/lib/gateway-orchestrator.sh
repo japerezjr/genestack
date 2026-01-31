@@ -14,6 +14,8 @@ source "${SCRIPT_DIR}/gateway-validator.sh"
 source "${SCRIPT_DIR}/gateway-generator.sh"
 # shellcheck source=/dev/null
 source "${SCRIPT_DIR}/gateway-utils.sh"
+# shellcheck source=/dev/null
+source "${SCRIPT_DIR}/gateway-certificates.sh"
 
 # Function to setup a single gateway
 setup_gateway() {
@@ -48,6 +50,13 @@ setup_gateway() {
         fi
     fi
     
+    # Setup certificate provider and credentials
+    print_message "INFO" "Setting up certificate provider"
+    if ! setup_certificate_provider "$gateway_name" "$namespace"; then
+        print_message "ERROR" "Failed to setup certificate provider"
+        return 1
+    fi
+    
     # Generate and apply gateway configuration
     local temp_dir
     temp_dir=$(mktemp -d)
@@ -73,6 +82,15 @@ setup_gateway() {
     print_message "INFO" "Waiting for gateway to be programmed"
     if ! wait_for_gateway "$gateway_name" "$namespace" 300; then
         print_message "WARN" "Gateway did not become programmed within timeout"
+    fi
+    
+    # Wait for certificate to be ready (if using Let's Encrypt)
+    if [ "$cert_provider" = "letsencrypt" ]; then
+        local cert_name="${gateway_name}-cert"
+        print_message "INFO" "Waiting for certificate to be ready"
+        if ! wait_for_certificate "$cert_name" "$namespace" 300; then
+            print_message "WARN" "Certificate did not become ready within timeout"
+        fi
     fi
     
     # Generate and apply routes if auto_routes is enabled
@@ -232,6 +250,14 @@ get_gateway_status() {
     
     print_message "INFO" "Certificates:"
     kubectl get certificate -n "$namespace" 2>/dev/null || print_message "INFO" "No certificates found"
+    echo ""
+    
+    # Check certificate status
+    local cert_name="${gateway_name}-cert"
+    if kubectl get certificate "$cert_name" -n "$namespace" &>/dev/null; then
+        check_certificate_status "$cert_name" "$namespace"
+        get_certificate_expiry "$cert_name" "$namespace"
+    fi
     echo ""
     
     print_message "INFO" "Services:"
