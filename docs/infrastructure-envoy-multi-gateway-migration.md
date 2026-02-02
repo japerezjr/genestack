@@ -21,6 +21,7 @@ Benefits of multi-gateway setup:
 If your setup is simple and working well, you don't need to migrate. The legacy mode is fully supported and will continue to work.
 
 **When to use:**
+
 - Single domain with all services
 - Simple certificate management
 - No need for namespace isolation
@@ -33,12 +34,14 @@ If your setup is simple and working well, you don't need to migrate. The legacy 
 Deploy new gateways alongside the existing one, then gradually move services.
 
 **When to use:**
+
 - Production environments
 - Need zero downtime
 - Want to test before full migration
 - Complex routing requirements
 
 **Steps:**
+
 1. Deploy new multi-gateway setup in parallel
 2. Test new gateways with non-critical services
 3. Gradually move services to new gateways
@@ -49,12 +52,14 @@ Deploy new gateways alongside the existing one, then gradually move services.
 Remove existing gateway and deploy new multi-gateway setup.
 
 **When to use:**
+
 - Development/testing environments
 - Can tolerate downtime
 - Want clean slate
 - Simple setup
 
 **Steps:**
+
 1. Document existing configuration
 2. Remove old gateway
 3. Deploy new multi-gateway setup

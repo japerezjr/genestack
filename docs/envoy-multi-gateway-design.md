@@ -20,6 +20,7 @@ The current implementation (`bin/setup-envoy-gateway.sh`) supports:
 **Purpose**: Enable YAML-based configuration for complex multi-gateway setups
 
 **Implementation**:
+
 - Add `--config FILE` option to `setup-envoy-gateway.sh`
 - Parse YAML configuration file
 - Support environment variable substitution (e.g., `${CLOUDFLARE_API_TOKEN}`)
@@ -27,6 +28,7 @@ The current implementation (`bin/setup-envoy-gateway.sh`) supports:
 - Generate appropriate Kubernetes resources
 
 **Example Usage**:
+
 ```bash
 ./setup-envoy-gateway.sh --config multi-gateway-config.yaml
 ```
@@ -36,12 +38,14 @@ The current implementation (`bin/setup-envoy-gateway.sh`) supports:
 **Purpose**: Improve security and organization by running each gateway in its own namespace
 
 **Implementation**:
+
 - Create separate namespace for each gateway (e.g., `envoy-gateway-external`, `envoy-gateway-internal`)
 - Apply RBAC policies per namespace
 - Isolate network policies per gateway
 - Enable independent scaling and resource management
 
 **Benefits**:
+
 - Better security isolation
 - Easier troubleshooting
 - Independent lifecycle management
@@ -52,11 +56,13 @@ The current implementation (`bin/setup-envoy-gateway.sh`) supports:
 **Purpose**: Support external-only, internal-only, or both gateway types
 
 **Gateway Types**:
+
 - **External**: Public-facing services with Let's Encrypt certificates
 - **Internal**: Internal services with self-signed certificates
 - **Hybrid**: Both external and internal services in one gateway
 
 **Implementation**:
+
 - Define gateway type in configuration
 - Apply appropriate certificate management per type
 - Configure MetalLB pools per type
@@ -67,11 +73,13 @@ The current implementation (`bin/setup-envoy-gateway.sh`) supports:
 **Purpose**: Support different certificate providers per gateway
 
 **Supported Providers**:
+
 - **Let's Encrypt**: For external gateways
 - **Self-Signed**: For internal gateways
 - **Custom**: For bring-your-own-certificate scenarios
 
 **Implementation**:
+
 - Per-gateway certificate configuration
 - Support multiple ACME challenge methods (HTTP01, DNS01)
 - Support multiple DNS providers
@@ -82,6 +90,7 @@ The current implementation (`bin/setup-envoy-gateway.sh`) supports:
 **Purpose**: Automatically create routes and listeners for multiple gateways
 
 **Implementation**:
+
 - Parse routes from configuration
 - Generate HTTPRoute resources per gateway
 - Create listeners based on gateway type
@@ -93,6 +102,7 @@ The current implementation (`bin/setup-envoy-gateway.sh`) supports:
 **Purpose**: Support different IP pools for different gateway types
 
 **Implementation**:
+
 - Define MetalLB pool per gateway
 - Support external and internal pools
 - Enable independent IP management
@@ -103,6 +113,7 @@ The current implementation (`bin/setup-envoy-gateway.sh`) supports:
 **Purpose**: Allow internal gateways to use port 443 (same as external)
 
 **Implementation**:
+
 - Configure separate listeners per gateway
 - Support port 443 for both external and internal
 - Use hostname-based routing to differentiate
@@ -113,6 +124,7 @@ The current implementation (`bin/setup-envoy-gateway.sh`) supports:
 **Purpose**: Ensure existing single-gateway deployments continue to work
 
 **Implementation**:
+
 - Preserve all existing command-line options
 - Support legacy mode when no `--config` is provided
 - Maintain interactive mode
