@@ -66,6 +66,28 @@ global:
   auto_listeners: true|false
 ```
 
+### Global Settings
+
+The `global` section controls behavior across all gateways:
+
+**namespace_isolation** (default: `true`)
+
+- **When `true`**: Each gateway is deployed in its own dedicated namespace (e.g., `envoy-gateway-external`, `envoy-gateway-internal`)
+- **When `false`**: All gateways share a common namespace
+- **Use case**: Enable for production environments to improve security isolation and resource organization. Disable for development/testing to simplify management.
+
+**auto_routes** (default: `true`)
+
+- **When `true`**: Automatically generates and applies HTTPRoute resources based on the `routes` array defined in each gateway configuration
+- **When `false`**: Routes must be manually created and applied separately
+- **Use case**: Enable for automated route management. Disable if you want full manual control over route creation or use external route management tools.
+
+**auto_listeners** (default: `true`)
+
+- **When `true`**: Automatically generates and applies listener configurations based on the `listeners` array defined in each gateway configuration
+- **When `false`**: Listeners must be manually configured in the gateway manifests
+- **Use case**: Enable for automated listener setup. Disable if you need custom listener configurations not supported by the automation.
+
 ### Example: External Gateway with Let's Encrypt
 
 ```yaml
