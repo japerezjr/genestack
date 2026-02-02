@@ -1,0 +1,308 @@
+# Rackspace Multi-Gateway Configuration
+# This configuration deploys multiple Envoy Gateways for internal and external services
+# with namespace isolation and appropriate certificate management
+
+gateways:
+  # Internal Gateway: Rackspace Services
+  rackspace-internal:
+    enabled: true
+    namespace: rackspace
+    type: internal
+    domain: rackspace.internal.local
+    gateway_class: internal-gateway-class
+    certificate:
+      provider: self-signed
+    metallb_pool: internal-pool
+    listeners:
+      - name: https
+        port: 443
+        protocol: HTTPS
+    routes:
+      - name: mq
+        hostname: mq.rackspace.internal.local
+        service: rabbitmq
+        namespace: rackspace
+        port: 5672
+
+  # Internal Gateway: Prometheus Services
+  prometheus-internal:
+    enabled: true
+    namespace: prometheus
+    type: internal
+    domain: prometheus.internal.local
+    gateway_class: internal-gateway-class
+    certificate:
+      provider: self-signed
+    metallb_pool: internal-pool
+    listeners:
+      - name: https
+        port: 443
+        protocol: HTTPS
+    routes:
+      - name: alertlogic
+        hostname: alertlogic.prometheus.internal.local
+        service: alertmanager
+        namespace: prometheus
+        port: 9093
+      - name: prometheus
+        hostname: prometheus.prometheus.internal.local
+        service: prometheus
+        namespace: prometheus
+        port: 9090
+
+  # Internal Gateway: Grafana Services
+  grafana-internal:
+    enabled: true
+    namespace: grafana
+    type: internal
+    domain: grafana.internal.local
+    gateway_class: internal-gateway-class
+    certificate:
+      provider: self-signed
+    metallb_pool: internal-pool
+    listeners:
+      - name: https
+        port: 443
+        protocol: HTTPS
+    routes:
+      - name: grafana
+        hostname: grafana.grafana.internal.local
+        service: grafana
+        namespace: grafana
+        port: 3000
+      - name: logcli
+        hostname: logcli.grafana.internal.local
+        service: loki
+        namespace: grafana
+        port: 3100
+
+  # Internal Gateway: Longhorn Services
+  longhorn-internal:
+    enabled: true
+    namespace: longhorn-system
+    type: internal
+    domain: longhorn.internal.local
+    gateway_class: internal-gateway-class
+    certificate:
+      provider: self-signed
+    metallb_pool: internal-pool
+    listeners:
+      - name: https
+        port: 443
+        protocol: HTTPS
+    routes:
+      - name: longhorn
+        hostname: longhorn.longhorn.internal.local
+        service: longhorn-frontend
+        namespace: longhorn-system
+        port: 80
+
+  # External Gateway: OpenStack Services
+  openstack-external:
+    enabled: true
+    namespace: openstack
+    type: external
+    domain: cloud.example.com
+    gateway_class: external-gateway-class
+    certificate:
+      provider: letsencrypt
+      email: admin@example.com
+      acme_challenge: http01
+    metallb_pool: external-pool
+    listeners:
+      - name: https
+        port: 443
+        protocol: HTTPS
+      - name: http
+        port: 80
+        protocol: HTTP
+    routes:
+      - name: barbican
+        hostname: barbican.cloud.example.com
+        service: barbican-api
+        namespace: openstack
+        port: 9311
+      - name: blazar
+        hostname: blazar.cloud.example.com
+        service: blazar-api
+        namespace: openstack
+        port: 1234
+      - name: cinder
+        hostname: cinder.cloud.example.com
+        service: cinder-api
+        namespace: openstack
+        port: 8776
+      - name: cloudformation
+        hostname: cloudformation.cloud.example.com
+        service: heat-cfn
+        namespace: openstack
+        port: 8000
+      - name: cloudkitty
+        hostname: cloudkitty.cloud.example.com
+        service: cloudkitty-api
+        namespace: openstack
+        port: 8889
+      - name: freezer
+        hostname: freezer.cloud.example.com
+        service: freezer-api
+        namespace: openstack
+        port: 9090
+      - name: glance
+        hostname: glance.cloud.example.com
+        service: glance-api
+        namespace: openstack
+        port: 9292
+      - name: gnocchi
+        hostname: gnocchi.cloud.example.com
+        service: gnocchi-api
+        namespace: openstack
+        port: 8041
+      - name: heat
+        hostname: heat.cloud.example.com
+        service: heat-api
+        namespace: openstack
+        port: 8004
+      - name: ironic
+        hostname: ironic.cloud.example.com
+        service: ironic-api
+        namespace: openstack
+        port: 6385
+      - name: keystone
+        hostname: keystone.cloud.example.com
+        service: keystone-api
+        namespace: openstack
+        port: 5000
+      - name: magnum
+        hostname: magnum.cloud.example.com
+        service: magnum-api
+        namespace: openstack
+        port: 9511
+      - name: manila
+        hostname: manila.cloud.example.com
+        service: manila-api
+        namespace: openstack
+        port: 8786
+      - name: masakari
+        hostname: masakari.cloud.example.com
+        service: masakari-api
+        namespace: openstack
+        port: 15868
+      - name: metadata
+        hostname: metadata.cloud.example.com
+        service: nova-metadata
+        namespace: openstack
+        port: 8775
+      - name: neutron
+        hostname: neutron.cloud.example.com
+        service: neutron-server
+        namespace: openstack
+        port: 9696
+      - name: nova
+        hostname: nova.cloud.example.com
+        service: nova-api
+        namespace: openstack
+        port: 8774
+      - name: novnc
+        hostname: novnc.cloud.example.com
+        service: nova-novncproxy
+        namespace: openstack
+        port: 6080
+      - name: octavia
+        hostname: octavia.cloud.example.com
+        service: octavia-api
+        namespace: openstack
+        port: 9876
+      - name: placement
+        hostname: placement.cloud.example.com
+        service: placement-api
+        namespace: openstack
+        port: 8778
+      - name: skyline
+        hostname: skyline.cloud.example.com
+        service: skyline-apiserver
+        namespace: openstack
+        port: 9999
+      - name: trove
+        hostname: trove.cloud.example.com
+        service: trove-api
+        namespace: openstack
+        port: 8779
+      - name: zaqar
+        hostname: zaqar.cloud.example.com
+        service: zaqar-api
+        namespace: openstack
+        port: 8888
+
+# Global settings
+global:
+  # Enable namespace isolation for better security
+  namespace_isolation: true
+  
+  # Automatically generate and apply routes from configuration
+  auto_routes: true
+  
+  # Automatically generate and apply listeners from configuration
+  auto_listeners: true
+
+# Gateway Classes Configuration
+# Note: Gateway classes must be created separately before deploying gateways
+# 
+# Example GatewayClass manifests:
+#
+# ---
+# apiVersion: gateway.networking.k8s.io/v1
+# kind: GatewayClass
+# metadata:
+#   name: internal-gateway-class
+# spec:
+#   controllerName: gateway.envoyproxy.io/gatewayclass-controller
+#   parametersRef:
+#     group: gateway.envoyproxy.io
+#     kind: EnvoyProxy
+#     name: internal-proxy-config
+#     namespace: envoy-gateway-system
+#
+# ---
+# apiVersion: gateway.networking.k8s.io/v1
+# kind: GatewayClass
+# metadata:
+#   name: external-gateway-class
+# spec:
+#   controllerName: gateway.envoyproxy.io/gatewayclass-controller
+#   parametersRef:
+#     group: gateway.envoyproxy.io
+#     kind: EnvoyProxy
+#     name: external-proxy-config
+#     namespace: envoy-gateway-system
+
+# MetalLB Configuration
+# Note: MetalLB pools must be configured before deploying gateways
+#
+# Example MetalLB IPAddressPool manifests:
+#
+# ---
+# apiVersion: metallb.io/v1beta1
+# kind: IPAddressPool
+# metadata:
+#   name: internal-pool
+#   namespace: metallb-system
+# spec:
+#   addresses:
+#   - 10.0.0.100-10.0.0.150
+#
+# ---
+# apiVersion: metallb.io/v1beta1
+# kind: IPAddressPool
+# metadata:
+#   name: external-pool
+#   namespace: metallb-system
+# spec:
+#   addresses:
+#   - 192.168.1.100-192.168.1.150
+
+# Usage:
+# 1. Update the domain names to match your environment
+# 2. Update the email address for Let's Encrypt
+# 3. Ensure MetalLB pools are configured
+# 4. Ensure GatewayClasses are created
+# 5. Deploy: ./setup-envoy-gateway.sh --config rackspace-multi-gateway-config.yaml
