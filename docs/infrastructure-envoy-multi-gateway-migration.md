@@ -390,6 +390,7 @@ If migration fails, rollback steps:
 **Symptom:** Certificate stuck in "Pending" state
 
 **Solution:**
+
 1. Check DNS credentials are correct
 2. Verify DNS provider API access
 3. Check cert-manager logs
@@ -400,6 +401,7 @@ If migration fails, rollback steps:
 **Symptom:** 404 or connection refused errors
 
 **Solution:**
+
 1. Verify backend service exists and is running
 2. Check service namespace matches route configuration
 3. Verify service port is correct
@@ -410,6 +412,7 @@ If migration fails, rollback steps:
 **Symptom:** Gateway stuck in "Pending" state
 
 **Solution:**
+
 1. Check Envoy Gateway controller is running
 2. Verify GatewayClass exists
 3. Check MetalLB is configured
@@ -420,6 +423,7 @@ If migration fails, rollback steps:
 **Symptom:** Resources already exist errors
 
 **Solution:**
+
 1. Use different namespace names
 2. Clean up old resources first
 3. Use unique gateway names
