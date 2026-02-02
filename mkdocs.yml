@@ -184,7 +184,11 @@ nav:
               - MetalLB: infrastructure-metallb.md
               - Gateway API:
                   - Gateway API Overview: infrastructure-gateway-api.md
-                  - Envoy Gateway: infrastructure-envoy-gateway-api.md
+                  - Envoy Gateway: 
+                      - Gateway Setup: infrastructure-envoy-gateway-api.md
+                      - Multi-Gateway Setup: infrastructure-envoy-multi-gateway.md
+                      - Multi-Gateway Migration: infrastructure-envoy-multi-gateway-migration.md
+                      - Gateway Design/Implementation: envoy-multi-gateway-design.md
               - MariaDB: infrastructure-mariadb.md
               - RabbitMQ: infrastructure-rabbitmq.md
               - Memcached: infrastructure-memcached.md
