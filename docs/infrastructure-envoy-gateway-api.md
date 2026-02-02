@@ -23,6 +23,13 @@ The install script will deploy Envoy Gateway to the `envoy-gateway-system` names
 
 ## Setup
 
+!!! note "Multi-Gateway Support Available"
+    Genestack now supports deploying multiple Envoy Gateways with namespace isolation and flexible certificate management.
+    
+    - **For simple single-gateway setups**: Use the command-line options documented below
+    - **For complex multi-gateway setups**: See the [Multi-Gateway Documentation](infrastructure-envoy-multi-gateway.md)
+    - **For migration guidance**: See the [Migration Guide](infrastructure-envoy-multi-gateway-migration.md)
+
 ??? example "Run the Envoy Gateway setup Script `/opt/genestack/bin/setup-envoy-gateway.sh`"
 
     ``` shell
