@@ -1,0 +1,104 @@
+# OpenStack Upgrade Configuration
+# This file defines the configuration for upgrading from Caracal to Epoxy
+
+# Source and target releases
+source_release: "2024.1"  # or "2024.2"
+target_release: "2025.1"
+
+# File paths
+chart_versions_path: "../helm-chart-versions.yaml"
+overrides_base_path: "../base-helm-configs/"
+backup_path: "./backups/"
+
+# Kubernetes configuration
+namespace: "openstack"
+
+# Upgrade behavior
+dry_run: false
+skip_optional_services: false
+timeout_per_service: 600  # seconds (10 minutes)
+
+# Service categories
+core_services:
+  - keystone
+  - glance
+  - placement
+  - cinder
+  - neutron
+  - nova
+  - horizon
+  - libvirt
+
+optional_services:
+  - barbican
+  - blazar
+  - ceilometer
+  - cloudkitty
+  - freezer
+  - gnocchi
+  - heat
+  - ironic
+  - magnum
+  - manila
+  - masakari
+  - octavia
+  - trove
+  - zaqar
+
+infrastructure_services:
+  - memcached
+  - mariadb-operator
+  - postgres-operator
+  - rabbitmq
+
+# Service dependencies (must be upgraded in order)
+dependencies:
+  keystone: []
+  glance: [keystone]
+  placement: [keystone]
+  cinder: [keystone, glance]
+  neutron: [keystone]
+  nova: [keystone, glance, placement, neutron]
+  horizon: [keystone]
+  octavia: [keystone, neutron]
+  heat: [keystone, neutron]
+  magnum: [keystone, neutron, heat]
+
+# Known breaking changes for Epoxy
+breaking_changes:
+  oslo_messaging:
+    - option: "heartbeat_in_pthread"
+      status: "deprecated"
+      severity: "medium"
+      description: "Deprecated in 2024.2, will be removed in future release"
+      mitigation: "Remove from configuration"
+    
+    - option: "kombu_ssl_*"
+      status: "removed"
+      severity: "high"
+      description: "SSL options moved to non-prefixed versions"
+      mitigation: "Use non-prefixed SSL options"
+  
+  ironic:
+    - change: "postgresql_support"
+      status: "removed"
+      severity: "critical"
+      description: "PostgreSQL support removed, only MySQL/MariaDB supported"
+      mitigation: "Migrate to MySQL/MariaDB before upgrade"
+  
+  neutron:
+    - change: "linux_bridge_driver"
+      status: "removed"
+      severity: "high"
+      description: "Linux Bridge mechanism driver removed"
+      mitigation: "Migrate to OVS or OVN before upgrade"
+
+# Deprecated configuration options
+deprecated_options:
+  - option: "[DEFAULT]/heartbeat_in_pthread"
+    replacement: "Remove this option"
+    services: ["nova", "neutron", "cinder"]
+  
+  - option: "[oslo_messaging_rabbit]/kombu_ssl_*"
+    replacement: "Use non-prefixed ssl_* options"
+    services: ["all"]
