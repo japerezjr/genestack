@@ -1,0 +1,88 @@
+---
+# Deprecation rules for OpenStack Caracal to Epoxy upgrade
+# Format:
+#   component: Service or component name
+#   deprecated_options: List of deprecated configuration options
+#     - option: Full path to the deprecated option (e.g., "conf.keystone.oslo_messaging_rabbit.heartbeat_in_pthread")
+#       replacement: Recommended replacement or action
+#       severity: critical, high, medium, low
+#       description: Description of the deprecation
+
+deprecations:
+  - component: oslo.messaging
+    deprecated_options:
+      - option: "conf.*.oslo_messaging_rabbit.heartbeat_in_pthread"
+        replacement: "Remove this option - heartbeat threading is now automatic"
+        severity: high
+        description: "The heartbeat_in_pthread option is deprecated as of 2024.2 and will be removed in a future release. Heartbeat threading is now handled automatically."
+      
+      - option: "conf.*.oslo_messaging_rabbit.kombu_ssl_version"
+        replacement: "Use 'ssl_version' instead"
+        severity: medium
+        description: "The kombu_ssl_* options have been deprecated. Use the non-prefixed versions instead."
+      
+      - option: "conf.*.oslo_messaging_rabbit.kombu_ssl_keyfile"
+        replacement: "Use 'ssl_keyfile' instead"
+        severity: medium
+        description: "The kombu_ssl_* options have been deprecated. Use the non-prefixed versions instead."
+      
+      - option: "conf.*.oslo_messaging_rabbit.kombu_ssl_certfile"
+        replacement: "Use 'ssl_certfile' instead"
+        severity: medium
+        description: "The kombu_ssl_* options have been deprecated. Use the non-prefixed versions instead."
+      
+      - option: "conf.*.oslo_messaging_rabbit.kombu_ssl_ca_certs"
+        replacement: "Use 'ssl_ca_file' instead"
+        severity: medium
+        description: "The kombu_ssl_* options have been deprecated. Use the non-prefixed versions instead."
+      
+      - option: "conf.*.oslo_messaging_amqp.*"
+        replacement: "Migrate to RabbitMQ or another supported driver"
+        severity: critical
+        description: "The AMQP 1.0 driver has been removed in Epoxy. Migrate to RabbitMQ or another supported messaging backend."
+  
+  - component: ironic
+    deprecated_options:
+      - option: "conf.ironic.database.connection"
+        replacement: "Ensure using MySQL/MariaDB, not PostgreSQL"
+        severity: critical
+        description: "PostgreSQL support has been removed from Ironic in Epoxy. Only MySQL/MariaDB is supported."
+  
+  - component: neutron
+    deprecated_options:
+      - option: "conf.neutron.*.mechanism_drivers"
+        replacement: "Remove 'linuxbridge' from mechanism_drivers if present"
+        severity: high
+        description: "The Linux Bridge mechanism driver has been removed in Epoxy. Use OVS or OVN instead."
+  
+  - component: general
+    deprecated_options:
+      - option: "conf.*.DEFAULT.log_file"
+        replacement: "Use structured logging to stdout/stderr"
+        severity: low
+        description: "File-based logging is discouraged. Use structured logging to stdout/stderr for container environments."
+      
+      - option: "conf.*.DEFAULT.log_dir"
+        replacement: "Use structured logging to stdout/stderr"
+        severity: low
+        description: "File-based logging is discouraged. Use structured logging to stdout/stderr for container environments."
+
+# Pattern-based deprecations (for more flexible matching)
+patterns:
+  - pattern: "heartbeat_in_pthread"
+    component: "oslo.messaging"
+    replacement: "Remove this option"
+    severity: high
+    description: "Deprecated in 2024.2, will be removed in future release"
+  
+  - pattern: "kombu_ssl_"
+    component: "oslo.messaging"
+    replacement: "Use non-prefixed ssl_* options"
+    severity: medium
+    description: "kombu_ssl_* options are deprecated"
+  
+  - pattern: "linuxbridge"
+    component: "neutron"
+    replacement: "Use OVS or OVN mechanism driver"
+    severity: high
+    description: "Linux Bridge driver removed in Epoxy"
