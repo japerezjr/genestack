@@ -272,7 +272,8 @@ This implementation plan breaks down the OpenStack Caracal to Epoxy upgrade into
     - Update docs/ directory
     - _Requirements: 8.8, 8.9_
 
-- [ ] 11. Checkpoint - Ensure core upgrade logic works
+- [x] 11. Checkpoint - Ensure core upgrade logic works
+  - Make sure to use bd to take/update/complete relevant tasks
   - Test upgrade execution in lab environment
   - Verify rollback functionality
   - Test logging and reporting
