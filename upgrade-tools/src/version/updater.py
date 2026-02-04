@@ -6,7 +6,7 @@ from typing import Dict, List, Optional
 import logging
 
 from .parser import VersionParser, VersionUpdate, CARACAL_VERSION_PATTERN
-from ..utils.yaml_utils import read_yaml_file, write_yaml_file
+from utils.yaml_utils import read_yaml_file, write_yaml_file
 
 
 logger = logging.getLogger(__name__)

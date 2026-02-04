@@ -8,9 +8,9 @@ from typing import List, Dict, Optional
 from dataclasses import dataclass, field
 from datetime import datetime
 
-from ..health.aggregator import HealthAggregator, HealthReport
-from ..health.pod_checker import PodStatusChecker
-from ..health.endpoint_checker import EndpointChecker
+from health.aggregator import HealthAggregator, HealthReport
+from health.pod_checker import PodStatusChecker
+from health.endpoint_checker import EndpointChecker
 
 
 @dataclass
@@ -199,7 +199,7 @@ class RollbackVerifier:
         )
         
         # Create a health report with just this service
-        from ..health.aggregator import HealthReport
+        from health.aggregator import HealthReport
         health_report = HealthReport(
             timestamp=timestamp,
             overall_healthy=service_health.healthy,

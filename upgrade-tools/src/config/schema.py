@@ -1,8 +1,10 @@
 """Configuration schema definitions using Pydantic."""
 
 from datetime import datetime
-from typing import Dict, List, Optional
+from pathlib import Path
+from typing import Dict, List, Optional, Union
 from pydantic import BaseModel, Field
+import yaml
 
 
 class UpgradeConfig(BaseModel):
@@ -29,6 +31,32 @@ class UpgradeConfig(BaseModel):
         default=600,
         description="Timeout in seconds for each service"
     )
+    
+    @classmethod
+    def from_yaml(cls, path: Union[str, Path]) -> "UpgradeConfig":
+        """Load configuration from YAML file.
+        
+        Args:
+            path: Path to YAML configuration file
+            
+        Returns:
+            UpgradeConfig instance
+            
+        Raises:
+            FileNotFoundError: If file doesn't exist
+            ValueError: If YAML is invalid
+        """
+        path = Path(path)
+        if not path.exists():
+            raise FileNotFoundError(f"Configuration file not found: {path}")
+        
+        with open(path, 'r') as f:
+            data = yaml.safe_load(f)
+        
+        if not data:
+            raise ValueError(f"Empty or invalid YAML file: {path}")
+        
+        return cls(**data)
 
 
 class VersionUpdate(BaseModel):

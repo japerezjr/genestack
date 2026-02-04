@@ -10,7 +10,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from .helm_executor import HelmExecutor, DeploymentResult
-from ..health.aggregator import HealthAggregator
+from health.aggregator import HealthAggregator
 
 
 @dataclass

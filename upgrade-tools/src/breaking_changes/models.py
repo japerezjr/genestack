@@ -98,6 +98,20 @@ class ImpactReport:
     def get_sorted_changes(self) -> List[BreakingChange]:
         """Get affected changes sorted by priority (critical first)."""
         return sorted(self.affected_changes, key=lambda x: x.priority)
+    
+    @property
+    def critical_changes(self) -> List[BreakingChange]:
+        """Get all critical breaking changes."""
+        return [c for c in self.affected_changes if c.severity == 'critical']
+    
+    @property
+    def changes(self) -> List[BreakingChange]:
+        """Get all affected changes (alias for affected_changes)."""
+        return self.affected_changes
+    
+    def has_critical_changes(self) -> bool:
+        """Check if there are any critical breaking changes (method version)."""
+        return self.has_critical_issues
 
 
 @dataclass

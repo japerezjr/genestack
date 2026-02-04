@@ -22,4 +22,9 @@ setup(
             "hypothesis>=6.92.0",
         ],
     },
+    entry_points={
+        "console_scripts": [
+            "openstack-upgrade=cli:main",
+        ],
+    },
 )

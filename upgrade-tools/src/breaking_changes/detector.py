@@ -130,3 +130,27 @@ class BreakingChangeDetector:
     def get_changes_by_service(self, service: str):
         """Get breaking changes affecting a specific service."""
         return self.catalog.get_changes_by_service(service)
+    
+    def detect_for_release(self, release: str) -> ImpactReport:
+        """
+        Detect all breaking changes for a target release.
+        
+        This method returns all breaking changes in the catalog
+        as an impact report, useful for showing what changes
+        exist in the target release.
+        
+        Args:
+            release: Target release version (e.g., "2025.1")
+        
+        Returns:
+            ImpactReport with all breaking changes
+        """
+        # Get all breaking changes from catalog
+        all_changes = self.catalog.get_all_changes()
+        
+        # Create impact report with all changes marked as affected
+        report = ImpactReport()
+        for change in all_changes:
+            report.add_affected_change(change)
+        
+        return report

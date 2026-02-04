@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from typing import Dict, List, Optional
 from pathlib import Path
 
-from ..utils.yaml_utils import read_yaml_file
+from utils.yaml_utils import read_yaml_file
 
 
 # Known OpenStack services that should be upgraded

@@ -279,15 +279,16 @@ This implementation plan breaks down the OpenStack Caracal to Epoxy upgrade into
   - Test logging and reporting
   - Ask the user if questions arise
 
-- [ ] 12. Create main upgrade orchestration script
-  - [ ] 12.1 Create CLI interface for upgrade tool
+- [x] 12. Create main upgrade orchestration script
+  - Use bd to take/update/complete relevant tasks
+  - [x] 12.1 Create CLI interface for upgrade tool
     - Implement argument parsing
     - Support dry-run mode
     - Support configuration file input
     - Provide help and usage information
     - _Requirements: 9.6, 9.7_
 
-  - [ ] 12.2 Implement main upgrade workflow
+  - [x] 12.2 Implement main upgrade workflow
     - Load configuration
     - Run pre-upgrade validation
     - Update chart versions and configurations
@@ -296,7 +297,7 @@ This implementation plan breaks down the OpenStack Caracal to Epoxy upgrade into
     - Generate final report
     - _Requirements: All_
 
-  - [ ] 12.3 Add error handling and recovery
+  - [x] 12.3 Add error handling and recovery
     - Catch and handle all exceptions
     - Initiate rollback on failure
     - Provide clear error messages

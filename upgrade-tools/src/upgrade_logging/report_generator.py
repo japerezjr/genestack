@@ -425,3 +425,166 @@ class SummaryReportGenerator:
             
             elif action_type == "rollback":
                 self.mark_rollback()
+
+
+class ReportGenerator:
+    """High-level report generator for upgrade operations.
+    
+    Provides methods for generating various types of reports
+    including dry-run reports and full upgrade reports.
+    """
+    
+    def __init__(self):
+        """Initialize the report generator."""
+        self.summary_gen = SummaryReportGenerator()
+    
+    def generate_dry_run_report(
+        self,
+        version_result: Any,
+        validation_report: Any,
+        breaking_report: Any
+    ) -> str:
+        """Generate a dry-run report showing planned changes.
+        
+        Args:
+            version_result: Version update results
+            validation_report: Configuration validation results
+            breaking_report: Breaking changes report
+            
+        Returns:
+            Formatted dry-run report
+        """
+        lines = []
+        lines.append("=" * 80)
+        lines.append("DRY-RUN REPORT: OpenStack Caracal to Epoxy Upgrade")
+        lines.append("=" * 80)
+        lines.append("")
+        lines.append("This is a dry-run. No changes will be applied.")
+        lines.append("")
+        
+        # Version changes
+        lines.append("PLANNED VERSION CHANGES")
+        lines.append("-" * 80)
+        if hasattr(version_result, 'updates'):
+            lines.append(f"Total charts to update: {len(version_result.updates)}")
+            lines.append("")
+            for update in version_result.updates:
+                lines.append(f"  • {update.chart_name}")
+                lines.append(f"    {update.current_version} → {update.target_version}")
+                lines.append(f"    Category: {update.category}")
+        lines.append("")
+        
+        # Configuration validation
+        lines.append("CONFIGURATION VALIDATION")
+        lines.append("-" * 80)
+        if hasattr(validation_report, 'issues'):
+            if validation_report.issues:
+                lines.append(f"Issues found: {len(validation_report.issues)}")
+                for issue in validation_report.issues:
+                    lines.append(f"  [{issue.severity}] {issue.component}: {issue.description}")
+            else:
+                lines.append("✓ No configuration issues found")
+        lines.append("")
+        
+        # Breaking changes
+        lines.append("BREAKING CHANGES")
+        lines.append("-" * 80)
+        if hasattr(breaking_report, 'changes'):
+            if breaking_report.changes:
+                lines.append(f"Breaking changes detected: {len(breaking_report.changes)}")
+                for change in breaking_report.changes:
+                    lines.append(f"  [{change.severity}] {change.component}")
+                    lines.append(f"    {change.description}")
+                    lines.append(f"    Mitigation: {change.mitigation}")
+            else:
+                lines.append("✓ No breaking changes detected")
+        lines.append("")
+        
+        lines.append("=" * 80)
+        lines.append("To proceed with the upgrade, run without --dry-run flag")
+        lines.append("=" * 80)
+        
+        return "\n".join(lines)
+    
+    def generate_upgrade_report(
+        self,
+        version_result: Any,
+        validation_report: Any,
+        breaking_report: Any,
+        upgrade_result: Any,
+        config: Any
+    ) -> str:
+        """Generate a complete upgrade report.
+        
+        Args:
+            version_result: Version update results
+            validation_report: Configuration validation results
+            breaking_report: Breaking changes report
+            upgrade_result: Upgrade execution results
+            config: Upgrade configuration
+            
+        Returns:
+            Formatted upgrade report
+        """
+        lines = []
+        lines.append("=" * 80)
+        lines.append("UPGRADE REPORT: OpenStack Caracal to Epoxy")
+        lines.append("=" * 80)
+        lines.append("")
+        
+        # Configuration
+        lines.append("CONFIGURATION")
+        lines.append("-" * 80)
+        lines.append(f"Source Release: {config.source_release}")
+        lines.append(f"Target Release: {config.target_release}")
+        lines.append(f"Namespace: {config.namespace}")
+        lines.append(f"Skip Optional: {config.skip_optional_services}")
+        lines.append("")
+        
+        # Version changes
+        lines.append("VERSION CHANGES")
+        lines.append("-" * 80)
+        if hasattr(version_result, 'updates'):
+            lines.append(f"Charts updated: {len(version_result.updates)}")
+            for update in version_result.updates:
+                lines.append(f"  ✓ {update.chart_name}: {update.current_version} → {update.target_version}")
+        lines.append("")
+        
+        # Upgrade results
+        lines.append("UPGRADE EXECUTION")
+        lines.append("-" * 80)
+        lines.append(f"Status: {'SUCCESS' if upgrade_result.success else 'FAILED'}")
+        lines.append(f"Duration: {upgrade_result.total_duration:.1f} seconds")
+        lines.append(f"Services Upgraded: {len(upgrade_result.services_upgraded)}")
+        lines.append(f"Services Failed: {len(upgrade_result.services_failed)}")
+        lines.append("")
+        
+        if upgrade_result.services_upgraded:
+            lines.append("Successfully Upgraded:")
+            for service in upgrade_result.services_upgraded:
+                result = upgrade_result.service_results.get(service)
+                if result:
+                    lines.append(f"  ✓ {service} ({result.duration:.1f}s)")
+                else:
+                    lines.append(f"  ✓ {service}")
+        
+        if upgrade_result.services_failed:
+            lines.append("")
+            lines.append("Failed Services:")
+            for service in upgrade_result.services_failed:
+                result = upgrade_result.service_results.get(service)
+                if result:
+                    lines.append(f"  ✗ {service}")
+                    for error in result.errors:
+                        lines.append(f"    Error: {error}")
+        
+        if upgrade_result.warnings:
+            lines.append("")
+            lines.append("Warnings:")
+            for warning in upgrade_result.warnings:
+                lines.append(f"  ⚠ {warning}")
+        
+        lines.append("")
+        lines.append("=" * 80)
+        
+        return "\n".join(lines)

@@ -12,7 +12,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 
 from .backup_manager import Backup, BackupManager
-from ..executor.helm_executor import HelmExecutor
+from executor.helm_executor import HelmExecutor
 
 
 @dataclass
@@ -301,7 +301,7 @@ class RestoreManager:
             FileNotFoundError: If chart versions file doesn't exist
             RuntimeError: If helm operations fail
         """
-        from ..utils.yaml_utils import read_yaml_file
+        from utils.yaml_utils import read_yaml_file
         
         chart_versions_file = Path(chart_versions_path)
         if not chart_versions_file.exists():

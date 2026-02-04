@@ -1,0 +1,634 @@
+"""Main CLI for OpenStack Caracal to Epoxy upgrade orchestration.
+
+This module provides a unified interface for the complete upgrade workflow:
+- Pre-upgrade validation
+- Chart version updates
+- Configuration validation
+- Breaking change detection
+- Upgrade execution
+- Post-upgrade verification
+- Rollback capability
+"""
+
+import sys
+import argparse
+import json
+from pathlib import Path
+from typing import Optional
+
+# Import our modules
+from config.schema import UpgradeConfig
+from version.manager import ChartVersionManager
+from validation.validator import ConfigurationValidator
+from breaking_changes.detector import BreakingChangeDetector
+from health.validator import PreUpgradeValidator
+from executor.upgrade_orchestrator import UpgradeOrchestrator
+from executor.service_upgrader import ServiceUpgrader
+from executor.helm_executor import HelmExecutor
+from rollback.backup_manager import BackupManager
+from rollback.rollback_verifier import RollbackVerifier
+from upgrade_logging.logger import UpgradeLogger
+from upgrade_logging.report_generator import ReportGenerator
+
+
+def create_parser() -> argparse.ArgumentParser:
+    """Create argument parser for the upgrade CLI.
+    
+    Returns:
+        Configured ArgumentParser
+    """
+    parser = argparse.ArgumentParser(
+        description="OpenStack Caracal to Epoxy Upgrade Tool",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Dry-run mode (show what would be changed)
+  openstack-upgrade --dry-run
+  
+  # Full upgrade with default settings
+  openstack-upgrade
+  
+  # Upgrade with custom configuration
+  openstack-upgrade --config /path/to/config.yaml
+  
+  # Skip optional services
+  openstack-upgrade --skip-optional
+  
+  # Rollback to previous version
+  openstack-upgrade --rollback
+  
+  # Pre-upgrade validation only
+  openstack-upgrade --validate-only
+        """
+    )
+    
+    # Mode selection
+    mode_group = parser.add_mutually_exclusive_group()
+    mode_group.add_argument(
+        "--dry-run",
+        action="store_true",
+        help="Show what would be changed without making changes"
+    )
+    mode_group.add_argument(
+        "--validate-only",
+        action="store_true",
+        help="Run pre-upgrade validation only"
+    )
+    mode_group.add_argument(
+        "--rollback",
+        action="store_true",
+        help="Rollback to previous version"
+    )
+    
+    # Configuration
+    parser.add_argument(
+        "--config",
+        type=Path,
+        help="Path to upgrade configuration file (YAML)"
+    )
+    parser.add_argument(
+        "--chart-versions",
+        type=Path,
+        default=Path("../helm-chart-versions.yaml"),
+        help="Path to helm-chart-versions.yaml (default: ../helm-chart-versions.yaml)"
+    )
+    parser.add_argument(
+        "--overrides-path",
+        type=Path,
+        default=Path("../base-helm-configs"),
+        help="Path to base-helm-configs directory (default: ../base-helm-configs)"
+    )
+    parser.add_argument(
+        "--backup-path",
+        type=Path,
+        default=Path("/var/backups/openstack"),
+        help="Path to backup directory (default: /var/backups/openstack)"
+    )
+    
+    # Kubernetes settings
+    parser.add_argument(
+        "--namespace",
+        default="openstack",
+        help="Kubernetes namespace (default: openstack)"
+    )
+    parser.add_argument(
+        "--in-cluster",
+        action="store_true",
+        help="Use in-cluster Kubernetes configuration"
+    )
+    
+    # Upgrade options
+    parser.add_argument(
+        "--skip-optional",
+        action="store_true",
+        help="Skip optional services (only upgrade core services)"
+    )
+    parser.add_argument(
+        "--services",
+        nargs="+",
+        help="Specific services to upgrade (space-separated)"
+    )
+    parser.add_argument(
+        "--timeout",
+        type=int,
+        default=600,
+        help="Timeout per service in seconds (default: 600)"
+    )
+    parser.add_argument(
+        "--no-halt-on-failure",
+        action="store_true",
+        help="Continue upgrade even if a service fails"
+    )
+    
+    # Validation options
+    parser.add_argument(
+        "--skip-pre-validation",
+        action="store_true",
+        help="Skip pre-upgrade validation (not recommended)"
+    )
+    parser.add_argument(
+        "--skip-post-validation",
+        action="store_true",
+        help="Skip post-upgrade validation"
+    )
+    parser.add_argument(
+        "--skip-endpoints",
+        action="store_true",
+        help="Skip OpenStack API endpoint checks"
+    )
+    
+    # Output options
+    parser.add_argument(
+        "--output",
+        type=Path,
+        help="Path to write upgrade report (default: stdout)"
+    )
+    parser.add_argument(
+        "--format",
+        choices=["text", "json", "markdown"],
+        default="text",
+        help="Output format (default: text)"
+    )
+    parser.add_argument(
+        "--verbose",
+        "-v",
+        action="store_true",
+        help="Enable verbose output"
+    )
+    parser.add_argument(
+        "--quiet",
+        "-q",
+        action="store_true",
+        help="Suppress non-error output"
+    )
+    
+    # Release versions
+    parser.add_argument(
+        "--source-release",
+        default="2024.2",
+        help="Source OpenStack release (default: 2024.2)"
+    )
+    parser.add_argument(
+        "--target-release",
+        default="2025.1",
+        help="Target OpenStack release (default: 2025.1)"
+    )
+    
+    return parser
+
+
+def load_config(args: argparse.Namespace) -> UpgradeConfig:
+    """Load upgrade configuration from arguments.
+    
+    Args:
+        args: Parsed command-line arguments
+        
+    Returns:
+        UpgradeConfig object
+    """
+    # If config file provided, load it
+    if args.config:
+        return UpgradeConfig.from_yaml(args.config)
+    
+    # Otherwise, create from command-line arguments
+    return UpgradeConfig(
+        source_release=args.source_release,
+        target_release=args.target_release,
+        chart_versions_path=str(args.chart_versions),
+        overrides_base_path=str(args.overrides_path),
+        namespace=args.namespace,
+        dry_run=args.dry_run,
+        skip_optional_services=args.skip_optional,
+        backup_path=str(args.backup_path),
+        timeout_per_service=args.timeout
+    )
+
+
+def print_section(title: str, quiet: bool = False):
+    """Print a section header.
+    
+    Args:
+        title: Section title
+        quiet: If True, suppress output
+    """
+    if not quiet:
+        print(f"\n{'=' * 70}")
+        print(f"{title}")
+        print('=' * 70)
+
+
+def handle_validation_only(
+    args: argparse.Namespace,
+    config: UpgradeConfig,
+    logger: UpgradeLogger,
+    report_gen: ReportGenerator
+) -> int:
+    """Handle validation-only mode.
+    
+    Args:
+        args: Command-line arguments
+        config: Upgrade configuration
+        logger: Upgrade logger
+        report_gen: Report generator
+        
+    Returns:
+        Exit code
+    """
+    print_section("Pre-Upgrade Validation", args.quiet)
+    
+    validator = PreUpgradeValidator(
+        in_cluster=args.in_cluster,
+        check_endpoints=not args.skip_endpoints,
+        backup_path=config.backup_path,
+        namespace=config.namespace
+    )
+    
+    report = validator.validate()
+    report_text = validator.generate_detailed_report(output_format=args.format)
+    
+    if args.output:
+        args.output.write_text(report_text)
+        if not args.quiet:
+            print(f"Validation report written to {args.output}")
+    else:
+        print(report_text)
+    
+    logger.log_action("validation_completed", {
+        "passed": report.passed,
+        "issues": len(report.issues)
+    })
+    
+    return 0 if report.passed else 1
+
+
+def handle_rollback(
+    args: argparse.Namespace,
+    config: UpgradeConfig,
+    logger: UpgradeLogger,
+    report_gen: ReportGenerator
+) -> int:
+    """Handle rollback mode.
+    
+    Args:
+        args: Command-line arguments
+        config: Upgrade configuration
+        logger: Upgrade logger
+        report_gen: Report generator
+        
+    Returns:
+        Exit code
+    """
+    print_section("Rollback to Previous Version", args.quiet)
+    
+    # Initialize backup manager
+    backup_mgr = BackupManager(backup_path=config.backup_path)
+    
+    # Find latest backup
+    if not args.quiet:
+        print("Finding latest backup...")
+    
+    latest_backup = backup_mgr.find_latest_backup()
+    if not latest_backup:
+        print("ERROR: No backup found for rollback", file=sys.stderr)
+        return 1
+    
+    if not args.quiet:
+        print(f"Found backup: {latest_backup}")
+    
+    # Confirm rollback
+    if not args.dry_run:
+        response = input("\nThis will rollback to the previous version. Continue? (yes/no): ")
+        if response.lower() != "yes":
+            print("Rollback cancelled")
+            return 0
+    
+    if args.dry_run:
+        print("\n[DRY-RUN] Would restore from backup:", latest_backup)
+        print("[DRY-RUN] Would apply previous helm chart versions")
+        print("[DRY-RUN] Would verify service health")
+        return 0
+    
+    # Perform rollback
+    if not args.quiet:
+        print("\nRestoring from backup...")
+    
+    restore_result = backup_mgr.restore_from_backup(latest_backup)
+    
+    if not restore_result.success:
+        print(f"ERROR: Rollback failed: {', '.join(restore_result.errors)}", file=sys.stderr)
+        return 1
+    
+    # Verify rollback
+    if not args.quiet:
+        print("\nVerifying rollback...")
+    
+    verifier = RollbackVerifier(namespace=config.namespace, in_cluster=args.in_cluster)
+    verification = verifier.verify_rollback()
+    
+    if verification.success:
+        print("\n✓ Rollback completed successfully")
+        return 0
+    else:
+        print(f"\n✗ Rollback verification failed: {', '.join(verification.errors)}", file=sys.stderr)
+        return 1
+
+
+def handle_full_upgrade(
+    args: argparse.Namespace,
+    config: UpgradeConfig,
+    logger: UpgradeLogger,
+    report_gen: ReportGenerator
+) -> int:
+    """Handle full upgrade workflow.
+    
+    Args:
+        args: Command-line arguments
+        config: Upgrade configuration
+        logger: Upgrade logger
+        report_gen: Report generator
+        
+    Returns:
+        Exit code
+    """
+    # Phase 1: Pre-upgrade validation
+    if not args.skip_pre_validation:
+        print_section("Phase 1: Pre-Upgrade Validation", args.quiet)
+        
+        validator = PreUpgradeValidator(
+            in_cluster=args.in_cluster,
+            check_endpoints=not args.skip_endpoints,
+            backup_path=config.backup_path,
+            namespace=config.namespace
+        )
+        
+        report = validator.validate()
+        
+        if not report.passed:
+            print("\n✗ Pre-upgrade validation failed:", file=sys.stderr)
+            for issue in report.issues:
+                print(f"  - {issue.description}", file=sys.stderr)
+            print("\nPlease fix these issues before upgrading.", file=sys.stderr)
+            return 1
+        
+        if not args.quiet:
+            print("✓ Pre-upgrade validation passed")
+    
+    # Phase 2: Chart and configuration updates
+    print_section("Phase 2: Chart and Configuration Updates", args.quiet)
+    
+    # Update chart versions
+    if not args.quiet:
+        print("Updating chart versions...")
+    
+    version_mgr = ChartVersionManager(config.chart_versions_path)
+    version_report = version_mgr.upgrade_caracal_to_epoxy(dry_run=args.dry_run)
+    
+    if args.dry_run:
+        print(f"\n[DRY-RUN] Would update {len(version_report.updates)} chart versions")
+        for update in version_report.updates:
+            print(f"  {update.chart_name}: {update.current_version} → {update.target_version}")
+    else:
+        if not args.quiet:
+            print(f"✓ Updated {len(version_report.updates)} chart versions")
+    
+    # Validate configurations
+    if not args.quiet:
+        print("\nValidating configurations...")
+    
+    config_validator = ConfigurationValidator(config.overrides_base_path)
+    validation_report = config_validator.validate_all()
+    
+    if validation_report.has_critical_issues():
+        print("\n✗ Configuration validation failed:", file=sys.stderr)
+        for issue in validation_report.critical_issues:
+            print(f"  - {issue.description}", file=sys.stderr)
+        return 1
+    
+    if not args.quiet:
+        print("✓ Configuration validation passed")
+    
+    # Detect breaking changes
+    if not args.quiet:
+        print("\nDetecting breaking changes...")
+    
+    breaking_detector = BreakingChangeDetector()
+    breaking_report = breaking_detector.detect_for_release(config.target_release)
+    
+    if breaking_report.has_critical_changes():
+        print("\n⚠ Critical breaking changes detected:", file=sys.stderr)
+        for change in breaking_report.critical_changes:
+            print(f"  - {change.component}: {change.description}", file=sys.stderr)
+        
+        if not args.dry_run:
+            response = input("\nContinue with upgrade? (yes/no): ")
+            if response.lower() != "yes":
+                print("Upgrade cancelled")
+                return 0
+    
+    if args.dry_run:
+        print("\n[DRY-RUN] Upgrade preparation complete")
+        print("[DRY-RUN] Would proceed to upgrade execution")
+        
+        # Generate dry-run report
+        report = report_gen.generate_dry_run_report(
+            version_result=version_report,
+            validation_report=validation_report,
+            breaking_report=breaking_report
+        )
+        
+        if args.output:
+            args.output.write_text(report)
+            print(f"\nDry-run report written to {args.output}")
+        else:
+            print("\n" + report)
+        
+        return 0
+    
+    # Phase 3: Create backup
+    print_section("Phase 3: Creating Backup", args.quiet)
+    
+    backup_mgr = BackupManager(backup_path=config.backup_path)
+    backup_result = backup_mgr.create_full_backup(
+        chart_versions_path=config.chart_versions_path,
+        overrides_path=config.overrides_base_path
+    )
+    
+    if not backup_result.success:
+        print(f"✗ Backup failed: {', '.join(backup_result.errors)}", file=sys.stderr)
+        return 1
+    
+    if not args.quiet:
+        print(f"✓ Backup created: {backup_result.backup_path}")
+    
+    # Phase 4: Upgrade execution
+    print_section("Phase 4: Upgrade Execution", args.quiet)
+    
+    # Initialize upgrade components
+    helm_executor = HelmExecutor(namespace=config.namespace)
+    service_upgrader = ServiceUpgrader(helm_executor=helm_executor)
+    orchestrator = UpgradeOrchestrator(service_upgrader=service_upgrader)
+    
+    # Determine services to upgrade
+    if args.services:
+        services = args.services
+    else:
+        services = None  # Will use all services
+    
+    # Execute upgrade
+    if not args.quiet:
+        print("Starting service upgrades...")
+    
+    if services:
+        upgrade_result = orchestrator.orchestrate_upgrade(
+            services=services,
+            chart_base_path=str(config.overrides_base_path),
+            skip_optional=config.skip_optional_services,
+            halt_on_failure=not args.no_halt_on_failure,
+            timeout_per_service=config.timeout_per_service
+        )
+    else:
+        upgrade_result = orchestrator.orchestrate_full_upgrade(
+            chart_base_path=str(config.overrides_base_path),
+            skip_optional=config.skip_optional_services,
+            halt_on_failure=not args.no_halt_on_failure,
+            timeout_per_service=config.timeout_per_service
+        )
+    
+    # Check upgrade result
+    if not upgrade_result.success:
+        print(f"\n✗ Upgrade failed", file=sys.stderr)
+        print(f"Services upgraded: {len(upgrade_result.services_upgraded)}", file=sys.stderr)
+        print(f"Services failed: {len(upgrade_result.services_failed)}", file=sys.stderr)
+        
+        # Offer rollback
+        response = input("\nWould you like to rollback? (yes/no): ")
+        if response.lower() == "yes":
+            print("\nInitiating rollback...")
+            restore_result = backup_mgr.restore_from_backup(backup_result.backup_path)
+            if restore_result.success:
+                print("✓ Rollback completed")
+            else:
+                print(f"✗ Rollback failed: {', '.join(restore_result.errors)}", file=sys.stderr)
+        
+        return 1
+    
+    if not args.quiet:
+        print(f"\n✓ All services upgraded successfully")
+        print(f"Total duration: {upgrade_result.total_duration:.1f} seconds")
+    
+    # Phase 5: Post-upgrade verification
+    if not args.skip_post_validation:
+        print_section("Phase 5: Post-Upgrade Verification", args.quiet)
+        
+        validator = PreUpgradeValidator(
+            in_cluster=args.in_cluster,
+            check_endpoints=not args.skip_endpoints,
+            backup_path=config.backup_path,
+            namespace=config.namespace
+        )
+        
+        post_report = validator.validate()
+        
+        if not post_report.passed:
+            print("\n⚠ Post-upgrade validation found issues:", file=sys.stderr)
+            for issue in post_report.issues:
+                print(f"  - {issue.description}", file=sys.stderr)
+        else:
+            if not args.quiet:
+                print("✓ Post-upgrade validation passed")
+    
+    # Generate final report
+    print_section("Upgrade Complete", args.quiet)
+    
+    final_report = report_gen.generate_upgrade_report(
+        version_result=version_report,
+        validation_report=validation_report,
+        breaking_report=breaking_report,
+        upgrade_result=upgrade_result,
+        config=config
+    )
+    
+    if args.output:
+        args.output.write_text(final_report)
+        if not args.quiet:
+            print(f"Upgrade report written to {args.output}")
+    else:
+        print("\n" + final_report)
+    
+    logger.log_action("upgrade_completed", {
+        "success": upgrade_result.success,
+        "duration": upgrade_result.total_duration
+    })
+    
+    return 0
+
+
+def main() -> int:
+    """Main entry point for upgrade CLI.
+    
+    Returns:
+        Exit code (0 for success, non-zero for failure)
+    """
+    parser = create_parser()
+    args = parser.parse_args()
+    
+    # Validate arguments
+    if args.verbose and args.quiet:
+        print("ERROR: Cannot use --verbose and --quiet together", file=sys.stderr)
+        return 1
+    
+    try:
+        # Load configuration
+        config = load_config(args)
+        
+        # Initialize logger
+        logger = UpgradeLogger(verbose=args.verbose)
+        logger.log_action("upgrade_started", {"config": config.__dict__})
+        
+        # Initialize report generator
+        report_gen = ReportGenerator()
+        
+        # Handle rollback mode
+        if args.rollback:
+            return handle_rollback(args, config, logger, report_gen)
+        
+        # Handle validate-only mode
+        if args.validate_only:
+            return handle_validation_only(args, config, logger, report_gen)
+        
+        # Handle full upgrade workflow
+        return handle_full_upgrade(args, config, logger, report_gen)
+        
+    except KeyboardInterrupt:
+        print("\n\nUpgrade interrupted by user", file=sys.stderr)
+        return 130
+    except Exception as e:
+        print(f"\n\nFATAL ERROR: {e}", file=sys.stderr)
+        if args.verbose:
+            import traceback
+            traceback.print_exc()
+        return 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional, Set
 from dataclasses import dataclass
 
-from ..utils.yaml_utils import read_yaml_file
+from utils.yaml_utils import read_yaml_file
 
 
 logger = logging.getLogger(__name__)
