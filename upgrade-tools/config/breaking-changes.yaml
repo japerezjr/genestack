@@ -1,0 +1,237 @@
+---
+# Breaking Changes for OpenStack Caracal (2024.1/2024.2) to Epoxy (2025.1) Upgrade
+# This file catalogs all known breaking changes between releases
+
+breaking_changes:
+  # oslo.messaging changes
+  - id: "BC001"
+    component: "oslo.messaging"
+    change_type: "config"
+    title: "heartbeat_in_pthread deprecated"
+    description: "The heartbeat_in_pthread option is deprecated as of 2024.2 and will be removed in a future release"
+    impact: "Configuration option will be ignored if present, may cause warnings in logs"
+    mitigation: "Remove heartbeat_in_pthread from all oslo_messaging_rabbit configuration sections"
+    severity: "medium"
+    affects_services:
+      - nova
+      - neutron
+      - cinder
+      - glance
+      - keystone
+      - heat
+      - octavia
+    detection_pattern: "heartbeat_in_pthread"
+    detection_section: "oslo_messaging_rabbit"
+  
+  - id: "BC002"
+    component: "oslo.messaging"
+    change_type: "config"
+    title: "kombu_ssl_* options removed"
+    description: "The kombu_ssl_version, kombu_ssl_keyfile, kombu_ssl_certfile, and kombu_ssl_ca_certs options have been removed"
+    impact: "SSL configuration will fail if using old option names"
+    mitigation: "Replace kombu_ssl_version with ssl_version, kombu_ssl_keyfile with ssl_keyfile, kombu_ssl_certfile with ssl_certfile, kombu_ssl_ca_certs with ssl_ca_file"
+    severity: "high"
+    affects_services:
+      - nova
+      - neutron
+      - cinder
+      - glance
+      - keystone
+      - heat
+      - octavia
+    detection_pattern: "kombu_ssl_"
+    detection_section: "oslo_messaging_rabbit"
+  
+  - id: "BC003"
+    component: "oslo.messaging"
+    change_type: "dependency"
+    title: "AMQP 1.0 driver removed"
+    description: "The AMQP 1.0 messaging driver has been completely removed from oslo.messaging"
+    impact: "Deployments using AMQP 1.0 will fail to start"
+    mitigation: "Migrate to RabbitMQ (recommended) or another supported messaging backend before upgrade"
+    severity: "critical"
+    affects_services:
+      - all
+    detection_pattern: "oslo_messaging_amqp"
+    detection_section: "DEFAULT"
+  
+  - id: "BC004"
+    component: "oslo.messaging"
+    change_type: "config"
+    title: "Configuration options moved to [oslo_messaging_rabbit]"
+    description: "Several messaging options have been moved from [DEFAULT] section to [oslo_messaging_rabbit] section"
+    impact: "Options in wrong section will be ignored, causing connection failures"
+    mitigation: "Move rabbit_* options from [DEFAULT] to [oslo_messaging_rabbit] section"
+    severity: "high"
+    affects_services:
+      - nova
+      - neutron
+      - cinder
+      - glance
+      - keystone
+    detection_pattern: "rabbit_"
+    detection_section: "DEFAULT"
+  
+  # Ironic changes
+  - id: "BC005"
+    component: "ironic"
+    change_type: "database"
+    title: "PostgreSQL support removed"
+    description: "Ironic no longer supports PostgreSQL databases, only MySQL/MariaDB is supported"
+    impact: "Ironic will fail to start if configured with PostgreSQL"
+    mitigation: "Migrate Ironic database from PostgreSQL to MySQL/MariaDB before upgrade"
+    severity: "critical"
+    affects_services:
+      - ironic
+    detection_pattern: "postgresql"
+    detection_section: "database"
+  
+  # Neutron changes
+  - id: "BC006"
+    component: "neutron"
+    change_type: "config"
+    title: "Linux Bridge mechanism driver removed"
+    description: "The Linux Bridge ML2 mechanism driver has been removed from Neutron"
+    impact: "Neutron will fail to start if linuxbridge is configured as mechanism driver"
+    mitigation: "Migrate to OVS or OVN mechanism driver before upgrade"
+    severity: "critical"
+    affects_services:
+      - neutron
+    detection_pattern: "linuxbridge"
+    detection_section: "ml2"
+  
+  - id: "BC007"
+    component: "neutron"
+    change_type: "api"
+    title: "Firewall v2 API changes"
+    description: "Firewall as a Service v2 API has been updated with new features and deprecations"
+    impact: "Some FWaaS v2 API calls may behave differently or require updated parameters"
+    mitigation: "Review FWaaS v2 API changes and update client code if using FWaaS"
+    severity: "low"
+    affects_services:
+      - neutron
+    detection_pattern: "fwaas"
+    detection_section: "service_plugins"
+  
+  # Python version requirement
+  - id: "BC008"
+    component: "python"
+    change_type: "dependency"
+    title: "Python 3.8 support removed"
+    description: "OpenStack Epoxy requires Python 3.9 or later, Python 3.8 is no longer supported"
+    impact: "Services will fail to start on systems with only Python 3.8"
+    mitigation: "Upgrade system Python to 3.9 or later before upgrade"
+    severity: "critical"
+    affects_services:
+      - all
+    detection_pattern: "python3.8"
+    detection_section: null
+  
+  # Nova changes
+  - id: "BC009"
+    component: "nova"
+    change_type: "config"
+    title: "Legacy quota driver removed"
+    description: "The legacy quota driver has been removed, unified limits is now the only option"
+    impact: "Quota management may behave differently if using legacy driver"
+    mitigation: "Migrate to unified limits quota driver before upgrade"
+    severity: "medium"
+    affects_services:
+      - nova
+    detection_pattern: "quota_driver"
+    detection_section: "quota"
+  
+  - id: "BC010"
+    component: "nova"
+    change_type: "config"
+    title: "XenAPI driver deprecated"
+    description: "The XenAPI virt driver is deprecated and will be removed in a future release"
+    impact: "XenAPI deployments should plan migration to supported hypervisors"
+    mitigation: "Plan migration to libvirt/KVM or other supported hypervisor"
+    severity: "low"
+    affects_services:
+      - nova
+    detection_pattern: "xenapi"
+    detection_section: "DEFAULT"
+  
+  # Cinder changes
+  - id: "BC011"
+    component: "cinder"
+    change_type: "config"
+    title: "Some volume drivers deprecated"
+    description: "Several legacy volume drivers have been deprecated or removed"
+    impact: "Deployments using deprecated drivers may need to migrate"
+    mitigation: "Check Cinder release notes for specific driver status and migration paths"
+    severity: "medium"
+    affects_services:
+      - cinder
+    detection_pattern: null
+    detection_section: null
+  
+  # Keystone changes
+  - id: "BC012"
+    component: "keystone"
+    change_type: "api"
+    title: "Token provider configuration simplified"
+    description: "Token provider configuration has been simplified, some options removed"
+    impact: "Custom token provider configurations may need adjustment"
+    mitigation: "Review token provider configuration and update to new format"
+    severity: "low"
+    affects_services:
+      - keystone
+    detection_pattern: "token_provider"
+    detection_section: "token"
+  
+  # Glance changes
+  - id: "BC013"
+    component: "glance"
+    change_type: "config"
+    title: "Registry service fully removed"
+    description: "The Glance registry service has been fully removed (was deprecated in previous releases)"
+    impact: "Any remaining registry service references will cause errors"
+    mitigation: "Ensure all Glance API calls go directly to glance-api, not glance-registry"
+    severity: "medium"
+    affects_services:
+      - glance
+    detection_pattern: "registry"
+    detection_section: null
+  
+  # General changes
+  - id: "BC014"
+    component: "general"
+    change_type: "config"
+    title: "File-based logging discouraged"
+    description: "File-based logging (log_file, log_dir) is discouraged in containerized environments"
+    impact: "Logs may not be properly collected if using file-based logging"
+    mitigation: "Configure structured logging to stdout/stderr for proper log collection"
+    severity: "low"
+    affects_services:
+      - all
+    detection_pattern: "log_file|log_dir"
+    detection_section: "DEFAULT"
+
+# Severity definitions
+severity_levels:
+  critical:
+    description: "Will cause service failure, must be addressed before upgrade"
+    priority: 1
+  high:
+    description: "Will cause significant issues, should be addressed before upgrade"
+    priority: 2
+  medium:
+    description: "May cause issues, should be reviewed and addressed"
+    priority: 3
+  low:
+    description: "Minor issues or deprecation warnings, can be addressed after upgrade"
+    priority: 4
+
+# Change type definitions
+change_types:
+  config:
+    description: "Configuration option changes (deprecated, removed, moved)"
+  api:
+    description: "API changes (endpoints, parameters, behavior)"
+  database:
+    description: "Database schema or support changes"
+  dependency:
+    description: "Dependency changes (removed drivers, libraries, versions)"
