@@ -177,14 +177,14 @@ This implementation plan breaks down the OpenStack Caracal to Epoxy upgrade into
     - **Property 16: Validation Failure Halts Upgrade**
     - **Validates: Requirements 4.8**
 
-- [ ] 7. Checkpoint - Ensure pre-upgrade validation works
+- [x] 7. Checkpoint - Ensure pre-upgrade validation works
   - Test validation against lab environment
   - Verify all health checks work correctly
   - Test failure scenarios
   - Ask the user if questions arise
 
-- [ ] 8. Implement Upgrade Execution Logic
-  - [ ] 8.1 Create service dependency graph
+- [x] 8. Implement Upgrade Execution Logic
+  - [x] 8.1 Create service dependency graph
     - Define dependencies between OpenStack services
     - Implement topological sort for upgrade order
     - Handle circular dependency detection
@@ -194,21 +194,21 @@ This implementation plan breaks down the OpenStack Caracal to Epoxy upgrade into
     - **Property 17: Dependency Order Preservation**
     - **Validates: Requirements 5.1**
 
-  - [ ] 8.3 Create Helm executor wrapper
+  - [x] 8.3 Create Helm executor wrapper
     - Wrap helm CLI commands
     - Handle helm upgrade with overrides
     - Implement timeout and retry logic
     - Monitor deployment status
     - _Requirements: 5.2, 5.3, 5.4_
 
-  - [ ] 8.4 Implement per-service upgrade logic
+  - [x] 8.4 Implement per-service upgrade logic
     - Clean up existing jobs (for Nova)
     - Apply helm chart with updated version
     - Wait for deployment to stabilize
     - Verify service health after upgrade
     - _Requirements: 5.5, 5.6, 5.7_
 
-  - [ ] 8.5 Implement upgrade orchestration
+  - [x] 8.5 Implement upgrade orchestration
     - Execute upgrades in dependency order
     - Monitor each service upgrade
     - Halt on first failure
