@@ -102,9 +102,20 @@ class YAMLValidator:
                 logger.warning(str(issue))
                 return True, {}
             
-            # Parse YAML
+            # Parse YAML - support both single and multi-document YAML
             try:
-                parsed = yaml.safe_load(content)
+                # Try multi-document YAML first (common in Kubernetes/Helm templates)
+                documents = list(yaml.safe_load_all(content))
+                
+                # If we got multiple documents, return the first one for validation
+                # (multi-document YAML is valid, we just validate structure of first doc)
+                if len(documents) > 1:
+                    logger.debug(f"Successfully parsed multi-document YAML file: {file_path}")
+                    parsed = documents[0] if documents[0] is not None else {}
+                elif len(documents) == 1:
+                    parsed = documents[0]
+                else:
+                    parsed = None
                 
                 # Handle None result (empty YAML document)
                 if parsed is None:
