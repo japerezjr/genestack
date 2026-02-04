@@ -215,15 +215,15 @@ This implementation plan breaks down the OpenStack Caracal to Epoxy upgrade into
     - Log all actions and results
     - _Requirements: 5.8, 5.9_
 
-- [ ] 9. Implement Rollback Manager
-  - [ ] 9.1 Create backup functionality
+- [x] 9. Implement Rollback Manager
+  - [x] 9.1 Create backup functionality
     - Backup helm-chart-versions.yaml
     - Backup all override configurations
     - Create database backups
     - Store backups with timestamps
     - _Requirements: 7.1, 7.2_
 
-  - [ ] 9.2 Implement restore functionality
+  - [x] 9.2 Implement restore functionality
     - Restore helm-chart-versions.yaml from backup
     - Restore override configurations from backup
     - Apply previous helm chart versions
@@ -235,7 +235,7 @@ This implementation plan breaks down the OpenStack Caracal to Epoxy upgrade into
     - **Property 19: Version Rollback Round-Trip**
     - **Validates: Requirements 7.1, 7.2**
 
-  - [ ] 9.4 Implement rollback verification
+  - [x] 9.4 Implement rollback verification
     - Verify all services return to healthy state
     - Check pod status after rollback
     - Verify API endpoints after rollback
