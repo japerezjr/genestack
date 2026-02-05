@@ -75,6 +75,7 @@ class ImageTagUpdater:
         logger.info(
             f"ImageTagUpdater initialized: {source_release} -> {target_release}"
         )
+        logger.debug(f"Source patterns: {[p.pattern for p in self.source_patterns]}")
     
     def _build_patterns(self, release: str) -> List[re.Pattern]:
         """Build regex patterns for a release version.
@@ -111,11 +112,13 @@ class ImageTagUpdater:
             True if image should be skipped
         """
         if not image_value or image_value == "null":
+            logger.debug(f"Skipping {image_name}: null or empty value")
             return True
         
         # Check if it's in the skip list
         for skip_image in self.SKIP_IMAGES:
             if skip_image in image_value.lower():
+                logger.debug(f"Skipping {image_name}: matches skip pattern '{skip_image}'")
                 return True
         
         # Skip if it doesn't contain source release version
@@ -123,6 +126,9 @@ class ImageTagUpdater:
             pattern.search(image_value)
             for pattern in self.source_patterns
         )
+        
+        if not has_source_version:
+            logger.debug(f"Skipping {image_name}: no source version match in '{image_value}'")
         
         return not has_source_version
     

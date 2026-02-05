@@ -186,8 +186,8 @@ Examples:
     # Release versions
     parser.add_argument(
         "--source-release",
-        default="2024.2",
-        help="Source OpenStack release (default: 2024.2)"
+        default="2024.1",
+        help="Source OpenStack release (default: 2024.1)"
     )
     parser.add_argument(
         "--target-release",
