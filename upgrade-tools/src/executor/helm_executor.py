@@ -255,13 +255,20 @@ class HelmExecutor:
             result = self._run_command(command, timeout=30)
             data = json.loads(result.stdout)
             
+            # Extract chart info safely (might not exist for failed/pending releases)
+            chart_name = ""
+            app_version = ""
+            if "chart" in data and "metadata" in data["chart"]:
+                chart_name = data["chart"]["metadata"].get("name", "")
+                app_version = data["chart"]["metadata"].get("appVersion", "")
+            
             return ReleaseStatus(
                 name=data["name"],
                 namespace=data["namespace"],
                 revision=data["version"],
                 status=data["info"]["status"],
-                chart=data["chart"]["metadata"]["name"],
-                app_version=data["chart"]["metadata"].get("appVersion", ""),
+                chart=chart_name,
+                app_version=app_version,
                 updated=data["info"]["last_deployed"]
             )
             
