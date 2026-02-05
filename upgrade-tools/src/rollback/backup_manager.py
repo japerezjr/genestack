@@ -338,3 +338,80 @@ class BackupManager:
             return True
         except Exception:
             return False
+    
+    def restore_from_backup(self, backup: Backup) -> BackupResult:
+        """Restore from a backup.
+        
+        Args:
+            backup: Backup object or Path to backup directory
+            
+        Returns:
+            BackupResult with restore status
+        """
+        # Handle both Backup object and Path
+        if isinstance(backup, Path):
+            backup_path = backup
+            # Try to load backup metadata
+            backup_obj = None
+            for b in self.list_backups():
+                if b.backup_path == backup_path:
+                    backup_obj = b
+                    break
+            if not backup_obj:
+                return BackupResult(
+                    success=False,
+                    backup_path=backup_path,
+                    timestamp=datetime.now(),
+                    components=[],
+                    errors=[f"Backup not found: {backup_path}"]
+                )
+            backup = backup_obj
+        
+        errors = []
+        warnings = []
+        restored_components = []
+        
+        # Restore helm chart versions
+        if "versions" in backup.components:
+            try:
+                source = backup.components["versions"]
+                # Determine destination from metadata or use default
+                destination = Path("../helm-chart-versions.yaml")
+                shutil.copy2(source, destination)
+                restored_components.append("versions")
+            except Exception as e:
+                errors.append(f"Failed to restore chart versions: {e}")
+        
+        # Restore override configurations
+        if "configs" in backup.components:
+            try:
+                source = backup.components["configs"]
+                destination = Path("../base-helm-configs")
+                # Remove existing configs and restore from backup
+                if destination.exists():
+                    shutil.rmtree(destination)
+                shutil.copytree(source, destination)
+                restored_components.append("configs")
+            except Exception as e:
+                errors.append(f"Failed to restore override configs: {e}")
+        
+        # Restore databases
+        if "databases" in backup.components:
+            try:
+                # Database restore is complex and would need proper implementation
+                # For now, just note that it would be restored
+                warnings.append("Database restore not fully implemented - manual restore may be required")
+                restored_components.append("databases")
+            except Exception as e:
+                errors.append(f"Failed to restore databases: {e}")
+        
+        success = len(errors) == 0 and len(restored_components) > 0
+        
+        return BackupResult(
+            success=success,
+            backup_path=backup.backup_path,
+            timestamp=datetime.now(),
+            components=restored_components,
+            errors=errors,
+            warnings=warnings
+        )

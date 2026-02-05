@@ -313,7 +313,7 @@ def handle_rollback(
     if not args.quiet:
         print("Finding latest backup...")
     
-    latest_backup = backup_mgr.find_latest_backup()
+    latest_backup = backup_mgr.get_latest_backup()
     if not latest_backup:
         print("ERROR: No backup found for rollback", file=sys.stderr)
         return 1
