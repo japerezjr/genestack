@@ -323,11 +323,15 @@ function prepareJumpHostSource() {
         # NOTE: we are assuming an Ubuntu (apt) based instance here
         ssh -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -t ${SSH_USERNAME}@${JUMP_HOST_VIP} \
             "while sudo fuser /var/{lib/{dpkg,apt/lists},cache/apt/archives}/lock >/dev/null 2>&1; do echo 'Waiting for apt locks to be released...'; sleep 5; done && sudo apt-get update && sudo apt install -y rsync git"
-        echo "Copying the development source code to the jump host"
+        echo "Copying the development source code from ${DEV_PATH} to jump host at /opt/genestack"
+        # Create /opt/genestack directory on remote host first
+        ssh -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${SSH_USERNAME}@${JUMP_HOST_VIP} \
+            "sudo mkdir -p /opt/genestack"
+        # Rsync with trailing slash to copy contents into /opt/genestack
         rsync -avz \
             -e "ssh -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
             --rsync-path="sudo rsync" --chown=":ubuntu" \
-            ${DEV_PATH} ${SSH_USERNAME}@${JUMP_HOST_VIP}:/opt/
+            ${DEV_PATH}/ ${SSH_USERNAME}@${JUMP_HOST_VIP}:/opt/genestack/
     else
         cloneGenestackOnJumpHost
     fi
