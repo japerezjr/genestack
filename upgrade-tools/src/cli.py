@@ -601,8 +601,10 @@ def main() -> int:
         # Load configuration
         config = load_config(args)
         
-        # Initialize logger
-        logger = UpgradeLogger(verbose=args.verbose)
+        # Initialize logger with appropriate log level based on verbose flag
+        from upgrade_logging.logger import LogLevel
+        console_level = LogLevel.DEBUG if args.verbose else LogLevel.INFO
+        logger = UpgradeLogger(console_level=console_level)
         logger.log_action("upgrade_started", {"config": config.__dict__})
         
         # Initialize report generator
