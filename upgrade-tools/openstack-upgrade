@@ -256,9 +256,11 @@ def main() -> int:
         # Load configuration
         config = load_config(args)
         
-        # Initialize logger
-        logger = UpgradeLogger(verbose=args.verbose)
-        logger.log_action("upgrade_started", {"config": config.__dict__})
+        # Initialize logger with appropriate log level based on verbose flag
+        from upgrade_logging.logger import LogLevel
+        console_level = LogLevel.DEBUG if args.verbose else LogLevel.INFO
+        logger = UpgradeLogger(console_level=console_level)
+        logger.info("Upgrade process started")
         
         # Initialize report generator
         report_gen = ReportGenerator()
@@ -323,7 +325,7 @@ def handle_validation_only(
     
     logger.log_action("validation_completed", {
         "passed": report.passed,
-        "issues": len(report.issues)
+        "failures": len(report.failures)
     })
     
     return 0 if report.passed else 1
@@ -433,8 +435,8 @@ def handle_full_upgrade(
         
         if not report.passed:
             print("\n✗ Pre-upgrade validation failed:", file=sys.stderr)
-            for issue in report.issues:
-                print(f"  - {issue.description}", file=sys.stderr)
+            for failure in report.failures:
+                print(f"  - [{failure.severity.upper()}] {failure.description}", file=sys.stderr)
             print("\nPlease fix these issues before upgrading.", file=sys.stderr)
             return 1
         
@@ -599,8 +601,8 @@ def handle_full_upgrade(
         
         if not post_report.passed:
             print("\n⚠ Post-upgrade validation found issues:", file=sys.stderr)
-            for issue in post_report.issues:
-                print(f"  - {issue.description}", file=sys.stderr)
+            for failure in post_report.failures:
+                print(f"  - [{failure.severity.upper()}] {failure.description}", file=sys.stderr)
         else:
             if not args.quiet:
                 print("✓ Post-upgrade validation passed")
@@ -623,10 +625,15 @@ def handle_full_upgrade(
     else:
         print("\n" + final_report)
     
-    logger.log_action("upgrade_completed", {
-        "success": upgrade_result.success,
-        "duration": upgrade_result.total_duration
-    })
+    from upgrade_logging.logger import ActionType
+    logger.log_action(
+        ActionType.SERVICE_UPGRADE,
+        "full_upgrade",
+        {
+            "success": upgrade_result.success,
+            "duration": upgrade_result.total_duration
+        }
+    )
     
     return 0
 
