@@ -89,6 +89,7 @@ class HelmExecutor:
         self,
         release_name: str,
         chart_path: str,
+        version: Optional[str] = None,
         overrides: List[str] = None,
         timeout: Optional[int] = None,
         wait: bool = True
@@ -97,7 +98,8 @@ class HelmExecutor:
         
         Args:
             release_name: Name for the helm release
-            chart_path: Path to the helm chart
+            chart_path: Path to the helm chart or repository reference
+            version: Chart version to install (optional)
             overrides: List of paths to values files
             timeout: Timeout in seconds (uses default if None)
             wait: Whether to wait for deployment to complete
@@ -115,6 +117,10 @@ class HelmExecutor:
             release_name, chart_path,
             "--namespace", self.namespace,
         ]
+        
+        # Add version if specified
+        if version:
+            command.extend(["--version", version])
         
         # Add override files
         if overrides:

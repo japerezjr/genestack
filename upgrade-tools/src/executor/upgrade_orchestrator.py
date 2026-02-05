@@ -92,13 +92,9 @@ class UpgradeOrchestrator:
             for service_name in upgrade_order:
                 self._log_action(f"Starting upgrade of {service_name}")
                 
-                # Construct chart path
-                chart_path = f"{chart_base_path}/{service_name}"
-                
-                # Upgrade the service
+                # Upgrade the service (chart resolution happens in service_upgrader)
                 result = self.service_upgrader.upgrade_service(
                     service_name=service_name,
-                    chart_path=chart_path,
                     timeout=timeout_per_service
                 )
                 

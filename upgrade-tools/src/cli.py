@@ -504,7 +504,8 @@ def handle_full_upgrade(
         helm_executor=helm_executor,
         health_aggregator=health_aggregator,
         chart_versions_path=config.chart_versions_path,
-        overrides_base_path=config.overrides_base_path
+        overrides_base_path=config.overrides_base_path,
+        custom_overrides_dir="/etc/genestack/helm-configs"  # Genestack custom overrides location
     )
     orchestrator = UpgradeOrchestrator(service_upgrader=service_upgrader)
     

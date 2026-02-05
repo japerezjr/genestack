@@ -10,6 +10,7 @@ from dataclasses import dataclass
 from datetime import datetime
 
 from .helm_executor import HelmExecutor, DeploymentResult
+from .chart_resolver import ChartResolver
 from health.aggregator import HealthAggregator
 
 
@@ -37,7 +38,8 @@ class ServiceUpgrader:
         helm_executor: HelmExecutor,
         health_aggregator: HealthAggregator,
         chart_versions_path: str,
-        overrides_base_path: str
+        overrides_base_path: str,
+        custom_overrides_dir: Optional[str] = None
     ):
         """Initialize service upgrader.
         
@@ -46,29 +48,34 @@ class ServiceUpgrader:
             health_aggregator: Health aggregator for service verification
             chart_versions_path: Path to helm-chart-versions.yaml
             overrides_base_path: Base path for helm override files
+            custom_overrides_dir: Path to custom overrides directory (optional)
         """
         self.helm_executor = helm_executor
         self.health_aggregator = health_aggregator
         self.chart_versions_path = chart_versions_path
         self.overrides_base_path = overrides_base_path
+        self.chart_resolver = ChartResolver(
+            chart_versions_path=chart_versions_path,
+            custom_overrides_dir=custom_overrides_dir
+        )
     
     def upgrade_service(
         self,
         service_name: str,
-        chart_path: str,
         timeout: Optional[int] = None
     ) -> ServiceUpgradeResult:
         """Upgrade a single OpenStack service.
         
         This method performs the complete upgrade workflow:
-        1. Clean up existing jobs (if needed)
-        2. Apply helm chart with updated version
-        3. Wait for deployment to stabilize
-        4. Verify service health after upgrade
+        1. Resolve chart reference from service name
+        2. Ensure Helm repository is added
+        3. Clean up existing jobs (if needed)
+        4. Apply helm chart with updated version
+        5. Wait for deployment to stabilize
+        6. Verify service health after upgrade
         
         Args:
             service_name: Name of the service to upgrade
-            chart_path: Path to the helm chart
             timeout: Timeout in seconds (uses default if None)
             
         Returns:
@@ -81,17 +88,37 @@ class ServiceUpgrader:
         health_check_passed = False
         
         try:
-            # Step 1: Clean up existing jobs if needed
+            # Step 1: Resolve chart reference
+            chart_ref = self.chart_resolver.resolve(service_name)
+            
+            # Step 2: Ensure repository is added (if not OCI)
+            if not chart_ref.is_oci:
+                if not self.chart_resolver.ensure_repo_added(chart_ref):
+                    errors.append(f"Failed to add Helm repository for {service_name}")
+                    duration = time.time() - start_time
+                    return ServiceUpgradeResult(
+                        service_name=service_name,
+                        success=False,
+                        duration=duration,
+                        deployment_result=None,
+                        health_check_passed=False,
+                        errors=errors,
+                        warnings=warnings,
+                        timestamp=datetime.now().isoformat()
+                    )
+            
+            # Step 3: Clean up existing jobs if needed
             if service_name in self.SERVICES_REQUIRING_JOB_CLEANUP:
                 if not self._cleanup_jobs(service_name):
                     warnings.append(f"Failed to clean up jobs for {service_name}, continuing anyway")
             
-            # Step 2: Apply helm chart with updated version
+            # Step 4: Apply helm chart with updated version
             override_files = self._get_override_files(service_name)
             
             deployment_result = self.helm_executor.apply_chart(
                 release_name=service_name,
-                chart_path=chart_path,
+                chart_path=chart_ref.chart_path,
+                version=chart_ref.version,
                 overrides=override_files,
                 timeout=timeout,
                 wait=True
@@ -111,7 +138,7 @@ class ServiceUpgrader:
                     timestamp=datetime.now().isoformat()
                 )
             
-            # Step 3: Wait for deployment to stabilize
+            # Step 5: Wait for deployment to stabilize
             if not self._wait_for_stabilization(service_name, timeout):
                 errors.append(f"Service {service_name} did not stabilize within timeout")
                 duration = time.time() - start_time
