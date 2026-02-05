@@ -23,7 +23,7 @@ VERBOSE=false
 TIMEOUT=600
 NO_HALT_ON_FAILURE=false
 SERVICES=""
-SOURCE_RELEASE="2024.2"
+SOURCE_RELEASE="2024.1"
 TARGET_RELEASE="2025.1"
 
 # Colors for output
@@ -64,7 +64,7 @@ OPTIONS:
     --timeout SECONDS           Timeout per service in seconds (default: 600)
     --no-halt-on-failure        Continue upgrade even if a service fails
     --services SERVICE...       Specific services to upgrade (space-separated)
-    --source-release VERSION    Source OpenStack release (default: 2024.2)
+    --source-release VERSION    Source OpenStack release (default: 2024.1)
     --target-release VERSION    Target OpenStack release (default: 2025.1)
     -v, --verbose               Enable verbose output
     -h, --help                  Show this help message
