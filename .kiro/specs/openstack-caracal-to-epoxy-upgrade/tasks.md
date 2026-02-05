@@ -304,32 +304,36 @@ This implementation plan breaks down the OpenStack Caracal to Epoxy upgrade into
     - Log all errors with context
     - _Requirements: 5.8, 7.6_
 
-- [ ] 13. Create Bash wrapper scripts
-  - [ ] 13.1 Create pre-upgrade validation script
+- [x] 13. Create Bash wrapper scripts
+  - Use bd to take/create/update/complete relevant tasks
+
+  - [x] 13.1 Create pre-upgrade validation script
     - Wrapper for running validation checks
     - Output validation report
     - Exit with appropriate status codes
     - _Requirements: 4.1-4.9_
 
-  - [ ] 13.2 Create upgrade execution script
+  - [x] 13.2 Create upgrade execution script
     - Wrapper for running full upgrade
     - Support dry-run mode
     - Handle interruption gracefully
     - _Requirements: 5.1-5.9_
 
-  - [ ] 13.3 Create rollback script
+  - [x] 13.3 Create rollback script
     - Wrapper for initiating rollback
     - Verify rollback success
     - Generate rollback report
     - _Requirements: 7.1-7.8_
 
-  - [ ] 13.4 Create post-upgrade verification script
+  - [x] 13.4 Create post-upgrade verification script
     - Run all post-upgrade checks
     - Test key operations
     - Generate verification report
     - _Requirements: 6.1-6.9_
 
 - [ ] 14. Create lab environment setup documentation
+  - Use bd to take/create/update/complete relevant tasks
+
   - [ ] 14.1 Document environment variable requirements
     - List all required environment variables
     - Provide example values
@@ -349,6 +353,7 @@ This implementation plan breaks down the OpenStack Caracal to Epoxy upgrade into
     - _Requirements: 9.4, 9.5, 9.8, 9.9_
 
 - [ ] 15. Integration testing in lab environment
+  - Use bd to take/create/update/complete relevant tasks
   - [ ] 15.1 Deploy lab with Caracal release
     - Source environment variables
     - Run hyperconverged-lab.sh script
@@ -380,6 +385,7 @@ This implementation plan breaks down the OpenStack Caracal to Epoxy upgrade into
     - Review rollback report
 
 - [ ] 16. Create production upgrade documentation
+  - Use bd to take/create/update/complete relevant tasks
   - [ ] 16.1 Update docs/2024.1-to-2025.1.md
     - Document complete upgrade procedure
     - Include all prerequisites
@@ -400,6 +406,7 @@ This implementation plan breaks down the OpenStack Caracal to Epoxy upgrade into
     - Include FAQ section
 
 - [ ] 17. Final checkpoint - Complete end-to-end testing
+  - Use bd to take/create/update/complete relevant tasks
   - Run complete upgrade in lab environment
   - Verify all functionality works
   - Test all edge cases and error scenarios
