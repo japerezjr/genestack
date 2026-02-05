@@ -1,8 +1,8 @@
 End-to-End Test Issues
-Test Date: 2026-02-04 22:27:52
+Test Date: 2026-02-05 04:05:55
 ========================================
 
-[2026-02-04 22:27:56] ISSUE: Unit tests execution - Some tests failed
+[2026-02-05 04:05:58] ISSUE: Unit tests execution - Some tests failed
 ============================= test session starts ==============================
 platform darwin -- Python 3.9.16, pytest-8.4.2, pluggy-1.6.0 -- /Users/jorge.perez/Projects/genestack/genestack-upgrade/upgrade-tools/venv/bin/python3
 cachedir: .pytest_cache
@@ -10,147 +10,393 @@ hypothesis profile 'default'
 rootdir: /Users/jorge.perez/Projects/genestack/genestack-upgrade/upgrade-tools
 configfile: pytest.ini
 plugins: hypothesis-6.141.1, cov-7.0.0
-collecting ... collected 295 items / 5 errors
+collecting ... collected 362 items
 
-==================================== ERRORS ====================================
-___________ ERROR collecting tests/test_checkpoint_11_integration.py ___________
-ImportError while importing test module '/Users/jorge.perez/Projects/genestack/genestack-upgrade/upgrade-tools/tests/test_checkpoint_11_integration.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-venv/lib/python3.9/site-packages/_pytest/python.py:498: in importtestmodule
-    mod = import_path(
-venv/lib/python3.9/site-packages/_pytest/pathlib.py:587: in import_path
-    importlib.import_module(module_name)
-../../../../.pyenv/versions/3.9.16/lib/python3.9/importlib/__init__.py:127: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-<frozen importlib._bootstrap>:1030: in _gcd_import
-    ???
-<frozen importlib._bootstrap>:1007: in _find_and_load
-    ???
-<frozen importlib._bootstrap>:986: in _find_and_load_unlocked
-    ???
-<frozen importlib._bootstrap>:680: in _load_unlocked
-    ???
-venv/lib/python3.9/site-packages/_pytest/assertion/rewrite.py:186: in exec_module
-    exec(co, module.__dict__)
-tests/test_checkpoint_11_integration.py:27: in <module>
-    from src.logging import (
-E   ModuleNotFoundError: No module named 'src.logging'
-_________________ ERROR collecting tests/test_doc_generator.py _________________
-ImportError while importing test module '/Users/jorge.perez/Projects/genestack/genestack-upgrade/upgrade-tools/tests/test_doc_generator.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-venv/lib/python3.9/site-packages/_pytest/python.py:498: in importtestmodule
-    mod = import_path(
-venv/lib/python3.9/site-packages/_pytest/pathlib.py:587: in import_path
-    importlib.import_module(module_name)
-../../../../.pyenv/versions/3.9.16/lib/python3.9/importlib/__init__.py:127: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-<frozen importlib._bootstrap>:1030: in _gcd_import
-    ???
-<frozen importlib._bootstrap>:1007: in _find_and_load
-    ???
-<frozen importlib._bootstrap>:986: in _find_and_load_unlocked
-    ???
-<frozen importlib._bootstrap>:680: in _load_unlocked
-    ???
-venv/lib/python3.9/site-packages/_pytest/assertion/rewrite.py:186: in exec_module
-    exec(co, module.__dict__)
-tests/test_doc_generator.py:6: in <module>
-    from src.logging import UpgradeDocGenerator, ManualStep
-E   ModuleNotFoundError: No module named 'src.logging'
-____________________ ERROR collecting tests/test_logger.py _____________________
-ImportError while importing test module '/Users/jorge.perez/Projects/genestack/genestack-upgrade/upgrade-tools/tests/test_logger.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-venv/lib/python3.9/site-packages/_pytest/python.py:498: in importtestmodule
-    mod = import_path(
-venv/lib/python3.9/site-packages/_pytest/pathlib.py:587: in import_path
-    importlib.import_module(module_name)
-../../../../.pyenv/versions/3.9.16/lib/python3.9/importlib/__init__.py:127: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-<frozen importlib._bootstrap>:1030: in _gcd_import
-    ???
-<frozen importlib._bootstrap>:1007: in _find_and_load
-    ???
-<frozen importlib._bootstrap>:986: in _find_and_load_unlocked
-    ???
-<frozen importlib._bootstrap>:680: in _load_unlocked
-    ???
-venv/lib/python3.9/site-packages/_pytest/assertion/rewrite.py:186: in exec_module
-    exec(co, module.__dict__)
-tests/test_logger.py:9: in <module>
-    from src.logging import (
-E   ModuleNotFoundError: No module named 'src.logging'
-______________ ERROR collecting tests/test_logging_integration.py ______________
-ImportError while importing test module '/Users/jorge.perez/Projects/genestack/genestack-upgrade/upgrade-tools/tests/test_logging_integration.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-venv/lib/python3.9/site-packages/_pytest/python.py:498: in importtestmodule
-    mod = import_path(
-venv/lib/python3.9/site-packages/_pytest/pathlib.py:587: in import_path
-    importlib.import_module(module_name)
-../../../../.pyenv/versions/3.9.16/lib/python3.9/importlib/__init__.py:127: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-<frozen importlib._bootstrap>:1030: in _gcd_import
-    ???
-<frozen importlib._bootstrap>:1007: in _find_and_load
-    ???
-<frozen importlib._bootstrap>:986: in _find_and_load_unlocked
-    ???
-<frozen importlib._bootstrap>:680: in _load_unlocked
-    ???
-venv/lib/python3.9/site-packages/_pytest/assertion/rewrite.py:186: in exec_module
-    exec(co, module.__dict__)
-tests/test_logging_integration.py:7: in <module>
-    from src.logging import (
-E   ModuleNotFoundError: No module named 'src.logging'
-_______________ ERROR collecting tests/test_report_generator.py ________________
-ImportError while importing test module '/Users/jorge.perez/Projects/genestack/genestack-upgrade/upgrade-tools/tests/test_report_generator.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-venv/lib/python3.9/site-packages/_pytest/python.py:498: in importtestmodule
-    mod = import_path(
-venv/lib/python3.9/site-packages/_pytest/pathlib.py:587: in import_path
-    importlib.import_module(module_name)
-../../../../.pyenv/versions/3.9.16/lib/python3.9/importlib/__init__.py:127: in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-<frozen importlib._bootstrap>:1030: in _gcd_import
-    ???
-<frozen importlib._bootstrap>:1007: in _find_and_load
-    ???
-<frozen importlib._bootstrap>:986: in _find_and_load_unlocked
-    ???
-<frozen importlib._bootstrap>:680: in _load_unlocked
-    ???
-venv/lib/python3.9/site-packages/_pytest/assertion/rewrite.py:186: in exec_module
-    exec(co, module.__dict__)
-tests/test_report_generator.py:8: in <module>
-    from src.logging import (
-E   ModuleNotFoundError: No module named 'src.logging'
+tests/test_backup_manager.py::TestBackupManager::test_initialization PASSED [  0%]
+tests/test_backup_manager.py::TestBackupManager::test_backup_chart_versions PASSED [  0%]
+tests/test_backup_manager.py::TestBackupManager::test_backup_override_configs PASSED [  0%]
+tests/test_backup_manager.py::TestBackupManager::test_backup_all_components PASSED [  1%]
+tests/test_backup_manager.py::TestBackupManager::test_backup_missing_source PASSED [  1%]
+tests/test_backup_manager.py::TestBackupManager::test_backup_metadata PASSED [  1%]
+tests/test_backup_manager.py::TestBackupManager::test_list_backups PASSED [  1%]
+tests/test_backup_manager.py::TestBackupManager::test_get_latest_backup PASSED [  2%]
+tests/test_backup_manager.py::TestBackupManager::test_get_backup_by_id PASSED [  2%]
+tests/test_backup_manager.py::TestBackupManager::test_delete_backup PASSED [  2%]
+tests/test_backup_manager.py::TestBackupManager::test_delete_nonexistent_backup PASSED [  3%]
+tests/test_backup_manager.py::TestBackupManager::test_backup_with_timestamp PASSED [  3%]
+tests/test_backup_manager.py::TestBackupManager::test_empty_components_list PASSED [  3%]
+tests/test_breaking_changes.py::TestBreakingChange::test_breaking_change_creation PASSED [  3%]
+tests/test_breaking_changes.py::TestBreakingChange::test_breaking_change_invalid_severity PASSED [  4%]
+tests/test_breaking_changes.py::TestBreakingChange::test_breaking_change_invalid_type PASSED [  4%]
+tests/test_breaking_changes.py::TestBreakingChange::test_matches_service PASSED [  4%]
+tests/test_breaking_changes.py::TestBreakingChange::test_matches_service_all PASSED [  4%]
+tests/test_breaking_changes.py::TestBreakingChangeCatalog::test_load_catalog PASSED [  5%]
+tests/test_breaking_changes.py::TestBreakingChangeCatalog::test_get_changes_by_component PASSED [  5%]
+tests/test_breaking_changes.py::TestBreakingChangeCatalog::test_get_changes_by_severity PASSED [  5%]
+tests/test_breaking_changes.py::TestBreakingChangeCatalog::test_get_changes_by_service PASSED [  6%]
+tests/test_breaking_changes.py::TestBreakingChangeCatalog::test_get_critical_changes PASSED [  6%]
+tests/test_breaking_changes.py::TestBreakingChangeCatalog::test_get_statistics PASSED [  6%]
+tests/test_breaking_changes.py::TestImpactAnalyzer::test_analyze_configuration_with_match PASSED [  6%]
+tests/test_breaking_changes.py::TestImpactAnalyzer::test_analyze_configuration_no_match PASSED [  7%]
+tests/test_breaking_changes.py::TestImpactAnalyzer::test_analyze_deployment PASSED [  7%]
+tests/test_breaking_changes.py::TestImpactAnalyzer::test_generate_mitigation_plan PASSED [  7%]
+tests/test_breaking_changes.py::TestImpactReport::test_impact_report_counts PASSED [  8%]
+tests/test_breaking_changes.py::TestImpactReport::test_get_sorted_changes PASSED [  8%]
+tests/test_breaking_changes.py::TestBreakingChangeReporter::test_generate_markdown_report PASSED [  8%]
+tests/test_breaking_changes.py::TestBreakingChangeReporter::test_generate_text_report PASSED [  8%]
+tests/test_breaking_changes.py::TestBreakingChangeReporter::test_generate_json_report PASSED [  9%]
+tests/test_breaking_changes.py::TestBreakingChangeReporter::test_generate_mitigation_plan_report PASSED [  9%]
+tests/test_breaking_changes.py::TestBreakingChangeDetector::test_detector_initialization PASSED [  9%]
+tests/test_breaking_changes.py::TestBreakingChangeDetector::test_detect_in_configuration PASSED [  9%]
+tests/test_breaking_changes.py::TestBreakingChangeDetector::test_detect_in_deployment PASSED [ 10%]
+tests/test_breaking_changes.py::TestBreakingChangeDetector::test_generate_report PASSED [ 10%]
+tests/test_breaking_changes.py::TestBreakingChangeDetector::test_get_catalog_statistics PASSED [ 10%]
+tests/test_checkpoint_11_integration.py::TestCheckpoint11Integration::test_end_to_end_upgrade_workflow PASSED [ 11%]
+tests/test_checkpoint_11_integration.py::TestCheckpoint11Integration::test_upgrade_with_failure_and_rollback PASSED [ 11%]
+tests/test_checkpoint_11_integration.py::TestCheckpoint11Integration::test_logging_captures_all_actions PASSED [ 11%]
+tests/test_checkpoint_11_integration.py::TestCheckpoint11Integration::test_summary_report_generation PASSED [ 11%]
+tests/test_checkpoint_11_integration.py::TestCheckpoint11Integration::test_rollback_verification FAILED [ 12%]
+tests/test_checkpoint_11_integration.py::TestCheckpoint11Integration::test_dependency_order_enforcement PASSED [ 12%]
+tests/test_checkpoint_11_integration.py::TestCheckpoint11ErrorHandling::test_backup_failure_prevents_upgrade PASSED [ 12%]
+tests/test_checkpoint_11_integration.py::TestCheckpoint11ErrorHandling::test_helm_failure_halts_upgrade PASSED [ 12%]
+tests/test_checkpoint_11_integration.py::TestCheckpoint11ErrorHandling::test_health_check_failure_triggers_rollback FAILED [ 13%]
+tests/test_config_scanner.py::TestConfigurationScanner::test_scan_discovers_yaml_files PASSED [ 13%]
+tests/test_config_scanner.py::TestConfigurationScanner::test_scan_excludes_non_yaml_files PASSED [ 13%]
+tests/test_config_scanner.py::TestConfigurationScanner::test_scan_handles_nested_directories PASSED [ 14%]
+tests/test_config_scanner.py::TestConfigurationScanner::test_scan_nonexistent_directory PASSED [ 14%]
+tests/test_config_scanner.py::TestConfigurationScanner::test_filter_by_pattern PASSED [ 14%]
+tests/test_config_scanner.py::TestConfigurationScanner::test_get_files_by_service PASSED [ 14%]
+tests/test_config_scanner.py::TestConfigurationScanner::test_get_scan_summary PASSED [ 15%]
+tests/test_config_scanner.py::TestConfigurationScanner::test_scan_with_symlinks PASSED [ 15%]
+tests/test_config_scanner.py::TestConfigurationScanner::test_scan_empty_directory PASSED [ 15%]
+tests/test_configuration_validator.py::TestConfigurationValidator::test_validate_all PASSED [ 16%]
+tests/test_configuration_validator.py::TestConfigurationValidator::test_validation_finds_yaml_errors PASSED [ 16%]
+tests/test_configuration_validator.py::TestConfigurationValidator::test_validation_finds_image_issues PASSED [ 16%]
+tests/test_configuration_validator.py::TestConfigurationValidator::test_validation_finds_deprecations PASSED [ 16%]
+tests/test_configuration_validator.py::TestConfigurationValidator::test_validation_report_to_dict PASSED [ 17%]
+tests/test_configuration_validator.py::TestConfigurationValidator::test_validation_report_to_markdown PASSED [ 17%]
+tests/test_configuration_validator.py::TestConfigurationValidator::test_validation_report_save_to_file PASSED [ 17%]
+tests/test_configuration_validator.py::TestConfigurationValidator::test_validation_report_save_json PASSED [ 17%]
+tests/test_configuration_validator.py::TestConfigurationValidator::test_validation_without_deprecation_rules PASSED [ 18%]
+tests/test_configuration_validator.py::TestConfigurationValidator::test_has_critical_issues PASSED [ 18%]
+tests/test_configuration_validator.py::TestValidationReport::test_get_total_issues PASSED [ 18%]
+tests/test_dependency_graph.py::TestDependencyGraph::test_get_dependencies_infrastructure PASSED [ 19%]
+tests/test_dependency_graph.py::TestDependencyGraph::test_get_dependencies_core PASSED [ 19%]
+tests/test_dependency_graph.py::TestDependencyGraph::test_get_dependencies_unknown_service PASSED [ 19%]
+tests/test_dependency_graph.py::TestDependencyGraph::test_get_category PASSED [ 19%]
+tests/test_dependency_graph.py::TestDependencyGraph::test_get_category_unknown_service PASSED [ 20%]
+tests/test_dependency_graph.py::TestDependencyGraph::test_topological_sort_simple PASSED [ 20%]
+tests/test_dependency_graph.py::TestDependencyGraph::test_topological_sort_all_services PASSED [ 20%]
+tests/test_dependency_graph.py::TestDependencyGraph::test_topological_sort_deterministic PASSED [ 20%]
+tests/test_dependency_graph.py::TestDependencyGraph::test_topological_sort_circular_dependency PASSED [ 21%]
+tests/test_dependency_graph.py::TestDependencyGraph::test_get_upgrade_order_all_services PASSED [ 21%]
+tests/test_dependency_graph.py::TestDependencyGraph::test_get_upgrade_order_skip_optional PASSED [ 21%]
+tests/test_dependency_graph.py::TestDependencyGraph::test_validate_dependencies_all_present PASSED [ 22%]
+tests/test_dependency_graph.py::TestDependencyGraph::test_validate_dependencies_some_missing PASSED [ 22%]
+tests/test_dependency_graph.py::TestDependencyGraph::test_init_with_unknown_services PASSED [ 22%]
+tests/test_dependency_graph.py::TestDependencyGraph::test_init_with_subset_of_services PASSED [ 22%]
+tests/test_dependency_graph.py::TestDependencyGraph::test_dependency_order_keystone_before_all_core PASSED [ 23%]
+tests/test_dependency_graph.py::TestDependencyGraph::test_dependency_order_nova_last_in_core PASSED [ 23%]
+tests/test_deprecation_detector.py::TestDeprecationDetector::test_load_rules PASSED [ 23%]
+tests/test_deprecation_detector.py::TestDeprecationDetector::test_rule_matches_exact PASSED [ 24%]
+tests/test_deprecation_detector.py::TestDeprecationDetector::test_rule_matches_wildcard PASSED [ 24%]
+tests/test_deprecation_detector.py::TestDeprecationDetector::test_rule_matches_pattern PASSED [ 24%]
+tests/test_deprecation_detector.py::TestDeprecationDetector::test_scan_config_finds_deprecated_options PASSED [ 24%]
+tests/test_deprecation_detector.py::TestDeprecationDetector::test_scan_config_no_issues PASSED [ 25%]
+tests/test_deprecation_detector.py::TestDeprecationDetector::test_scan_nested_config PASSED [ 25%]
+tests/test_deprecation_detector.py::TestDeprecationDetector::test_get_issues_by_severity PASSED [ 25%]
+tests/test_deprecation_detector.py::TestDeprecationDetector::test_get_issues_by_file PASSED [ 25%]
+tests/test_deprecation_detector.py::TestDeprecationDetector::test_get_issues_by_component PASSED [ 26%]
+tests/test_deprecation_detector.py::TestDeprecationDetector::test_get_summary PASSED [ 26%]
+tests/test_deprecation_detector.py::TestDeprecationDetector::test_generate_remediation_plan PASSED [ 26%]
+tests/test_deprecation_detector.py::TestDeprecationDetector::test_has_critical_issues PASSED [ 27%]
+tests/test_deprecation_detector.py::TestDeprecationDetector::test_clear_issues PASSED [ 27%]
+tests/test_deprecation_detector.py::TestDeprecationDetector::test_deprecation_issue_str PASSED [ 27%]
+tests/test_doc_generator.py::TestUpgradeDocGenerator::test_initialization PASSED [ 27%]
+tests/test_doc_generator.py::TestUpgradeDocGenerator::test_add_version_change PASSED [ 28%]
+tests/test_doc_generator.py::TestUpgradeDocGenerator::test_add_config_change PASSED [ 28%]
+tests/test_doc_generator.py::TestUpgradeDocGenerator::test_add_config_change_without_values PASSED [ 28%]
+tests/test_doc_generator.py::TestUpgradeDocGenerator::test_add_breaking_change PASSED [ 29%]
+tests/test_doc_generator.py::TestUpgradeDocGenerator::test_add_manual_step PASSED [ 29%]
+tests/test_doc_generator.py::TestUpgradeDocGenerator::test_manual_step_numbering PASSED [ 29%]
+tests/test_doc_generator.py::TestUpgradeDocGenerator::test_add_warning PASSED [ 29%]
+tests/test_doc_generator.py::TestUpgradeDocGenerator::test_add_note PASSED [ 30%]
+tests/test_doc_generator.py::TestUpgradeDocGenerator::test_generate_markdown_basic PASSED [ 30%]
+tests/test_doc_generator.py::TestUpgradeDocGenerator::test_generate_markdown_with_all_sections PASSED [ 30%]
+tests/test_doc_generator.py::TestUpgradeDocGenerator::test_generate_markdown_table_format PASSED [ 30%]
+tests/test_doc_generator.py::TestUpgradeDocGenerator::test_generate_markdown_config_grouped_by_file PASSED [ 31%]
+tests/test_doc_generator.py::TestUpgradeDocGenerator::test_generate_markdown_manual_steps_with_commands PASSED [ 31%]
+tests/test_doc_generator.py::TestUpgradeDocGenerator::test_save_documentation PASSED [ 31%]
+tests/test_doc_generator.py::TestUpgradeDocGenerator::test_generate_changelog_entry PASSED [ 32%]
+tests/test_doc_generator.py::TestUpgradeDocGenerator::test_append_to_changelog_new_file PASSED [ 32%]
+tests/test_doc_generator.py::TestUpgradeDocGenerator::test_append_to_changelog_existing_file PASSED [ 32%]
+tests/test_doc_generator.py::TestUpgradeDocGenerator::test_empty_sections_show_no_data_message PASSED [ 32%]
+tests/test_endpoint_checker.py::TestEndpointChecker::test_init_with_credentials PASSED [ 33%]
+tests/test_endpoint_checker.py::TestEndpointChecker::test_init_with_env_vars PASSED [ 33%]
+tests/test_endpoint_checker.py::TestEndpointChecker::test_authenticate_success PASSED [ 33%]
+tests/test_endpoint_checker.py::TestEndpointChecker::test_authenticate_failure PASSED [ 33%]
+tests/test_endpoint_checker.py::TestEndpointChecker::test_authenticate_missing_credentials PASSED [ 34%]
+tests/test_endpoint_checker.py::TestEndpointChecker::test_authenticate_connection_error PASSED [ 34%]
+tests/test_endpoint_checker.py::TestEndpointChecker::test_check_endpoint_success PASSED [ 34%]
+tests/test_endpoint_checker.py::TestEndpointChecker::test_check_endpoint_timeout PASSED [ 35%]
+tests/test_endpoint_checker.py::TestEndpointChecker::test_check_endpoint_connection_error PASSED [ 35%]
+tests/test_endpoint_checker.py::TestEndpointChecker::test_check_endpoint_http_error PASSED [ 35%]
+tests/test_endpoint_checker.py::TestEndpointChecker::test_check_all_endpoints PASSED [ 35%]
+tests/test_endpoint_checker.py::TestEndpointChecker::test_check_all_endpoints_with_failures PASSED [ 36%]
+tests/test_endpoint_checker.py::TestEndpointChecker::test_check_all_endpoints_not_authenticated PASSED [ 36%]
+tests/test_endpoint_checker.py::TestEndpointChecker::test_check_service_endpoints PASSED [ 36%]
+tests/test_endpoint_checker.py::TestEndpointChecker::test_check_endpoints_filter_by_type PASSED [ 37%]
+tests/test_endpoint_checker.py::TestEndpointChecker::test_get_unreachable_endpoints PASSED [ 37%]
+tests/test_endpoint_checker.py::TestEndpointChecker::test_endpoint_report_summary PASSED [ 37%]
+tests/test_health_aggregator.py::TestServiceHealth::test_healthy_service_with_pods_only PASSED [ 37%]
+tests/test_health_aggregator.py::TestServiceHealth::test_unhealthy_service_with_pods PASSED [ 38%]
+tests/test_health_aggregator.py::TestServiceHealth::test_healthy_service_with_endpoints_only PASSED [ 38%]
+tests/test_health_aggregator.py::TestServiceHealth::test_unhealthy_service_with_endpoints PASSED [ 38%]
+tests/test_health_aggregator.py::TestServiceHealth::test_healthy_service_with_both PASSED [ 38%]
+tests/test_health_aggregator.py::TestServiceHealth::test_unhealthy_service_with_both PASSED [ 39%]
+tests/test_health_aggregator.py::TestHealthReport::test_healthy_report PASSED [ 39%]
+tests/test_health_aggregator.py::TestHealthReport::test_unhealthy_report PASSED [ 39%]
+tests/test_health_aggregator.py::TestHealthReport::test_get_service_health PASSED [ 40%]
+tests/test_health_aggregator.py::TestHealthAggregator::test_init_with_default_checkers PASSED [ 40%]
+tests/test_health_aggregator.py::TestHealthAggregator::test_init_with_custom_checkers PASSED [ 40%]
+tests/test_health_aggregator.py::TestHealthAggregator::test_check_service_health_pods_only PASSED [ 40%]
+tests/test_health_aggregator.py::TestHealthAggregator::test_check_service_health_with_endpoints PASSED [ 41%]
+tests/test_health_aggregator.py::TestHealthAggregator::test_check_all_services PASSED [ 41%]
+tests/test_health_aggregator.py::TestHealthAggregator::test_check_all_services_with_failure PASSED [ 41%]
+tests/test_health_aggregator.py::TestHealthAggregator::test_check_all_services_with_endpoints PASSED [ 41%]
+tests/test_health_aggregator.py::TestHealthAggregator::test_check_openstack_health PASSED [ 42%]
+tests/test_health_aggregator.py::TestHealthAggregator::test_generate_health_report_text PASSED [ 42%]
+tests/test_health_aggregator.py::TestHealthAggregator::test_generate_health_report_json PASSED [ 42%]
+tests/test_health_aggregator.py::TestHealthAggregator::test_generate_health_report_markdown PASSED [ 43%]
+tests/test_health_aggregator.py::TestHealthAggregator::test_generate_health_report_invalid_format PASSED [ 43%]
+tests/test_helm_executor.py::TestHelmExecutor::test_init_default_values PASSED [ 43%]
+tests/test_helm_executor.py::TestHelmExecutor::test_init_custom_values PASSED [ 43%]
+tests/test_helm_executor.py::TestHelmExecutor::test_run_command_success PASSED [ 44%]
+tests/test_helm_executor.py::TestHelmExecutor::test_run_command_failure PASSED [ 44%]
+tests/test_helm_executor.py::TestHelmExecutor::test_run_command_timeout PASSED [ 44%]
+tests/test_helm_executor.py::TestHelmExecutor::test_apply_chart_success PASSED [ 45%]
+tests/test_helm_executor.py::TestHelmExecutor::test_apply_chart_failure PASSED [ 45%]
+tests/test_helm_executor.py::TestHelmExecutor::test_apply_chart_timeout PASSED [ 45%]
+tests/test_helm_executor.py::TestHelmExecutor::test_apply_chart_with_overrides PASSED [ 45%]
+tests/test_helm_executor.py::TestHelmExecutor::test_get_release_status_success PASSED [ 46%]
+tests/test_helm_executor.py::TestHelmExecutor::test_get_release_status_not_found PASSED [ 46%]
+tests/test_helm_executor.py::TestHelmExecutor::test_rollback_release_success PASSED [ 46%]
+tests/test_helm_executor.py::TestHelmExecutor::test_rollback_release_failure PASSED [ 46%]
+tests/test_helm_executor.py::TestHelmExecutor::test_rollback_release_with_revision PASSED [ 47%]
+tests/test_helm_executor.py::TestHelmExecutor::test_get_pod_status_success PASSED [ 47%]
+tests/test_helm_executor.py::TestHelmExecutor::test_get_pod_status_failure PASSED [ 47%]
+tests/test_helm_executor.py::TestHelmExecutor::test_delete_jobs_success PASSED [ 48%]
+tests/test_helm_executor.py::TestHelmExecutor::test_delete_jobs_no_jobs PASSED [ 48%]
+tests/test_helm_executor.py::TestHelmExecutor::test_delete_jobs_failure PASSED [ 48%]
+tests/test_helm_executor.py::TestHelmExecutor::test_wait_for_ready_success PASSED [ 48%]
+tests/test_helm_executor.py::TestHelmExecutor::test_wait_for_ready_failed_status PASSED [ 49%]
+tests/test_helm_executor.py::TestHelmExecutor::test_wait_for_ready_timeout PASSED [ 49%]
+tests/test_image_validator.py::TestImageTagValidator::test_detect_caracal_2024_1 PASSED [ 49%]
+tests/test_image_validator.py::TestImageTagValidator::test_no_issues_with_epoxy PASSED [ 50%]
+tests/test_image_validator.py::TestImageTagValidator::test_generate_recommendation PASSED [ 50%]
+tests/test_image_validator.py::TestImageTagValidator::test_extract_image_tags PASSED [ 50%]
+tests/test_image_validator.py::TestImageTagValidator::test_extract_nested_image_tags PASSED [ 50%]
+tests/test_image_validator.py::TestImageTagValidator::test_extract_image_tags_from_list PASSED [ 51%]
+tests/test_image_validator.py::TestImageTagValidator::test_contains_caracal_version PASSED [ 51%]
+tests/test_image_validator.py::TestImageTagValidator::test_get_issues_by_file PASSED [ 51%]
+tests/test_image_validator.py::TestImageTagValidator::test_get_summary PASSED [ 51%]
+tests/test_image_validator.py::TestImageTagValidator::test_generate_update_recommendations PASSED [ 52%]
+tests/test_image_validator.py::TestImageTagValidator::test_apply_recommendations PASSED [ 52%]
+tests/test_image_validator.py::TestImageTagValidator::test_apply_recommendations_preserves_structure PASSED [ 52%]
+tests/test_image_validator.py::TestImageTagValidator::test_image_tag_issue_str PASSED [ 53%]
+tests/test_logger.py::TestUpgradeLogger::test_logger_initialization PASSED [ 53%]
+tests/test_logger.py::TestUpgradeLogger::test_log_action PASSED          [ 53%]
+tests/test_logger.py::TestUpgradeLogger::test_log_version_update PASSED  [ 53%]
+tests/test_logger.py::TestUpgradeLogger::test_log_config_update PASSED   [ 54%]
+tests/test_logger.py::TestUpgradeLogger::test_log_service_upgrade_success PASSED [ 54%]
+tests/test_logger.py::TestUpgradeLogger::test_log_service_upgrade_failure PASSED [ 54%]
+tests/test_logger.py::TestUpgradeLogger::test_log_validation PASSED      [ 54%]
+tests/test_logger.py::TestUpgradeLogger::test_log_health_check PASSED    [ 55%]
+tests/test_logger.py::TestUpgradeLogger::test_log_rollback PASSED        [ 55%]
+tests/test_logger.py::TestUpgradeLogger::test_get_action_log PASSED      [ 55%]
+tests/test_logger.py::TestUpgradeLogger::test_save_action_log PASSED     [ 56%]
+tests/test_logger.py::TestUpgradeLogger::test_log_file_created PASSED    [ 56%]
+tests/test_logger.py::TestUpgradeLogger::test_multiple_log_levels PASSED [ 56%]
+tests/test_logger.py::TestGlobalLogger::test_get_logger_creates_instance PASSED [ 56%]
+tests/test_logger.py::TestGlobalLogger::test_initialize_logger PASSED    [ 57%]
+tests/test_logging_integration.py::TestLoggingIntegration::test_complete_upgrade_workflow PASSED [ 57%]
+tests/test_logging_integration.py::TestLoggingIntegration::test_report_from_action_log PASSED [ 57%]
+tests/test_logging_integration.py::TestLoggingIntegration::test_upgrade_with_issues PASSED [ 58%]
+tests/test_logging_integration.py::TestLoggingIntegration::test_changelog_generation PASSED [ 58%]
+tests/test_pod_checker.py::TestPodStatusChecker::test_init_with_kubeconfig PASSED [ 58%]
+tests/test_pod_checker.py::TestPodStatusChecker::test_init_with_incluster_config PASSED [ 58%]
+tests/test_pod_checker.py::TestPodStatusChecker::test_init_failure PASSED [ 59%]
+tests/test_pod_checker.py::TestPodStatusChecker::test_check_namespace_all_running PASSED [ 59%]
+tests/test_pod_checker.py::TestPodStatusChecker::test_check_namespace_with_failures PASSED [ 59%]
+tests/test_pod_checker.py::TestPodStatusChecker::test_check_namespace_api_error PASSED [ 59%]
+tests/test_pod_checker.py::TestPodStatusChecker::test_check_all_namespaces PASSED [ 60%]
+tests/test_pod_checker.py::TestPodStatusChecker::test_check_multiple_namespaces PASSED [ 60%]
+tests/test_pod_checker.py::TestPodStatusChecker::test_get_unhealthy_pods PASSED [ 60%]
+tests/test_pod_checker.py::TestPodStatusChecker::test_pod_status_report_summary PASSED [ 61%]
+tests/test_pre_upgrade_validator.py::TestPreUpgradeValidator::test_init PASSED [ 61%]
+tests/test_pre_upgrade_validator.py::TestPreUpgradeValidator::test_validate_all_passed PASSED [ 61%]
+tests/test_pre_upgrade_validator.py::TestPreUpgradeValidator::test_validate_health_failure PASSED [ 61%]
+tests/test_pre_upgrade_validator.py::TestPreUpgradeValidator::test_validate_resource_failure PASSED [ 62%]
+tests/test_pre_upgrade_validator.py::TestPreUpgradeValidator::test_validate_exception_handling PASSED [ 62%]
+tests/test_pre_upgrade_validator.py::TestPreUpgradeValidator::test_validate_and_halt_on_failure_success PASSED [ 62%]
+tests/test_pre_upgrade_validator.py::TestPreUpgradeValidator::test_validate_and_halt_on_failure_raises PASSED [ 62%]
+tests/test_pre_upgrade_validator.py::TestPreUpgradeValidator::test_generate_detailed_report_text PASSED [ 63%]
+tests/test_pre_upgrade_validator.py::TestPreUpgradeValidator::test_generate_detailed_report_json PASSED [ 63%]
+tests/test_pre_upgrade_validator.py::TestPreUpgradeValidator::test_generate_detailed_report_markdown PASSED [ 63%]
+tests/test_pre_upgrade_validator.py::TestPreUpgradeValidator::test_generate_detailed_report_invalid_format PASSED [ 64%]
+tests/test_pre_upgrade_validator.py::TestValidationFailure::test_validation_failure_creation PASSED [ 64%]
+tests/test_pre_upgrade_validator.py::TestPreUpgradeValidationReport::test_report_summary_passed PASSED [ 64%]
+tests/test_pre_upgrade_validator.py::TestPreUpgradeValidationReport::test_report_summary_failed PASSED [ 64%]
+tests/test_report_generator.py::TestUpgradeSummary::test_duration_calculation PASSED [ 65%]
+tests/test_report_generator.py::TestUpgradeSummary::test_duration_none_when_not_ended PASSED [ 65%]
+tests/test_report_generator.py::TestUpgradeSummary::test_total_counts PASSED [ 65%]
+tests/test_report_generator.py::TestUpgradeSummary::test_critical_issues_filter PASSED [ 66%]
+tests/test_report_generator.py::TestUpgradeSummary::test_success_determination PASSED [ 66%]
+tests/test_report_generator.py::TestSummaryReportGenerator::test_initialization PASSED [ 66%]
+tests/test_report_generator.py::TestSummaryReportGenerator::test_start_upgrade PASSED [ 66%]
+tests/test_report_generator.py::TestSummaryReportGenerator::test_end_upgrade PASSED [ 67%]
+tests/test_report_generator.py::TestSummaryReportGenerator::test_add_version_change PASSED [ 67%]
+tests/test_report_generator.py::TestSummaryReportGenerator::test_add_config_change PASSED [ 67%]
+tests/test_report_generator.py::TestSummaryReportGenerator::test_add_issue PASSED [ 67%]
+tests/test_report_generator.py::TestSummaryReportGenerator::test_add_service_upgraded PASSED [ 68%]
+tests/test_report_generator.py::TestSummaryReportGenerator::test_add_service_failed PASSED [ 68%]
+tests/test_report_generator.py::TestSummaryReportGenerator::test_mark_rollback PASSED [ 68%]
+tests/test_report_generator.py::TestSummaryReportGenerator::test_generate_text_report PASSED [ 69%]
+tests/test_report_generator.py::TestSummaryReportGenerator::test_generate_json_report PASSED [ 69%]
+tests/test_report_generator.py::TestSummaryReportGenerator::test_save_report_text PASSED [ 69%]
+tests/test_report_generator.py::TestSummaryReportGenerator::test_save_report_json PASSED [ 69%]
+tests/test_report_generator.py::TestSummaryReportGenerator::test_save_report_both PASSED [ 70%]
+tests/test_report_generator.py::TestSummaryReportGenerator::test_from_action_log PASSED [ 70%]
+tests/test_resource_validator.py::TestResourceValidator::test_init_with_kubeconfig PASSED [ 70%]
+tests/test_resource_validator.py::TestResourceValidator::test_check_cluster_resources_sufficient PASSED [ 70%]
+tests/test_resource_validator.py::TestResourceValidator::test_check_cluster_resources_insufficient PASSED [ 71%]
+tests/test_resource_validator.py::TestResourceValidator::test_check_backups_valid PASSED [ 71%]
+tests/test_resource_validator.py::TestResourceValidator::test_check_backups_old PASSED [ 71%]
+tests/test_resource_validator.py::TestResourceValidator::test_check_backups_missing PASSED [ 72%]
+tests/test_resource_validator.py::TestResourceValidator::test_check_backups_directory_not_exists PASSED [ 72%]
+tests/test_resource_validator.py::TestResourceValidator::test_check_active_jobs_none PASSED [ 72%]
+tests/test_resource_validator.py::TestResourceValidator::test_check_active_jobs_with_active PASSED [ 72%]
+tests/test_resource_validator.py::TestResourceValidator::test_validate_all_passed PASSED [ 73%]
+tests/test_resource_validator.py::TestResourceValidator::test_validate_all_failed PASSED [ 73%]
+tests/test_resource_validator.py::TestResourceValidator::test_parse_cpu PASSED [ 73%]
+tests/test_resource_validator.py::TestResourceValidator::test_parse_memory PASSED [ 74%]
+tests/test_resource_validator.py::TestResourceValidator::test_validation_report_summary PASSED [ 74%]
+tests/test_restore_manager.py::TestRestoreManager::test_initialization PASSED [ 74%]
+tests/test_restore_manager.py::TestRestoreManager::test_restore_chart_versions PASSED [ 74%]
+tests/test_restore_manager.py::TestRestoreManager::test_restore_override_configs PASSED [ 75%]
+tests/test_restore_manager.py::TestRestoreManager::test_restore_all_components PASSED [ 75%]
+tests/test_restore_manager.py::TestRestoreManager::test_restore_missing_component PASSED [ 75%]
+tests/test_restore_manager.py::TestRestoreManager::test_restore_without_destination_path PASSED [ 75%]
+tests/test_restore_manager.py::TestRestoreManager::test_restore_creates_pre_restore_backup PASSED [ 76%]
+tests/test_restore_manager.py::TestRestoreManager::test_restore_latest PASSED [ 76%]
+tests/test_restore_manager.py::TestRestoreManager::test_restore_latest_no_backups PASSED [ 76%]
+tests/test_restore_manager.py::TestRestoreManager::test_restore_with_missing_backup_file PASSED [ 77%]
+tests/test_restore_manager.py::TestRestoreManager::test_restore_configs_overwrites_existing PASSED [ 77%]
+tests/test_restore_manager.py::TestRestoreManager::test_restore_with_helm_apply PASSED [ 77%]
+tests/test_restore_manager.py::TestRestoreManager::test_restore_helm_apply_failure PASSED [ 77%]
+tests/test_rollback_verifier.py::TestRollbackVerifier::test_initialization PASSED [ 78%]
+tests/test_rollback_verifier.py::TestRollbackVerifier::test_verify_rollback_success PASSED [ 78%]
+tests/test_rollback_verifier.py::TestRollbackVerifier::test_verify_rollback_unhealthy_pods PASSED [ 78%]
+tests/test_rollback_verifier.py::TestRollbackVerifier::test_verify_rollback_unreachable_endpoints PASSED [ 79%]
+tests/test_rollback_verifier.py::TestRollbackVerifier::test_verify_rollback_without_endpoints PASSED [ 79%]
+tests/test_rollback_verifier.py::TestRollbackVerifier::test_verify_service_health PASSED [ 79%]
+tests/test_rollback_verifier.py::TestRollbackVerifier::test_generate_rollback_report PASSED [ 79%]
+tests/test_rollback_verifier.py::TestRollbackVerifier::test_rollback_report_summary PASSED [ 80%]
+tests/test_rollback_verifier.py::TestRollbackVerifier::test_format_text_report PASSED [ 80%]
+tests/test_rollback_verifier.py::TestRollbackVerifier::test_format_json_report PASSED [ 80%]
+tests/test_rollback_verifier.py::TestRollbackVerifier::test_format_markdown_report PASSED [ 80%]
+tests/test_rollback_verifier.py::TestRollbackVerifier::test_format_invalid_format PASSED [ 81%]
+tests/test_service_upgrader.py::TestServiceUpgrader::test_init PASSED    [ 81%]
+tests/test_service_upgrader.py::TestServiceUpgrader::test_upgrade_service_success PASSED [ 81%]
+tests/test_service_upgrader.py::TestServiceUpgrader::test_upgrade_service_deployment_failure PASSED [ 82%]
+tests/test_service_upgrader.py::TestServiceUpgrader::test_upgrade_service_stabilization_failure PASSED [ 82%]
+tests/test_service_upgrader.py::TestServiceUpgrader::test_upgrade_service_health_check_failure PASSED [ 82%]
+tests/test_service_upgrader.py::TestServiceUpgrader::test_upgrade_service_with_job_cleanup PASSED [ 82%]
+tests/test_service_upgrader.py::TestServiceUpgrader::test_upgrade_service_job_cleanup_failure PASSED [ 83%]
+tests/test_service_upgrader.py::TestServiceUpgrader::test_upgrade_service_exception_handling PASSED [ 83%]
+tests/test_service_upgrader.py::TestServiceUpgrader::test_cleanup_jobs PASSED [ 83%]
+tests/test_service_upgrader.py::TestServiceUpgrader::test_get_override_files PASSED [ 83%]
+tests/test_service_upgrader.py::TestServiceUpgrader::test_wait_for_stabilization PASSED [ 84%]
+tests/test_service_upgrader.py::TestServiceUpgrader::test_wait_for_stabilization_with_timeout PASSED [ 84%]
+tests/test_service_upgrader.py::TestServiceUpgrader::test_verify_service_health PASSED [ 84%]
+tests/test_service_upgrader.py::TestServiceUpgrader::test_verify_service_health_failure PASSED [ 85%]
+tests/test_service_upgrader.py::TestServiceUpgrader::test_verify_service_health_exception PASSED [ 85%]
+tests/test_service_upgrader.py::TestServiceUpgrader::test_rollback_service_success PASSED [ 85%]
+tests/test_service_upgrader.py::TestServiceUpgrader::test_rollback_service_with_revision PASSED [ 85%]
+tests/test_service_upgrader.py::TestServiceUpgrader::test_rollback_service_failure PASSED [ 86%]
+tests/test_service_upgrader.py::TestServiceUpgrader::test_rollback_service_stabilization_failure PASSED [ 86%]
+tests/test_service_upgrader.py::TestServiceUpgrader::test_services_requiring_job_cleanup PASSED [ 86%]
+tests/test_upgrade_orchestrator.py::TestUpgradeOrchestrator::test_init PASSED [ 87%]
+tests/test_upgrade_orchestrator.py::TestUpgradeOrchestrator::test_init_with_custom_graph PASSED [ 87%]
+tests/test_upgrade_orchestrator.py::TestUpgradeOrchestrator::test_orchestrate_upgrade_success PASSED [ 87%]
+tests/test_upgrade_orchestrator.py::TestUpgradeOrchestrator::test_orchestrate_upgrade_with_failure PASSED [ 87%]
+tests/test_upgrade_orchestrator.py::TestUpgradeOrchestrator::test_orchestrate_upgrade_halt_on_failure PASSED [ 88%]
+tests/test_upgrade_orchestrator.py::TestUpgradeOrchestrator::test_orchestrate_upgrade_continue_on_failure PASSED [ 88%]
+tests/test_upgrade_orchestrator.py::TestUpgradeOrchestrator::test_orchestrate_upgrade_respects_dependencies PASSED [ 88%]
+tests/test_upgrade_orchestrator.py::TestUpgradeOrchestrator::test_orchestrate_upgrade_with_warnings PASSED [ 88%]
+tests/test_upgrade_orchestrator.py::TestUpgradeOrchestrator::test_orchestrate_upgrade_exception_handling PASSED [ 89%]
+tests/test_upgrade_orchestrator.py::TestUpgradeOrchestrator::test_orchestrate_full_upgrade PASSED [ 89%]
+tests/test_upgrade_orchestrator.py::TestUpgradeOrchestrator::test_log_action PASSED [ 89%]
+tests/test_upgrade_orchestrator.py::TestUpgradeOrchestrator::test_get_upgrade_log PASSED [ 90%]
+tests/test_upgrade_orchestrator.py::TestUpgradeOrchestrator::test_generate_upgrade_report PASSED [ 90%]
+tests/test_upgrade_orchestrator.py::TestUpgradeOrchestrator::test_generate_upgrade_report_with_failures PASSED [ 90%]
+tests/test_version_manager.py::TestVersionParser::test_load_versions PASSED [ 90%]
+tests/test_version_manager.py::TestVersionParser::test_is_openstack_service PASSED [ 91%]
+tests/test_version_manager.py::TestVersionParser::test_is_caracal_version PASSED [ 91%]
+tests/test_version_manager.py::TestVersionParser::test_is_epoxy_version PASSED [ 91%]
+tests/test_version_manager.py::TestVersionParser::test_categorize_chart PASSED [ 91%]
+tests/test_version_manager.py::TestVersionParser::test_identify_updates PASSED [ 92%]
+tests/test_version_manager.py::TestVersionUpdater::test_replace_version PASSED [ 92%]
+tests/test_version_manager.py::TestVersionUpdater::test_update_versions_dry_run PASSED [ 92%]
+tests/test_version_manager.py::TestVersionUpdater::test_update_versions_actual PASSED [ 93%]
+tests/test_version_manager.py::TestChartVersionManager::test_load_current_versions PASSED [ 93%]
+tests/test_version_manager.py::TestChartVersionManager::test_identify_updates PASSED [ 93%]
+tests/test_version_manager.py::TestChartVersionManager::test_generate_report PASSED [ 93%]
+tests/test_version_manager.py::TestChartVersionManager::test_report_to_markdown PASSED [ 94%]
+tests/test_version_manager.py::TestChartVersionManager::test_upgrade_workflow PASSED [ 94%]
+tests/test_yaml_utils.py::test_read_yaml_file_success PASSED             [ 94%]
+tests/test_yaml_utils.py::test_read_yaml_file_not_found PASSED           [ 95%]
+tests/test_yaml_utils.py::test_read_yaml_file_invalid_yaml PASSED        [ 95%]
+tests/test_yaml_utils.py::test_read_yaml_file_empty PASSED               [ 95%]
+tests/test_yaml_utils.py::test_write_yaml_file_success PASSED            [ 95%]
+tests/test_yaml_utils.py::test_write_yaml_file_creates_directories PASSED [ 96%]
+tests/test_yaml_utils.py::test_write_yaml_file_overwrites_existing PASSED [ 96%]
+tests/test_yaml_utils.py::test_yaml_round_trip PASSED                    [ 96%]
+tests/test_yaml_validator.py::TestYAMLValidator::test_validate_valid_yaml PASSED [ 96%]
+tests/test_yaml_validator.py::TestYAMLValidator::test_validate_invalid_yaml PASSED [ 97%]
+tests/test_yaml_validator.py::TestYAMLValidator::test_validate_empty_yaml PASSED [ 97%]
+tests/test_yaml_validator.py::TestYAMLValidator::test_validate_nonexistent_file PASSED [ 97%]
+tests/test_yaml_validator.py::TestYAMLValidator::test_validate_structure_required_keys PASSED [ 98%]
+tests/test_yaml_validator.py::TestYAMLValidator::test_validate_structure_expected_types PASSED [ 98%]
+tests/test_yaml_validator.py::TestYAMLValidator::test_validate_helm_override PASSED [ 98%]
+tests/test_yaml_validator.py::TestYAMLValidator::test_validate_helm_override_invalid_structure PASSED [ 98%]
+tests/test_yaml_validator.py::TestYAMLValidator::test_get_issues_filtered PASSED [ 99%]
+tests/test_yaml_validator.py::TestYAMLValidator::test_get_summary PASSED [ 99%]
+tests/test_yaml_validator.py::TestYAMLValidator::test_clear_issues PASSED [ 99%]
+tests/test_yaml_validator.py::TestYAMLValidator::test_validation_issue_str PASSED [100%]
+
+=================================== FAILURES ===================================
+____________ TestCheckpoint11Integration.test_rollback_verification ____________
+tests/test_checkpoint_11_integration.py:457: in test_rollback_verification
+    mock_pod_checker.check_pod_status.return_value = {
+../../../../.pyenv/versions/3.9.16/lib/python3.9/unittest/mock.py:630: in __getattr__
+    raise AttributeError("Mock object has no attribute %r" % name)
+E   AttributeError: Mock object has no attribute 'check_pod_status'
+__ TestCheckpoint11ErrorHandling.test_health_check_failure_triggers_rollback ___
+tests/test_checkpoint_11_integration.py:647: in test_health_check_failure_triggers_rollback
+    assert not result.success
+E   AssertionError: assert not <Mock name='mock.check_openstack_health().overall_healthy' id='4499989072'>
+E    +  where <Mock name='mock.check_openstack_health().overall_healthy' id='4499989072'> = ServiceUpgradeResult(service_name='keystone', success=<Mock name='mock.check_openstack_health().overall_healthy' id='4499989072'>, duration=0.00014090538024902344, deployment_result=DeploymentResult(success=True, chart_name='keystone', release_name='keystone', revision=2, duration=10.0, pod_status={'keystone-pod': 'Running'}, errors=[], warnings=[]), health_check_passed=<Mock name='mock.check_openstack_health().overall_healthy' id='4499989072'>, errors=[], warnings=[], timestamp='2026-02-05T04:05:58.308336').success
 =========================== short test summary info ============================
-ERROR tests/test_checkpoint_11_integration.py
-ERROR tests/test_doc_generator.py
-ERROR tests/test_logger.py
-ERROR tests/test_logging_integration.py
-ERROR tests/test_report_generator.py
-!!!!!!!!!!!!!!!!!!! Interrupted: 5 errors during collection !!!!!!!!!!!!!!!!!!!!
-============================== 5 errors in 0.70s ===============================
-[2026-02-04 22:27:58] ISSUE: Upgrade dry-run executes - Dry-run failed
-usage: openstack-upgrade [-h] [--dry-run | --validate-only | --rollback]
-                         [--config CONFIG] [--chart-versions CHART_VERSIONS]
-                         [--overrides-path OVERRIDES_PATH]
-                         [--backup-path BACKUP_PATH] [--namespace NAMESPACE]
-                         [--in-cluster] [--skip-optional]
-                         [--services SERVICES [SERVICES ...]]
-                         [--timeout TIMEOUT] [--no-halt-on-failure]
-                         [--skip-pre-validation] [--skip-post-validation]
-                         [--skip-endpoints] [--output OUTPUT]
-                         [--format {text,json,markdown}] [--verbose] [--quiet]
-                         [--source-release SOURCE_RELEASE]
-                         [--target-release TARGET_RELEASE]
-openstack-upgrade: error: unrecognized arguments: upgrade
-[2026-02-04 22:27:58] ISSUE: Large file validation - Validation failed
-[2026-02-04 22:27:58] ISSUE: Corrupted YAML detection - Error not detected
-[2026-02-04 22:27:58] ISSUE: Circular dependency detection - Not detected
-[2026-02-04 22:27:59] ISSUE: Invalid configuration handling - Not handled properly
+FAILED tests/test_checkpoint_11_integration.py::TestCheckpoint11Integration::test_rollback_verification - AttributeError: Mock object has no attribute 'check_pod_status'
+FAILED tests/test_checkpoint_11_integration.py::TestCheckpoint11ErrorHandling::test_health_check_failure_triggers_rollback - AssertionError: assert not <Mock name='mock.check_openstack_health().overall_healthy' id='4499989072'>
+ +  where <Mock name='mock.check_openstack_health().overall_healthy' id='4499989072'> = ServiceUpgradeResult(service_name='keystone', success=<Mock name='mock.check_openstack_health().overall_healthy' id='4499989072'>, duration=0.00014090538024902344, deployment_result=DeploymentResult(success=True, chart_name='keystone', release_name='keystone', revision=2, duration=10.0, pod_status={'keystone-pod': 'Running'}, errors=[], warnings=[]), health_check_passed=<Mock name='mock.check_openstack_health().overall_healthy' id='4499989072'>, errors=[], warnings=[], timestamp='2026-02-05T04:05:58.308336').success
+======================== 2 failed, 360 passed in 0.96s =========================
+[2026-02-05 04:06:01] ISSUE: Upgrade dry-run executes - Dry-run failed
+
+
+FATAL ERROR: __init__() got an unexpected keyword argument 'verbose'
+[2026-02-05 04:06:01] ISSUE: Large file validation - Validation failed
+[2026-02-05 04:06:01] ISSUE: Corrupted YAML detection - Error not detected
+[2026-02-05 04:06:01] ISSUE: Circular dependency detection - Not detected
+[2026-02-05 04:06:01] ISSUE: Invalid configuration handling - Not handled properly

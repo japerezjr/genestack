@@ -4,7 +4,7 @@ import pytest
 from pathlib import Path
 from datetime import datetime
 
-from src.logging import (
+from upgrade_logging import (
     UpgradeLogger,
     LogLevel,
     ActionType,

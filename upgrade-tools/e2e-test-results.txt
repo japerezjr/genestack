@@ -1,54 +1,54 @@
 End-to-End Test Results
-Test Date: 2026-02-04 22:27:52
+Test Date: 2026-02-05 04:05:55
 Tester: jorge.perez
 Host: CNFHJ49374
 ========================================
 
-[2026-02-04 22:27:52] Python 3 installed | PASS | Python 3.9.16
-[2026-02-04 22:27:52] kubectl installed | PASS | installed
-[2026-02-04 22:27:53] OpenStack CLI installed | PASS | openstack 6.5.0
-[2026-02-04 22:27:53] Helm installed | PASS | v3.14.2+gc309b6f
-[2026-02-04 22:27:53] Upgrade tools directory exists | PASS | /Users/jorge.perez/Projects/genestack/genestack-upgrade/upgrade-tools
-[2026-02-04 22:27:53] Main CLI tool executable | PASS | openstack-upgrade
-[2026-02-04 22:27:53] Python dependencies installed | PASS | All required modules available
-[2026-02-04 22:27:53] upgrade-config.yaml valid | PASS | YAML syntax valid
-[2026-02-04 22:27:54] breaking-changes.yaml valid | PASS | YAML syntax valid
-[2026-02-04 22:27:54] deprecation-rules.yaml valid | PASS | YAML syntax valid
-[2026-02-04 22:27:54] pre-upgrade-validate.sh executable | PASS | scripts/pre-upgrade-validate.sh
-[2026-02-04 22:27:54] upgrade-execute.sh executable | PASS | scripts/upgrade-execute.sh
-[2026-02-04 22:27:54] post-upgrade-verify.sh executable | PASS | scripts/post-upgrade-verify.sh
-[2026-02-04 22:27:54] rollback.sh executable | PASS | scripts/rollback.sh
-[2026-02-04 22:27:54] integration-test-checklist.sh executable | PASS | scripts/integration-test-checklist.sh
-[2026-02-04 22:27:54] Module version.parser imports | PASS | Import successful
-[2026-02-04 22:27:54] Module validation.validator imports | PASS | Import successful
-[2026-02-04 22:27:54] Module breaking_changes.detector imports | PASS | Import successful
-[2026-02-04 22:27:54] Module health.aggregator imports | PASS | Import successful
-[2026-02-04 22:27:54] Module executor.helm_executor imports | PASS | Import successful
-[2026-02-04 22:27:55] Module rollback.backup_manager imports | PASS | Import successful
-[2026-02-04 22:27:55] Module upgrade_logging.logger imports | PASS | Import successful
-[2026-02-04 22:27:56] Unit tests execution | FAIL | Some tests failed
-[2026-02-04 22:27:56] README.md exists and not empty | PASS |      110 lines
-[2026-02-04 22:27:56] LAB_ENVIRONMENT_SETUP.md exists and not empty | PASS |     1015 lines
-[2026-02-04 22:27:56] OPERATOR_GUIDE.md exists and not empty | PASS |     1044 lines
-[2026-02-04 22:27:56] UPGRADE_RUNBOOK.md exists and not empty | PASS |      820 lines
-[2026-02-04 22:27:56] INTEGRATION_TESTING.md exists and not empty | PASS |      690 lines
-[2026-02-04 22:27:56] END_TO_END_TESTING.md exists and not empty | PASS |     1031 lines
-[2026-02-04 22:27:56] VALIDATION.md exists and not empty | PASS |      314 lines
-[2026-02-04 22:27:56] Main upgrade documentation exists | PASS | docs/2024.1-to-2025.1.md
-[2026-02-04 22:27:56] Main CLI --help works | PASS | Help text displayed
-[2026-02-04 22:27:56] CLI subcommand 'upgrade' --help works | PASS | Help text displayed
-[2026-02-04 22:27:57] CLI subcommand 'validate' --help works | PASS | Help text displayed
-[2026-02-04 22:27:57] CLI subcommand 'rollback' --help works | PASS | Help text displayed
-[2026-02-04 22:27:57] CLI subcommand 'report' --help works | PASS | Help text displayed
-[2026-02-04 22:27:58] Upgrade dry-run executes | FAIL | Dry-run failed
-[2026-02-04 22:27:58] Large file validation | FAIL | Validation failed
-[2026-02-04 22:27:58] Corrupted YAML detection | FAIL | Error not detected
-[2026-02-04 22:27:58] Circular dependency detection | FAIL | Not detected
-[2026-02-04 22:27:59] Missing file error handling | PASS | Exception raised correctly
-[2026-02-04 22:27:59] Invalid configuration handling | FAIL | Not handled properly
-[2026-02-04 22:27:59] Logger initialization | PASS | Logger created successfully
-[2026-02-04 22:27:59] Log file creation | PASS | upgrade.log exists
-[2026-02-04 22:27:59] Log file content | PASS | Messages logged correctly
+[2026-02-05 04:05:55] Python 3 installed | PASS | Python 3.9.16
+[2026-02-05 04:05:55] kubectl installed | PASS | installed
+[2026-02-05 04:05:56] OpenStack CLI installed | PASS | openstack 6.5.0
+[2026-02-05 04:05:56] Helm installed | PASS | v3.14.2+gc309b6f
+[2026-02-05 04:05:56] Upgrade tools directory exists | PASS | /Users/jorge.perez/Projects/genestack/genestack-upgrade/upgrade-tools
+[2026-02-05 04:05:56] Main CLI tool executable | PASS | openstack-upgrade
+[2026-02-05 04:05:56] Python dependencies installed | PASS | All required modules available
+[2026-02-05 04:05:56] upgrade-config.yaml valid | PASS | YAML syntax valid
+[2026-02-05 04:05:56] breaking-changes.yaml valid | PASS | YAML syntax valid
+[2026-02-05 04:05:56] deprecation-rules.yaml valid | PASS | YAML syntax valid
+[2026-02-05 04:05:56] pre-upgrade-validate.sh executable | PASS | scripts/pre-upgrade-validate.sh
+[2026-02-05 04:05:56] upgrade-execute.sh executable | PASS | scripts/upgrade-execute.sh
+[2026-02-05 04:05:56] post-upgrade-verify.sh executable | PASS | scripts/post-upgrade-verify.sh
+[2026-02-05 04:05:56] rollback.sh executable | PASS | scripts/rollback.sh
+[2026-02-05 04:05:56] integration-test-checklist.sh executable | PASS | scripts/integration-test-checklist.sh
+[2026-02-05 04:05:56] Module version.parser imports | PASS | Import successful
+[2026-02-05 04:05:56] Module validation.validator imports | PASS | Import successful
+[2026-02-05 04:05:56] Module breaking_changes.detector imports | PASS | Import successful
+[2026-02-05 04:05:57] Module health.aggregator imports | PASS | Import successful
+[2026-02-05 04:05:57] Module executor.helm_executor imports | PASS | Import successful
+[2026-02-05 04:05:57] Module rollback.backup_manager imports | PASS | Import successful
+[2026-02-05 04:05:57] Module upgrade_logging.logger imports | PASS | Import successful
+[2026-02-05 04:05:58] Unit tests execution | FAIL | Some tests failed
+[2026-02-05 04:05:58] README.md exists and not empty | PASS |      110 lines
+[2026-02-05 04:05:58] LAB_ENVIRONMENT_SETUP.md exists and not empty | PASS |     1015 lines
+[2026-02-05 04:05:58] OPERATOR_GUIDE.md exists and not empty | PASS |     1044 lines
+[2026-02-05 04:05:58] UPGRADE_RUNBOOK.md exists and not empty | PASS |      820 lines
+[2026-02-05 04:05:58] INTEGRATION_TESTING.md exists and not empty | PASS |      690 lines
+[2026-02-05 04:05:58] END_TO_END_TESTING.md exists and not empty | PASS |     1031 lines
+[2026-02-05 04:05:58] VALIDATION.md exists and not empty | PASS |      314 lines
+[2026-02-05 04:05:58] Main upgrade documentation exists | PASS | docs/2024.1-to-2025.1.md
+[2026-02-05 04:05:59] Main CLI --help works | PASS | Help text displayed
+[2026-02-05 04:05:59] CLI subcommand 'upgrade' --help works | PASS | Help text displayed
+[2026-02-05 04:06:00] CLI subcommand 'validate' --help works | PASS | Help text displayed
+[2026-02-05 04:06:00] CLI subcommand 'rollback' --help works | PASS | Help text displayed
+[2026-02-05 04:06:00] CLI subcommand 'report' --help works | PASS | Help text displayed
+[2026-02-05 04:06:01] Upgrade dry-run executes | FAIL | Dry-run failed
+[2026-02-05 04:06:01] Large file validation | FAIL | Validation failed
+[2026-02-05 04:06:01] Corrupted YAML detection | FAIL | Error not detected
+[2026-02-05 04:06:01] Circular dependency detection | FAIL | Not detected
+[2026-02-05 04:06:01] Missing file error handling | PASS | Exception raised correctly
+[2026-02-05 04:06:01] Invalid configuration handling | FAIL | Not handled properly
+[2026-02-05 04:06:01] Logger initialization | PASS | Logger created successfully
+[2026-02-05 04:06:02] Log file creation | PASS | upgrade.log exists
+[2026-02-05 04:06:02] Log file content | PASS | Messages logged correctly
 
 ========================================
 SUMMARY
@@ -59,6 +59,6 @@ Failed:         6
 Skipped:        0
 Pass Rate:      86%
 
-Test Date:      2026-02-04 22:27:59
+Test Date:      2026-02-05 04:06:02
 Duration:       7s
 Overall Result: FAIL

@@ -5,7 +5,7 @@ import json
 from pathlib import Path
 from datetime import datetime, timedelta
 
-from src.logging import (
+from upgrade_logging import (
     SummaryReportGenerator,
     UpgradeSummary,
     VersionChange,

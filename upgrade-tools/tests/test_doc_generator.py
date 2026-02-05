@@ -3,7 +3,7 @@
 import pytest
 from pathlib import Path
 
-from src.logging import UpgradeDocGenerator, ManualStep
+from upgrade_logging import UpgradeDocGenerator, ManualStep
 
 
 @pytest.fixture

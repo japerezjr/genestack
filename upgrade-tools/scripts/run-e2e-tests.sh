@@ -378,8 +378,8 @@ function test_dry_run_mode() {
     
     print_info "Testing dry-run mode (no actual changes)..."
     
-    # Test upgrade dry-run
-    if ./openstack-upgrade upgrade --dry-run > /tmp/dryrun-output.txt 2>&1; then
+    # Test upgrade dry-run (CLI uses flags not subcommands)
+    if ./openstack-upgrade --dry-run > /tmp/dryrun-output.txt 2>&1; then
         record_test "Upgrade dry-run executes" "PASS" "Dry-run completed"
         
         # Check if report was generated

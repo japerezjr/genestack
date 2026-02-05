@@ -24,7 +24,7 @@ from src.rollback import (
     RestoreManager,
     RollbackVerifier
 )
-from src.logging import (
+from upgrade_logging import (
     UpgradeLogger,
     SummaryReportGenerator,
     ActionType,
