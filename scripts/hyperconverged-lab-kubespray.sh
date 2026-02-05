@@ -373,7 +373,7 @@ if [ ! -d "/etc/genestack" ]; then
         exit 1
     fi
     cd /opt/genestack && sudo ./bootstrap.sh
-    sudo chown ${USER}:${USER} -R /etc/genestack
+    sudo chown \${USER}:\${USER} -R /etc/genestack
 fi
 
 # Configure MetalLB
