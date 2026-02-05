@@ -297,7 +297,11 @@ if eval "$CMD"; then
     fi
 else
     EXIT_CODE=$?
-    if [[ "$DRY_RUN" == "true" ]]; then
+    if [[ $EXIT_CODE -eq 130 ]]; then
+        # User cancelled
+        echo ""
+        echo -e "${YELLOW}Upgrade cancelled by user${NC}"
+    elif [[ "$DRY_RUN" == "true" ]]; then
         echo ""
         echo -e "${RED}✗ Dry-run failed${NC}"
     else

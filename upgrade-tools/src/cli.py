@@ -448,7 +448,12 @@ def handle_full_upgrade(
             response = input("\nContinue with upgrade? (yes/no): ")
             if response.lower() != "yes":
                 print("Upgrade cancelled")
-                return 0
+                logger.log_action(
+                    ActionType.VALIDATION,
+                    component="upgrade_process",
+                    details="status=cancelled, reason=user_declined_breaking_changes"
+                )
+                return 130  # Standard exit code for user cancellation
     
     if args.dry_run:
         print("\n[DRY-RUN] Upgrade preparation complete")
