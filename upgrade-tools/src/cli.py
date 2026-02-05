@@ -475,6 +475,42 @@ def handle_full_upgrade(
         
         return 0
     
+    # Phase 2.5: Update container image tags
+    print_section("Phase 2.5: Updating Container Image Tags", args.quiet)
+    
+    from version.image_updater import ImageTagUpdater
+    
+    image_updater = ImageTagUpdater(
+        source_release=config.source_release,
+        target_release=config.target_release,
+        overrides_base_path=config.overrides_base_path
+    )
+    
+    # Get list of services to update (same as services to upgrade)
+    if args.services:
+        services_to_update = args.services
+    else:
+        # Update all OpenStack services
+        from executor.chart_resolver import ChartResolver
+        chart_resolver = ChartResolver(chart_versions_path=config.chart_versions_path)
+        services_to_update = [s for s in chart_resolver.chart_versions.keys() 
+                             if chart_resolver.is_openstack_service(s)]
+    
+    image_results = image_updater.update_all_services(services=services_to_update)
+    
+    # Log results
+    total_updated = sum(r.images_updated for r in image_results.values())
+    total_errors = sum(len(r.errors) for r in image_results.values())
+    
+    if total_errors > 0:
+        print(f"⚠ Image tag update completed with {total_errors} errors", file=sys.stderr)
+        for service, result in image_results.items():
+            if result.errors:
+                print(f"  {service}: {', '.join(result.errors)}", file=sys.stderr)
+    
+    if not args.quiet:
+        print(f"✓ Updated {total_updated} container image tags")
+    
     # Phase 3: Create backup
     print_section("Phase 3: Creating Backup", args.quiet)
     
