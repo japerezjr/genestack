@@ -306,7 +306,7 @@ def handle_rollback(
     print_section("Rollback to Previous Version", args.quiet)
     
     # Initialize backup manager
-    backup_mgr = BackupManager(backup_path=config.backup_path)
+    backup_mgr = BackupManager(backup_base_path=config.backup_path)
     
     # Find latest backup
     if not args.quiet:
@@ -477,7 +477,7 @@ def handle_full_upgrade(
     # Phase 3: Create backup
     print_section("Phase 3: Creating Backup", args.quiet)
     
-    backup_mgr = BackupManager(backup_path=config.backup_path)
+    backup_mgr = BackupManager(backup_base_path=config.backup_path)
     backup_result = backup_mgr.create_full_backup(
         chart_versions_path=config.chart_versions_path,
         overrides_path=config.overrides_base_path
