@@ -397,10 +397,10 @@ The project uses **bd** (beads) for issue tracking. Tasks 1-13 have been complet
     - Verify system restored to Caracal state
     - Review rollback report and verify all services operational
 
-- [ ] 16. Create production upgrade documentation
+- [x] 16. Create production upgrade documentation
   - **bd issue**: genestack-upgrade-80z
   
-  - [ ] 16.1 Update docs/2024.1-to-2025.1.md
+  - [x] 16.1 Update docs/2024.1-to-2025.1.md
     - Document complete upgrade procedure with all steps
     - Include all prerequisites (backups, resource checks, maintenance window)
     - Document expected timeline (30 minutes to 4 hours depending on deployment size)
@@ -408,14 +408,14 @@ The project uses **bd** (beads) for issue tracking. Tasks 1-13 have been complet
     - Add references to upgrade tool documentation
     - _Requirements: 8.8_
 
-  - [ ] 16.2 Create upgrade runbook
+  - [x] 16.2 Create upgrade runbook
     - Step-by-step upgrade instructions for operators
     - Include validation checkpoints after each phase
     - Document rollback procedure with decision criteria
     - Include emergency contacts and escalation procedures
     - Add pre-flight checklist and post-upgrade verification checklist
 
-  - [ ] 16.3 Create operator guide
+  - [x] 16.3 Create operator guide
     - Document tool usage with examples: `openstack-upgrade --help`
     - Explain configuration options in `config/upgrade-config.yaml`
     - Provide examples for common scenarios (dry-run, partial upgrade, rollback)
