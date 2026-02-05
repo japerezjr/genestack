@@ -422,7 +422,7 @@ The project uses **bd** (beads) for issue tracking. Tasks 1-13 have been complet
     - Include FAQ section addressing common questions
     - Document log locations and how to interpret logs
 
-- [ ] 17. Final checkpoint - Complete end-to-end testing
+- [x] 17. Final checkpoint - Complete end-to-end testing
   - **bd issue**: genestack-upgrade-utk
   
   - Run complete upgrade in lab environment from start to finish
