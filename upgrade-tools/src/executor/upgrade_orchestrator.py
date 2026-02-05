@@ -177,8 +177,15 @@ class UpgradeOrchestrator:
         # Get all services from dependency graph
         all_services = list(self.dependency_graph.services)
         
+        # Filter to only OpenStack services (exclude infrastructure like cert-manager, metallb, etc.)
+        from .chart_resolver import ChartResolver
+        chart_resolver = ChartResolver(chart_versions_path="../helm-chart-versions.yaml")
+        openstack_services = [s for s in all_services if chart_resolver.is_openstack_service(s)]
+        
+        self._log_action(f"Filtered {len(all_services)} services to {len(openstack_services)} OpenStack services")
+        
         return self.orchestrate_upgrade(
-            services=all_services,
+            services=openstack_services,
             chart_base_path=chart_base_path,
             skip_optional=skip_optional,
             halt_on_failure=halt_on_failure,

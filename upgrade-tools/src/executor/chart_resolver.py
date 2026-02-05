@@ -34,6 +34,16 @@ class ChartReference:
 class ChartResolver:
     """Resolves service names to Helm chart references."""
     
+    # OpenStack services that should be upgraded (excludes infrastructure)
+    OPENSTACK_SERVICES = {
+        "barbican", "barbican-exporter", "blazar", "ceilometer", "cinder",
+        "cloudkitty", "designate", "freezer", "glance", "gnocchi", "heat",
+        "horizon", "ironic", "keystone", "magnum", "manila", "masakari",
+        "neutron", "nova", "octavia", "placement", "skyline", "trove", "zaqar",
+        # Infrastructure services deployed via openstack-helm
+        "libvirt", "mariadb", "memcached", "rabbitmq", "ovn"
+    }
+    
     # Default repository mappings for OpenStack services
     DEFAULT_REPOS = {
         "openstack-helm": {
@@ -204,6 +214,17 @@ class ChartResolver:
             Version string or None if not found
         """
         return self.chart_versions.get(service_name)
+    
+    def is_openstack_service(self, service_name: str) -> bool:
+        """Check if a service is an OpenStack service that should be upgraded.
+        
+        Args:
+            service_name: Name of the service
+            
+        Returns:
+            True if this is an OpenStack service, False otherwise
+        """
+        return service_name in self.OPENSTACK_SERVICES
     
     def ensure_repo_added(self, chart_ref: ChartReference) -> bool:
         """Ensure the Helm repository is added.
