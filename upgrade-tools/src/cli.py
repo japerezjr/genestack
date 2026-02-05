@@ -273,10 +273,15 @@ def handle_validation_only(
     else:
         print(report_text)
     
-    logger.log_action("validation_completed", {
-        "passed": report.passed,
-        "issues": len(report.issues)
-    })
+    from upgrade_logging.logger import ActionType
+    logger.log_action(
+        ActionType.VALIDATION,
+        "pre_upgrade_validation",
+        {
+            "passed": report.passed,
+            "issues": len(report.issues)
+        }
+    )
     
     return 0 if report.passed else 1
 
@@ -575,9 +580,15 @@ def handle_full_upgrade(
     else:
         print("\n" + final_report)
     
-    logger.log_action("upgrade_completed", {
-        "success": upgrade_result.success,
-        "duration": upgrade_result.total_duration
+    from upgrade_logging.logger import ActionType
+    logger.log_action(
+        ActionType.SERVICE_UPGRADE,
+        "full_upgrade",
+        {
+            "success": upgrade_result.success,
+            "duration": upgrade_result.total_duration
+        }
+    )
     })
     
     return 0
@@ -602,10 +613,15 @@ def main() -> int:
         config = load_config(args)
         
         # Initialize logger with appropriate log level based on verbose flag
-        from upgrade_logging.logger import LogLevel
+        from upgrade_logging.logger import LogLevel, ActionType
         console_level = LogLevel.DEBUG if args.verbose else LogLevel.INFO
         logger = UpgradeLogger(console_level=console_level)
-        logger.log_action("upgrade_started", {"config": config.__dict__})
+        logger.info("Upgrade process started")
+        logger.log_action(
+            ActionType.VALIDATION,
+            "upgrade_process",
+            {"status": "started", "config": str(config.__dict__)}
+        )
         
         # Initialize report generator
         report_gen = ReportGenerator()
