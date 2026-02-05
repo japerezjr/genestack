@@ -503,7 +503,24 @@ def handle_full_upgrade(
     
     # Log results
     total_updated = sum(r.images_updated for r in image_results.values())
+    total_skipped = sum(r.images_skipped for r in image_results.values())
     total_errors = sum(len(r.errors) for r in image_results.values())
+    
+    if args.verbose:
+        print(f"\nImage update details:")
+        print(f"  Services processed: {len(image_results)}")
+        print(f"  Images updated: {total_updated}")
+        print(f"  Images skipped: {total_skipped}")
+        print(f"  Errors: {total_errors}")
+        for service, result in image_results.items():
+            if result.images_updated > 0 or result.errors or args.verbose:
+                print(f"  {service}: {result.images_updated} updated, {result.images_skipped} skipped")
+                if result.errors:
+                    for error in result.errors:
+                        print(f"    ERROR: {error}")
+                if result.warnings:
+                    for warning in result.warnings:
+                        print(f"    WARNING: {warning}")
     
     if total_errors > 0:
         print(f"⚠ Image tag update completed with {total_errors} errors", file=sys.stderr)
