@@ -41,14 +41,14 @@ class ChartResolver:
             "services": [
                 "barbican", "cinder", "glance", "heat", "horizon",
                 "keystone", "neutron", "nova", "octavia", "placement",
-                "ceilometer", "gnocchi"
+                "ceilometer", "gnocchi", "libvirt", "mariadb", "memcached",
+                "rabbitmq", "ovn"
             ]
         },
         "openstack-helm-infra": {
             "url": "https://tarballs.opendev.org/openstack/openstack-helm-infra",
             "services": [
-                "libvirt", "mariadb", "memcached", "rabbitmq", "ovn",
-                "redis", "postgresql"
+                "redis", "postgresql", "prometheus", "grafana"
             ]
         }
     }

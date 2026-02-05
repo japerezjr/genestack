@@ -5,6 +5,7 @@ including cleanup, deployment, and health verification.
 """
 
 import time
+import logging
 from typing import List, Optional, Dict
 from dataclasses import dataclass
 from datetime import datetime
@@ -12,6 +13,9 @@ from datetime import datetime
 from .helm_executor import HelmExecutor, DeploymentResult
 from .chart_resolver import ChartResolver
 from health.aggregator import HealthAggregator
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -186,7 +190,10 @@ class ServiceUpgrader:
             )
             
         except Exception as e:
-            errors.append(f"Unexpected error during upgrade: {str(e)}")
+            import traceback
+            error_details = f"Unexpected error during upgrade: {str(e)}"
+            errors.append(error_details)
+            logger.error(f"{error_details}\n{traceback.format_exc()}")
             duration = time.time() - start_time
             
             return ServiceUpgradeResult(
