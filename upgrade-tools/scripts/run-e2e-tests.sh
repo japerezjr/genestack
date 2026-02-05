@@ -256,13 +256,13 @@ function test_python_modules() {
     cd "$UPGRADE_TOOLS"
     
     modules=(
-        "src.version.version_manager"
-        "src.validation.config_validator"
-        "src.breaking_changes.detector"
-        "src.health.service_health_monitor"
-        "src.executor.helm_executor"
-        "src.rollback.rollback_manager"
-        "src.upgrade_logging.logger"
+        "version.parser"
+        "validation.validator"
+        "breaking_changes.detector"
+        "health.aggregator"
+        "executor.helm_executor"
+        "rollback.backup_manager"
+        "upgrade_logging.logger"
     )
     
     for module in "${modules[@]}"; do
@@ -421,7 +421,7 @@ EOF
     # Test validation of large file
     start_time=$(date +%s)
     if python3 -c "
-from src.validation.config_validator import ConfigurationValidator
+from validation.validator import ConfigurationValidator
 validator = ConfigurationValidator()
 result = validator.validate_override('/tmp/large-override.yaml')
 print(f'Valid: {result.passed}')
@@ -445,7 +445,7 @@ print(f'Valid: {result.passed}')
     
     # Test validation catches error
     if python3 -c "
-from src.validation.yaml_validator import YAMLValidator
+from validation.yaml_validator import YAMLValidator
 validator = YAMLValidator()
 result = validator.validate_file('/tmp/corrupted.yaml')
 if not result.valid:
@@ -464,7 +464,7 @@ else:
     
     # Test circular dependency detection
     if python3 -c "
-from src.executor.dependency_graph import DependencyGraph
+from executor.dependency_graph import DependencyGraph
 graph = DependencyGraph()
 graph.add_dependency('service-a', 'service-b')
 graph.add_dependency('service-b', 'service-c')
@@ -495,7 +495,7 @@ function test_error_handling() {
     
     # Test with non-existent file
     if python3 -c "
-from src.utils.yaml_utils import read_yaml_file
+from utils.yaml_utils import read_yaml_file
 try:
     data = read_yaml_file('/tmp/nonexistent-file.yaml')
     print('ERROR: Should have raised exception')
@@ -518,7 +518,7 @@ except Exception as e:
     echo "invalid_key: invalid_value" > /tmp/invalid-config.yaml
     
     if python3 -c "
-from src.config.config_loader import ConfigLoader
+from config.config_loader import ConfigLoader
 loader = ConfigLoader()
 try:
     config = loader.load('/tmp/invalid-config.yaml')
@@ -544,7 +544,7 @@ function test_logging_functionality() {
     
     # Test logger initialization
     if python3 -c "
-from src.upgrade_logging.logger import UpgradeLogger
+from upgrade_logging.logger import UpgradeLogger
 logger = UpgradeLogger()
 logger.info('Test message')
 logger.warning('Test warning')
@@ -641,6 +641,14 @@ EOF
 
 function main() {
     START_TIME=$(date +%s)
+    
+    # Activate virtual environment if it exists
+    if [ -f "${UPGRADE_TOOLS}/venv/bin/activate" ]; then
+        source "${UPGRADE_TOOLS}/venv/bin/activate"
+        print_info "Virtual environment activated: ${VIRTUAL_ENV}"
+    else
+        print_warning "Virtual environment not found at ${UPGRADE_TOOLS}/venv"
+    fi
     
     print_banner
     
