@@ -22,7 +22,7 @@
 set -e
 set -o pipefail
 
-BACKUP_DIR="${HOME}/backup/mariadb/$(date +%s)"
+BACKUP_DIR="${BACKUP_DIR:-/var/backups/openstack/$(date +%s)}"
 MYSQL_PASSWORD="$(kubectl --namespace openstack get secret mariadb -o jsonpath='{.data.root-password}' | base64 -d)"
 MYSQL_HOST=$(kubectl -n openstack get service mariadb-cluster -o jsonpath='{.spec.clusterIP}')
 
@@ -49,7 +49,7 @@ pushd "${BACKUP_DIR}"
                                     --routines \
                                     --triggers \
                                     --events \
-                                    --result-file={} \
+                                    --result-file={}.sql \
                                     {}
 popd
 
