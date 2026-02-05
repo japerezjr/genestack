@@ -351,10 +351,21 @@ fi
 echo "Genestack repository verified on jump host"
 
 #############################################################################
+# Get IP addresses locally before SSH session
+#############################################################################
+
+echo "Getting worker node IP addresses..."
+WORKER_0_IP=$(openstack port show ${WORKER_0_PORT} -f json | jq -r '.fixed_ips[0].ip_address')
+WORKER_1_IP=$(openstack port show ${WORKER_1_PORT} -f json | jq -r '.fixed_ips[0].ip_address')
+WORKER_2_IP=$(openstack port show ${WORKER_2_PORT} -f json | jq -r '.fixed_ips[0].ip_address')
+
+echo "Worker IPs: ${WORKER_0_IP}, ${WORKER_1_IP}, ${WORKER_2_IP}"
+
+#############################################################################
 # Kubespray-Specific: Remote Configuration via SSH
 #############################################################################
 
-ssh -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -t ${SSH_USERNAME}@${JUMP_HOST_VIP} <<'EOC'
+ssh -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -t ${SSH_USERNAME}@${JUMP_HOST_VIP} bash <<EOC
 set -e
 if [ ! -d "/etc/genestack" ]; then
     if [ ! -d "/opt/genestack" ]; then
@@ -400,11 +411,11 @@ all:
     ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
   hosts:
     ${LAB_NAME_PREFIX}-0.${GATEWAY_DOMAIN}:
-      ansible_host: $(openstack port show ${WORKER_0_PORT} -f json | jq -r '.fixed_ips[0].ip_address')
+      ansible_host: ${WORKER_0_IP}
     ${LAB_NAME_PREFIX}-1.${GATEWAY_DOMAIN}:
-      ansible_host: $(openstack port show ${WORKER_1_PORT} -f json | jq -r '.fixed_ips[0].ip_address')
+      ansible_host: ${WORKER_1_IP}
     ${LAB_NAME_PREFIX}-2.${GATEWAY_DOMAIN}:
-      ansible_host: $(openstack port show ${WORKER_2_PORT} -f json | jq -r '.fixed_ips[0].ip_address')
+      ansible_host: ${WORKER_2_IP}
   children:
     k8s_cluster:
       vars:
@@ -481,11 +492,11 @@ all:
     ansible_ssh_common_args: "-o StrictHostKeyChecking=no"
   hosts:
     ${LAB_NAME_PREFIX}-0.${GATEWAY_DOMAIN}:
-      ansible_host: $(openstack port show ${WORKER_0_PORT} -f json | jq -r '.fixed_ips[0].ip_address')
+      ansible_host: ${WORKER_0_IP}
     ${LAB_NAME_PREFIX}-1.${GATEWAY_DOMAIN}:
-      ansible_host: $(openstack port show ${WORKER_1_PORT} -f json | jq -r '.fixed_ips[0].ip_address')
+      ansible_host: ${WORKER_1_IP}
     ${LAB_NAME_PREFIX}-2.${GATEWAY_DOMAIN}:
-      ansible_host: $(openstack port show ${WORKER_2_PORT} -f json | jq -r '.fixed_ips[0].ip_address')
+      ansible_host: ${WORKER_2_IP}
   children:
     k8s_cluster:
       vars:
