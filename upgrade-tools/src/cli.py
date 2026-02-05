@@ -589,7 +589,6 @@ def handle_full_upgrade(
             "duration": upgrade_result.total_duration
         }
     )
-    })
     
     return 0
 
