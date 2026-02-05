@@ -335,7 +335,7 @@ The project uses **bd** (beads) for issue tracking. Tasks 1-13 have been complet
     - Generate verification report
     - _Requirements: 6.1-6.9_
 
-- [-] 14. Create lab environment setup documentation
+- [x] 14. Create lab environment setup documentation
   - **bd issue**: genestack-upgrade-v6x
   - Lab environment documentation is located in `upgrade-tools/docs/LAB_ENVIRONMENT_SETUP.md`
   
@@ -346,14 +346,14 @@ The project uses **bd** (beads) for issue tracking. Tasks 1-13 have been complet
     - Document location: `upgrade-tools/docs/LAB_ENVIRONMENT_SETUP.md`
     - _Requirements: 9.1, 9.2_
 
-  - [ ] 14.2 Document lab deployment process
+  - [x] 14.2 Document lab deployment process
     - Document hyperconverged-lab.sh usage
     - Explain deployment timeline (20-30 minutes)
     - Document SSH access procedure
     - Include troubleshooting common deployment issues
     - _Requirements: 9.3_
 
-  - [ ] 14.3 Create lab testing guide
+  - [x] 14.3 Create lab testing guide
     - Document how to test upgrade in lab
     - Provide test scenarios (happy path, failure scenarios)
     - Document expected results for each scenario
