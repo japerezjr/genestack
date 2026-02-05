@@ -279,7 +279,7 @@ def handle_validation_only(
         "pre_upgrade_validation",
         {
             "passed": report.passed,
-            "issues": len(report.issues)
+            "failures": len(report.failures)
         }
     )
     
@@ -390,8 +390,8 @@ def handle_full_upgrade(
         
         if not report.passed:
             print("\n✗ Pre-upgrade validation failed:", file=sys.stderr)
-            for issue in report.issues:
-                print(f"  - {issue.description}", file=sys.stderr)
+            for failure in report.failures:
+                print(f"  - [{failure.severity.upper()}] {failure.description}", file=sys.stderr)
             print("\nPlease fix these issues before upgrading.", file=sys.stderr)
             return 1
         
@@ -556,8 +556,8 @@ def handle_full_upgrade(
         
         if not post_report.passed:
             print("\n⚠ Post-upgrade validation found issues:", file=sys.stderr)
-            for issue in post_report.issues:
-                print(f"  - {issue.description}", file=sys.stderr)
+            for failure in post_report.failures:
+                print(f"  - [{failure.severity.upper()}] {failure.description}", file=sys.stderr)
         else:
             if not args.quiet:
                 print("✓ Post-upgrade validation passed")
