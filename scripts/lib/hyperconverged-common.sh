@@ -328,10 +328,20 @@ function prepareJumpHostSource() {
         ssh -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${SSH_USERNAME}@${JUMP_HOST_VIP} \
             "sudo mkdir -p /opt/genestack"
         # Rsync with trailing slash to copy contents into /opt/genestack
+        # Exclude venv directories and other local artifacts
         rsync -avz \
             -e "ssh -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no" \
-            --rsync-path="sudo rsync" --chown=":ubuntu" \
+            --rsync-path="sudo rsync" \
+            --exclude='venv/' \
+            --exclude='*.pyc' \
+            --exclude='__pycache__/' \
+            --exclude='.git/' \
+            --exclude='.venv/' \
             ${DEV_PATH}/ ${SSH_USERNAME}@${JUMP_HOST_VIP}:/opt/genestack/
+        # Fix ownership after rsync
+        echo "Fixing ownership of /opt/genestack"
+        ssh -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${SSH_USERNAME}@${JUMP_HOST_VIP} \
+            "sudo chown -R ${SSH_USERNAME}:${SSH_USERNAME} /opt/genestack"
     else
         cloneGenestackOnJumpHost
     fi
