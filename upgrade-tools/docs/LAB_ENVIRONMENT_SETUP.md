@@ -22,6 +22,9 @@ source venv/bin/activate
 
 # Install required Python packages
 pip install -r requirements.txt
+
+# Install the upgrade tools package in development mode
+pip install -e .
 ```
 
 ### 2. Deploy a Lab Environment
@@ -76,6 +79,9 @@ pip install --upgrade pip
 
 # Install requirements
 pip install -r requirements.txt
+
+# Install the upgrade tools package in development mode
+pip install -e .
 
 # Run pre-upgrade validation
 ./scripts/pre-upgrade-validate.sh
@@ -615,6 +621,9 @@ Before starting upgrade testing, ensure:
    # Upgrade pip and install requirements
    pip install --upgrade pip
    pip install -r requirements.txt
+   
+   # Install the upgrade tools package in development mode
+   pip install -e .
    ```
 
 2. **Run pre-upgrade validation**:
