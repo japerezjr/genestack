@@ -22,6 +22,7 @@ from version.manager import ChartVersionManager
 from validation.validator import ConfigurationValidator
 from breaking_changes.detector import BreakingChangeDetector
 from health.validator import PreUpgradeValidator
+from health.aggregator import HealthAggregator
 from executor.upgrade_orchestrator import UpgradeOrchestrator
 from executor.service_upgrader import ServiceUpgrader
 from executor.helm_executor import HelmExecutor
@@ -498,7 +499,13 @@ def handle_full_upgrade(
     
     # Initialize upgrade components
     helm_executor = HelmExecutor(namespace=config.namespace)
-    service_upgrader = ServiceUpgrader(helm_executor=helm_executor)
+    health_aggregator = HealthAggregator()
+    service_upgrader = ServiceUpgrader(
+        helm_executor=helm_executor,
+        health_aggregator=health_aggregator,
+        chart_versions_path=config.chart_versions_path,
+        overrides_base_path=config.overrides_base_path
+    )
     orchestrator = UpgradeOrchestrator(service_upgrader=service_upgrader)
     
     # Determine services to upgrade
