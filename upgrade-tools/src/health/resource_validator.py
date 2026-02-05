@@ -271,7 +271,8 @@ class ResourceValidator:
             )
         
         # Find backup files (common patterns)
-        backup_patterns = ["*.sql", "*.sql.gz", "*.dump", "*.backup", "*.tar.gz"]
+        # Search recursively to handle timestamped subdirectories
+        backup_patterns = ["**/*.sql", "**/*.sql.gz", "**/*.dump", "**/*.backup", "**/*.tar.gz"]
         
         for pattern in backup_patterns:
             backups_found.extend([str(f) for f in backup_dir.glob(pattern)])
