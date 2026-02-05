@@ -341,14 +341,28 @@ fi
 
 prepareJumpHostSource
 
+# Verify that /opt/genestack exists on the jump host
+echo "Verifying Genestack repository on jump host..."
+if ! ssh -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no ${SSH_USERNAME}@${JUMP_HOST_VIP} "test -d /opt/genestack"; then
+    echo "ERROR: /opt/genestack directory does not exist on jump host"
+    echo "The repository clone may have failed. Check network connectivity and permissions."
+    exit 1
+fi
+echo "Genestack repository verified on jump host"
+
 #############################################################################
 # Kubespray-Specific: Remote Configuration via SSH
 #############################################################################
 
-ssh -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -t ${SSH_USERNAME}@${JUMP_HOST_VIP} <<EOC
+ssh -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -t ${SSH_USERNAME}@${JUMP_HOST_VIP} <<'EOC'
+set -e
 if [ ! -d "/etc/genestack" ]; then
+    if [ ! -d "/opt/genestack" ]; then
+        echo "ERROR: /opt/genestack does not exist!"
+        exit 1
+    fi
     cd /opt/genestack && sudo ./bootstrap.sh
-    sudo chown \${USER}:\${USER} -R /etc/genestack
+    sudo chown ${USER}:${USER} -R /etc/genestack
 fi
 
 # Configure MetalLB

@@ -1488,16 +1488,20 @@ EOF
 function cloneGenestackOnJumpHost() {
     # Clone the Genestack repository on the jump host
     # Usage: cloneGenestackOnJumpHost
-    ssh -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -t ${SSH_USERNAME}@${JUMP_HOST_VIP} <<EOC
-    set -e
+    ssh -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -t ${SSH_USERNAME}@${JUMP_HOST_VIP} <<'EOC'
+set -e
+if [ ! -d "/opt/genestack" ]; then
+    echo "Cloning Genestack repository to /opt/genestack..."
+    sudo git clone --recurse-submodules -j4 https://github.com/rackerlabs/genestack /opt/genestack
     if [ ! -d "/opt/genestack" ]; then
-        sudo git clone --recurse-submodules -j4 https://github.com/rackerlabs/genestack /opt/genestack
+        echo "ERROR: Failed to clone Genestack repository"
+        exit 1
     fi
-    echo "Updating Genestack repository on jump host and initializing submodules..."
-    sudo git config --global --add safe.directory /opt/genestack
-    pushd /opt/genestack
-        sudo git submodule update --init --recursive
-    popd
+fi
+echo "Updating Genestack repository on jump host and initializing submodules..."
+sudo git config --global --add safe.directory /opt/genestack
+cd /opt/genestack
+sudo git submodule update --init --recursive
 EOC
 }
 
