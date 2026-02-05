@@ -348,8 +348,11 @@ def handle_rollback(
     if not args.quiet:
         print("\nVerifying rollback...")
     
-    verifier = RollbackVerifier(namespace=config.namespace, in_cluster=args.in_cluster)
-    verification = verifier.verify_rollback()
+    verifier = RollbackVerifier()
+    verification = verifier.verify_rollback(
+        namespaces=[config.namespace],
+        check_endpoints=not args.skip_endpoints
+    )
     
     if verification.success:
         print("\n✓ Rollback completed successfully")
