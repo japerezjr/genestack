@@ -50,19 +50,31 @@ See [Lab Deployment Process](#lab-deployment-process) for detailed deployment in
 Once your lab is deployed, you can test the upgrade process:
 
 ```bash
-# Make sure you're in the upgrade-tools directory with venv activated
-cd /path/to/genestack/upgrade-tools
-source venv/bin/activate
-
 # SSH into your lab jump host (IP provided at end of deployment)
 ssh ubuntu@<JUMP_HOST_IP>
 
 # On the jump host, navigate to the upgrade tools
 cd /opt/genestack/upgrade-tools
 
-# Create and activate virtual environment on jump host
+# Install python3-venv if not already installed
+sudo apt-get update
+sudo apt-get install -y python3-venv python3-full
+
+# Remove any existing venv and create a fresh one
+rm -rf venv
 python3 -m venv venv
+
+# Activate the virtual environment
 source venv/bin/activate
+
+# Verify you're in the venv (should show path with /venv/bin/)
+which python3
+which pip
+
+# Upgrade pip in the venv
+pip install --upgrade pip
+
+# Install requirements
 pip install -r requirements.txt
 
 # Run pre-upgrade validation
@@ -590,8 +602,18 @@ Before starting upgrade testing, ensure:
 1. **Set up Python environment** (if not already done):
    ```bash
    cd /opt/genestack/upgrade-tools
+   
+   # Install python3-venv if needed
+   sudo apt-get update
+   sudo apt-get install -y python3-venv python3-full
+   
+   # Create and activate virtual environment
+   rm -rf venv
    python3 -m venv venv
    source venv/bin/activate
+   
+   # Upgrade pip and install requirements
+   pip install --upgrade pip
    pip install -r requirements.txt
    ```
 
