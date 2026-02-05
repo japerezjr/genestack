@@ -140,7 +140,7 @@ conf:
     <VirtualHost *:{{ $portInt }}>
         WSGIDaemonProcess keystone-public processes={{ .Values.conf.keystone_api_wsgi.wsgi.processes }} threads={{ .Values.conf.keystone_api_wsgi.wsgi.threads }} user=keystone group=keystone display-name=%{GROUP}
         WSGIProcessGroup keystone-public
-        WSGIScriptAlias / /var/www/cgi-bin/keystone/keystone-wsgi-public
+        WSGIScriptAlias / /usr/local/bin/keystone-wsgi-public
         WSGIApplicationGroup %{GLOBAL}
         WSGIPassAuthorization On
         LimitRequestBody 114688
