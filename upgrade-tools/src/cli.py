@@ -27,7 +27,7 @@ from executor.service_upgrader import ServiceUpgrader
 from executor.helm_executor import HelmExecutor
 from rollback.backup_manager import BackupManager
 from rollback.rollback_verifier import RollbackVerifier
-from upgrade_logging.logger import UpgradeLogger
+from upgrade_logging.logger import UpgradeLogger, ActionType
 from upgrade_logging.report_generator import ReportGenerator
 
 

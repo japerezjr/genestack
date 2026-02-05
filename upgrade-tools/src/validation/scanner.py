@@ -18,6 +18,7 @@ class ConfigurationScanner:
     """
     
     YAML_EXTENSIONS = {'.yaml', '.yml'}
+    SKIP_DIRECTORIES = {'templates', '.git', '__pycache__', 'node_modules'}
     
     def __init__(self, base_path: str):
         """
@@ -108,6 +109,10 @@ class ConfigurationScanner:
                 
                 # Process directories recursively
                 if entry.is_dir():
+                    # Skip directories that should be ignored (templates, .git, etc.)
+                    if entry.name in self.SKIP_DIRECTORIES:
+                        logger.debug(f"Skipping directory: {entry}")
+                        continue
                     self._scan_directory(entry, follow_symlinks)
                 
                 # Process YAML files
