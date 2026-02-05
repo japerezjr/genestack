@@ -2,7 +2,9 @@
 
 ## Overview
 
-This implementation plan breaks down the OpenStack Caracal to Epoxy upgrade into discrete, actionable tasks. The implementation uses a combination of Bash scripts for upgrade execution and Python for validation tooling. Each task builds incrementally, with testing integrated throughout to catch issues early.
+This implementation plan breaks down the OpenStack Caracal to Epoxy upgrade into discrete, actionable tasks. The implementation is primarily Python-based with Bash wrapper scripts for execution convenience. The tooling is located in the `upgrade-tools/` directory and provides a comprehensive CLI interface for all upgrade operations. Each task builds incrementally, with testing integrated throughout to catch issues early.
+
+The project uses **bd** (beads) for issue tracking. Tasks 1-13 have been completed, and tasks 14-17 are tracked as bd issues for remaining work.
 
 ## Tasks
 
@@ -280,16 +282,16 @@ This implementation plan breaks down the OpenStack Caracal to Epoxy upgrade into
   - Ask the user if questions arise
 
 - [x] 12. Create main upgrade orchestration script
-  - Use bd to take/update/complete relevant tasks
   - [x] 12.1 Create CLI interface for upgrade tool
-    - Implement argument parsing
-    - Support dry-run mode
+    - Implement argument parsing with subcommands
+    - Support dry-run mode for all operations
     - Support configuration file input
     - Provide help and usage information
+    - Main CLI entry point: `upgrade-tools/openstack-upgrade`
     - _Requirements: 9.6, 9.7_
 
   - [x] 12.2 Implement main upgrade workflow
-    - Load configuration
+    - Load configuration from YAML
     - Run pre-upgrade validation
     - Update chart versions and configurations
     - Execute upgrade in phases
@@ -301,126 +303,151 @@ This implementation plan breaks down the OpenStack Caracal to Epoxy upgrade into
     - Catch and handle all exceptions
     - Initiate rollback on failure
     - Provide clear error messages
-    - Log all errors with context
+    - Log all errors with context and stack traces
     - _Requirements: 5.8, 7.6_
 
 - [x] 13. Create Bash wrapper scripts
-  - Use bd to take/create/update/complete relevant tasks
-
   - [x] 13.1 Create pre-upgrade validation script
-    - Wrapper for running validation checks
-    - Output validation report
+    - Bash wrapper for running validation checks: `scripts/pre-upgrade-validate.sh`
+    - Python implementation: `scripts/validate_pre_upgrade.py`
+    - Output validation report to console and file
     - Exit with appropriate status codes
     - _Requirements: 4.1-4.9_
 
   - [x] 13.2 Create upgrade execution script
-    - Wrapper for running full upgrade
+    - Bash wrapper for running full upgrade: `scripts/upgrade-execute.sh`
+    - Python orchestration via CLI: `openstack-upgrade execute`
     - Support dry-run mode
-    - Handle interruption gracefully
+    - Handle interruption gracefully with cleanup
     - _Requirements: 5.1-5.9_
 
   - [x] 13.3 Create rollback script
-    - Wrapper for initiating rollback
+    - Bash wrapper for initiating rollback: `scripts/rollback.sh`
+    - Python implementation via CLI: `openstack-upgrade rollback`
     - Verify rollback success
     - Generate rollback report
     - _Requirements: 7.1-7.8_
 
   - [x] 13.4 Create post-upgrade verification script
+    - Bash wrapper: `scripts/post-upgrade-verify.sh`
     - Run all post-upgrade checks
-    - Test key operations
+    - Test key operations (instance, network, volume creation)
     - Generate verification report
     - _Requirements: 6.1-6.9_
 
-- [ ] 14. Create lab environment setup documentation
-  - Use bd to take/create/update/complete relevant tasks
-
-  - [ ] 14.1 Document environment variable requirements
+- [-] 14. Create lab environment setup documentation
+  - **bd issue**: genestack-upgrade-v6x
+  - Lab environment documentation is located in `upgrade-tools/docs/LAB_ENVIRONMENT_SETUP.md`
+  
+  - [x] 14.1 Document environment variable requirements
     - List all required environment variables
     - Provide example values
     - Create template environment file
+    - Document location: `upgrade-tools/docs/LAB_ENVIRONMENT_SETUP.md`
     - _Requirements: 9.1, 9.2_
 
   - [ ] 14.2 Document lab deployment process
     - Document hyperconverged-lab.sh usage
-    - Explain deployment timeline
+    - Explain deployment timeline (20-30 minutes)
     - Document SSH access procedure
+    - Include troubleshooting common deployment issues
     - _Requirements: 9.3_
 
   - [ ] 14.3 Create lab testing guide
     - Document how to test upgrade in lab
-    - Provide test scenarios
-    - Document expected results
+    - Provide test scenarios (happy path, failure scenarios)
+    - Document expected results for each scenario
+    - Include validation checklist
     - _Requirements: 9.4, 9.5, 9.8, 9.9_
 
 - [ ] 15. Integration testing in lab environment
-  - Use bd to take/create/update/complete relevant tasks
+  - **bd issue**: genestack-upgrade-5nk
+  - Environment variable file is located outside of current directory as it should not ever be included in github: ~/lab-env.sh
+  
   - [ ] 15.1 Deploy lab with Caracal release
-    - Source environment variables
-    - Run hyperconverged-lab.sh script
-    - Verify deployment successful
-    - Document lab IP and access
+    - Source environment variables from ~/lab-env.sh
+    - Run hyperconverged-lab.sh script with -x flag
+    - Wait for deployment (20-30 minutes)
+    - Verify deployment successful (all pods Running)
+    - Document lab IP and SSH access details
 
   - [ ] 15.2 Test pre-upgrade validation
-    - Run validation script
-    - Verify all checks pass
-    - Test failure scenarios
-    - Verify validation reports
+    - Run validation script: `./scripts/pre-upgrade-validate.sh`
+    - Verify all checks pass (pod status, API endpoints, backups)
+    - Test failure scenarios (stop a service, verify validation fails)
+    - Verify validation reports are generated correctly
 
   - [ ] 15.3 Test upgrade execution
-    - Run upgrade script in dry-run mode
-    - Review planned changes
-    - Run actual upgrade
-    - Monitor progress and logs
+    - Run upgrade script in dry-run mode: `./openstack-upgrade execute --dry-run`
+    - Review planned changes in output
+    - Run actual upgrade: `./openstack-upgrade execute`
+    - Monitor progress and logs in real-time
+    - Verify upgrade completes successfully
 
   - [ ] 15.4 Test post-upgrade verification
-    - Run verification script
-    - Test OpenStack operations
-    - Verify all services healthy
-    - Review upgrade report
+    - Run verification script: `./scripts/post-upgrade-verify.sh`
+    - Test OpenStack operations (create instance, network, volume)
+    - Verify all services healthy and responding
+    - Review upgrade report and verify completeness
 
   - [ ] 15.5 Test rollback functionality
-    - Simulate upgrade failure
-    - Initiate rollback
-    - Verify system restored
-    - Review rollback report
+    - Deploy fresh lab environment
+    - Start upgrade and simulate failure mid-process
+    - Initiate rollback: `./openstack-upgrade rollback`
+    - Verify system restored to Caracal state
+    - Review rollback report and verify all services operational
 
 - [ ] 16. Create production upgrade documentation
-  - Use bd to take/create/update/complete relevant tasks
+  - **bd issue**: genestack-upgrade-80z
+  
   - [ ] 16.1 Update docs/2024.1-to-2025.1.md
-    - Document complete upgrade procedure
-    - Include all prerequisites
-    - Document expected timeline
-    - Include troubleshooting section
+    - Document complete upgrade procedure with all steps
+    - Include all prerequisites (backups, resource checks, maintenance window)
+    - Document expected timeline (30 minutes to 4 hours depending on deployment size)
+    - Include troubleshooting section with common issues and solutions
+    - Add references to upgrade tool documentation
     - _Requirements: 8.8_
 
   - [ ] 16.2 Create upgrade runbook
-    - Step-by-step upgrade instructions
-    - Include validation checkpoints
-    - Document rollback procedure
-    - Include emergency contacts
+    - Step-by-step upgrade instructions for operators
+    - Include validation checkpoints after each phase
+    - Document rollback procedure with decision criteria
+    - Include emergency contacts and escalation procedures
+    - Add pre-flight checklist and post-upgrade verification checklist
 
   - [ ] 16.3 Create operator guide
-    - Document tool usage
-    - Explain configuration options
-    - Provide examples
-    - Include FAQ section
+    - Document tool usage with examples: `openstack-upgrade --help`
+    - Explain configuration options in `config/upgrade-config.yaml`
+    - Provide examples for common scenarios (dry-run, partial upgrade, rollback)
+    - Include FAQ section addressing common questions
+    - Document log locations and how to interpret logs
 
 - [ ] 17. Final checkpoint - Complete end-to-end testing
-  - Use bd to take/create/update/complete relevant tasks
-  - Run complete upgrade in lab environment
-  - Verify all functionality works
-  - Test all edge cases and error scenarios
-  - Ensure all documentation is complete
-  - Ask the user if questions arise
+  - **bd issue**: genestack-upgrade-utk
+  
+  - Run complete upgrade in lab environment from start to finish
+  - Verify all functionality works as documented
+  - Test all edge cases and error scenarios (network failures, resource exhaustion, service failures)
+  - Validate all scripts and tools work correctly
+  - Ensure all documentation is complete and accurate
+  - Verify upgrade can be performed by following documentation alone
+  - Test rollback from various failure points
+  - Validate logging and reporting are comprehensive
+  - Ask the user if questions arise or if ready for production deployment
 
 ## Notes
 
-- Tasks marked with `*` are optional and can be skipped for faster MVP
+- Tasks marked with `*` are optional property-based tests and can be skipped for faster MVP
 - Each task references specific requirements for traceability
-- Checkpoints ensure incremental validation
-- Property tests validate universal correctness properties
+- Checkpoints ensure incremental validation at key milestones
+- Property tests validate universal correctness properties across all inputs
 - Unit tests validate specific examples and edge cases
 - Lab environment testing is critical before production upgrade
-- The implementation uses Python for tooling and Bash for execution scripts
-- All scripts should be idempotent where possible
+- The implementation is Python-based with Bash wrapper scripts for convenience
+- All scripts are designed to be idempotent where possible
 - Comprehensive logging is essential for troubleshooting
+- Tasks 1-13 are complete; tasks 14-17 are tracked in bd (beads) issue tracker
+- Use `bd ready` to see available work and `bd show <id>` for task details
+- Main CLI tool: `upgrade-tools/openstack-upgrade` with subcommands for all operations
+- Configuration: `upgrade-tools/config/upgrade-config.yaml`
+- Documentation: `upgrade-tools/docs/` and `upgrade-tools/README.md`
