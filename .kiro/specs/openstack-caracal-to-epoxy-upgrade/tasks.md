@@ -360,37 +360,37 @@ The project uses **bd** (beads) for issue tracking. Tasks 1-13 have been complet
     - Include validation checklist
     - _Requirements: 9.4, 9.5, 9.8, 9.9_
 
-- [ ] 15. Integration testing in lab environment
+- [x] 15. Integration testing in lab environment
   - **bd issue**: genestack-upgrade-5nk
   - Environment variable file is located outside of current directory as it should not ever be included in github: ~/lab-env.sh
   
-  - [ ] 15.1 Deploy lab with Caracal release
+  - [x] 15.1 Deploy lab with Caracal release
     - Source environment variables from ~/lab-env.sh
     - Run hyperconverged-lab.sh script with -x flag
     - Wait for deployment (20-30 minutes)
     - Verify deployment successful (all pods Running)
     - Document lab IP and SSH access details
 
-  - [ ] 15.2 Test pre-upgrade validation
+  - [x] 15.2 Test pre-upgrade validation
     - Run validation script: `./scripts/pre-upgrade-validate.sh`
     - Verify all checks pass (pod status, API endpoints, backups)
     - Test failure scenarios (stop a service, verify validation fails)
     - Verify validation reports are generated correctly
 
-  - [ ] 15.3 Test upgrade execution
+  - [x] 15.3 Test upgrade execution
     - Run upgrade script in dry-run mode: `./openstack-upgrade execute --dry-run`
     - Review planned changes in output
     - Run actual upgrade: `./openstack-upgrade execute`
     - Monitor progress and logs in real-time
     - Verify upgrade completes successfully
 
-  - [ ] 15.4 Test post-upgrade verification
+  - [x] 15.4 Test post-upgrade verification
     - Run verification script: `./scripts/post-upgrade-verify.sh`
     - Test OpenStack operations (create instance, network, volume)
     - Verify all services healthy and responding
     - Review upgrade report and verify completeness
 
-  - [ ] 15.5 Test rollback functionality
+  - [x] 15.5 Test rollback functionality
     - Deploy fresh lab environment
     - Start upgrade and simulate failure mid-process
     - Initiate rollback: `./openstack-upgrade rollback`
