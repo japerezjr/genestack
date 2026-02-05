@@ -544,13 +544,12 @@ def handle_full_upgrade(
         if upgrade_result.services_failed:
             print("\nFailed services:", file=sys.stderr)
             for service_name in upgrade_result.services_failed:
-                # Find the service result
-                for result in upgrade_result.service_results:
-                    if result.service_name == service_name:
-                        print(f"  - {service_name}:", file=sys.stderr)
-                        for error in result.errors:
-                            print(f"    {error}", file=sys.stderr)
-                        break
+                # Get the service result from the dict
+                result = upgrade_result.service_results.get(service_name)
+                if result:
+                    print(f"  - {service_name}:", file=sys.stderr)
+                    for error in result.errors:
+                        print(f"    {error}", file=sys.stderr)
         
         # Offer rollback
         response = input("\nWould you like to rollback? (yes/no): ")
