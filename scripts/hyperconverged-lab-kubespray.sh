@@ -347,7 +347,7 @@ prepareJumpHostSource
 
 ssh -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -t ${SSH_USERNAME}@${JUMP_HOST_VIP} <<EOC
 if [ ! -d "/etc/genestack" ]; then
-    sudo /opt/genestack/bootstrap.sh
+    cd /opt/genestack && sudo ./bootstrap.sh
     sudo chown \${USER}:\${USER} -R /etc/genestack
 fi
 

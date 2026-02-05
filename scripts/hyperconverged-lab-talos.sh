@@ -682,7 +682,7 @@ echo "Installing cert-manager and setting up Genestack on jump host..."
 ssh -o ForwardAgent=yes -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -t ${SSH_USERNAME}@${JUMP_HOST_VIP} <<EOFCERT
 set -e
 if [ ! -d "/etc/genestack" ]; then
-    sudo /opt/genestack/bootstrap.sh
+    cd /opt/genestack && sudo ./bootstrap.sh
     sudo chown \${USER}:\${USER} -R /etc/genestack
 fi
 
