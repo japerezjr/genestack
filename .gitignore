@@ -132,3 +132,11 @@ site/
 
 # skyline secrets
 /etc/genestack/skylinesecrets.yaml
+
+# Kiro IDE files
+.kiro/
+
+# Task tracking and checkpoint files
+**/TASK_SUMMARY*.md
+**/CHECKPOINT*.md
+**/E2E_TEST_RESULTS*.md
