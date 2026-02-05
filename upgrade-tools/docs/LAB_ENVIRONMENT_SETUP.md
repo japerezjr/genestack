@@ -2,6 +2,81 @@
 
 This guide provides comprehensive instructions for setting up a lab environment to test the OpenStack Caracal to Epoxy upgrade process. The lab environment uses the Genestack hyperconverged deployment scripts to create a test OpenStack cluster on existing OpenStack infrastructure.
 
+## Quick Start
+
+If you want to jump straight to testing the upgrade in a lab, follow these steps:
+
+### 1. Set Up Your Local Environment
+
+First, prepare your local machine with the necessary tools:
+
+```bash
+# Navigate to the upgrade-tools directory
+cd /path/to/genestack/upgrade-tools
+
+# Create a Python virtual environment
+python3 -m venv venv
+
+# Activate the virtual environment
+source venv/bin/activate
+
+# Install required Python packages
+pip install -r requirements.txt
+```
+
+### 2. Deploy a Lab Environment
+
+Deploy a fresh OpenStack Caracal environment using the hyperconverged lab scripts:
+
+```bash
+# Navigate to the Genestack root directory
+cd /path/to/genestack
+
+# Set required environment variables
+export ACME_EMAIL="your-email@example.com"
+export GATEWAY_DOMAIN="lab.example.com"
+export OS_CLOUD="your-openstack-cloud"
+export OS_FLAVOR="m1.xlarge"  # Or appropriate flavor for your cloud
+export HYPERCONVERGED_DEV="true"  # Use your local genestack checkout
+
+# Deploy the lab (this will take 30-45 minutes)
+./scripts/hyperconverged-lab.sh kubespray
+```
+
+See [Lab Deployment Process](#lab-deployment-process) for detailed deployment instructions.
+
+### 3. Run Upgrade Tests
+
+Once your lab is deployed, you can test the upgrade process:
+
+```bash
+# Make sure you're in the upgrade-tools directory with venv activated
+cd /path/to/genestack/upgrade-tools
+source venv/bin/activate
+
+# SSH into your lab jump host (IP provided at end of deployment)
+ssh ubuntu@<JUMP_HOST_IP>
+
+# On the jump host, navigate to the upgrade tools
+cd /opt/genestack/upgrade-tools
+
+# Create and activate virtual environment on jump host
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+
+# Run pre-upgrade validation
+./scripts/pre-upgrade-validate.sh
+
+# Run the upgrade (dry-run first)
+python3 -m cli upgrade --dry-run
+
+# Run the actual upgrade
+python3 -m cli upgrade
+```
+
+See [Lab Testing Guide](#lab-testing-guide) for comprehensive testing scenarios.
+
 ## Table of Contents
 
 1. [Environment Variable Requirements](#environment-variable-requirements)
@@ -512,13 +587,20 @@ Before starting upgrade testing, ensure:
 
 **Steps**:
 
-1. **Run pre-upgrade validation**:
+1. **Set up Python environment** (if not already done):
    ```bash
    cd /opt/genestack/upgrade-tools
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   ```
+
+2. **Run pre-upgrade validation**:
+   ```bash
    ./scripts/pre-upgrade-validate.sh
    ```
 
-2. **Review validation report**:
+3. **Review validation report**:
    ```bash
    cat validation-report.md
    ```
