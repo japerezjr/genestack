@@ -106,6 +106,19 @@ class ServiceUpgrader:
                         warnings=warnings,
                         timestamp=datetime.now().isoformat()
                     )
+                
+                # Validate and adjust version if needed
+                validated_version = self.chart_resolver.validate_chart_version(chart_ref)
+                if validated_version != chart_ref.version:
+                    if validated_version:
+                        warnings.append(
+                            f"Using version {validated_version} instead of {chart_ref.version}"
+                        )
+                    else:
+                        warnings.append(
+                            f"Version {chart_ref.version} not found, using latest available"
+                        )
+                    chart_ref.version = validated_version
             
             # Step 3: Clean up existing jobs if needed
             if service_name in self.SERVICES_REQUIRING_JOB_CLEANUP:

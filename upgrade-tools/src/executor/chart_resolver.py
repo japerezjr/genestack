@@ -40,13 +40,15 @@ class ChartResolver:
             "url": "https://tarballs.opendev.org/openstack/openstack-helm",
             "services": [
                 "barbican", "cinder", "glance", "heat", "horizon",
-                "keystone", "neutron", "nova", "octavia", "placement"
+                "keystone", "neutron", "nova", "octavia", "placement",
+                "ceilometer", "gnocchi"
             ]
         },
         "openstack-helm-infra": {
             "url": "https://tarballs.opendev.org/openstack/openstack-helm-infra",
             "services": [
-                "libvirt", "mariadb", "memcached", "rabbitmq", "ovn"
+                "libvirt", "mariadb", "memcached", "rabbitmq", "ovn",
+                "redis", "postgresql"
             ]
         }
     }
@@ -133,6 +135,12 @@ class ChartResolver:
         # Get version from chart versions file
         version = self.chart_versions.get(service_name)
         
+        # Log version resolution
+        if version:
+            logger.info(f"Resolved {service_name} to version {version}")
+        else:
+            logger.warning(f"No version found for {service_name} in helm-chart-versions.yaml")
+        
         # Check for custom repository configuration
         if service_name in self.custom_repos:
             custom = self.custom_repos[service_name]
@@ -164,6 +172,7 @@ class ChartResolver:
         for repo_name, repo_config in self.DEFAULT_REPOS.items():
             if service_name in repo_config['services']:
                 chart_path = f"{repo_name}/{service_name}"
+                logger.info(f"Using default repository {repo_name} for {service_name}")
                 return ChartReference(
                     chart_path=chart_path,
                     version=version,
@@ -216,13 +225,14 @@ class ChartResolver:
         try:
             import subprocess
             
-            # Add repository
-            subprocess.run(
+            # Add repository (ignore errors if already exists)
+            result = subprocess.run(
                 ["helm", "repo", "add", chart_ref.repo_name, chart_ref.repo_url],
-                check=True,
                 capture_output=True,
                 text=True
             )
+            if result.returncode != 0 and "already exists" not in result.stderr:
+                logger.warning(f"Helm repo add warning: {result.stderr}")
             
             # Update repository
             subprocess.run(
@@ -232,12 +242,67 @@ class ChartResolver:
                 text=True
             )
             
-            logger.info(f"Added Helm repository: {chart_ref.repo_name}")
+            logger.info(f"Helm repository ready: {chart_ref.repo_name}")
             return True
         
         except subprocess.CalledProcessError as e:
-            logger.error(f"Failed to add Helm repository: {e.stderr}")
+            logger.error(f"Failed to update Helm repository: {e.stderr}")
             return False
         except Exception as e:
             logger.error(f"Failed to add Helm repository: {e}")
             return False
+    
+    def validate_chart_version(self, chart_ref: ChartReference) -> Optional[str]:
+        """Validate that a chart version exists in the repository.
+        
+        If the exact version doesn't exist, tries to find a compatible version.
+        Returns None if no version should be specified (use latest).
+        
+        Args:
+            chart_ref: Chart reference to validate
+            
+        Returns:
+            Version string to use, or None to use latest
+        """
+        if not chart_ref.version:
+            logger.info(f"No version specified for {chart_ref.chart_path}, will use latest")
+            return None
+        
+        try:
+            import subprocess
+            
+            # Search for the chart
+            result = subprocess.run(
+                ["helm", "search", "repo", chart_ref.chart_path, "--versions"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            
+            # Check if exact version exists
+            if chart_ref.version in result.stdout:
+                logger.info(f"Found exact version {chart_ref.version} for {chart_ref.chart_path}")
+                return chart_ref.version
+            
+            # Try without build hash (e.g., 2025.1.94+hash -> 2025.1.94)
+            if '+' in chart_ref.version:
+                base_version = chart_ref.version.split('+')[0]
+                if base_version in result.stdout:
+                    logger.info(f"Using base version {base_version} instead of {chart_ref.version}")
+                    return base_version
+            
+            # Version not found, log available versions and use latest
+            logger.warning(
+                f"Version {chart_ref.version} not found for {chart_ref.chart_path}. "
+                f"Will use latest available version."
+            )
+            logger.debug(f"Available versions:\n{result.stdout}")
+            return None
+        
+        except subprocess.CalledProcessError as e:
+            logger.warning(f"Could not validate chart version: {e.stderr}")
+            # If we can't validate, try with the version anyway
+            return chart_ref.version
+        except Exception as e:
+            logger.warning(f"Error validating chart version: {e}")
+            return chart_ref.version
