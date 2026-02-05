@@ -478,9 +478,12 @@ def handle_full_upgrade(
     print_section("Phase 3: Creating Backup", args.quiet)
     
     backup_mgr = BackupManager(backup_base_path=config.backup_path)
-    backup_result = backup_mgr.create_full_backup(
+    backup_result = backup_mgr.create_backup(
+        components=["versions", "configs", "databases"],
         chart_versions_path=config.chart_versions_path,
-        overrides_path=config.overrides_base_path
+        overrides_base_path=config.overrides_base_path,
+        backup_databases=True,
+        namespace=config.namespace
     )
     
     if not backup_result.success:
