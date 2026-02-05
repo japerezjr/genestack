@@ -540,6 +540,18 @@ def handle_full_upgrade(
         print(f"Services upgraded: {len(upgrade_result.services_upgraded)}", file=sys.stderr)
         print(f"Services failed: {len(upgrade_result.services_failed)}", file=sys.stderr)
         
+        # Print failed service details
+        if upgrade_result.services_failed:
+            print("\nFailed services:", file=sys.stderr)
+            for service_name in upgrade_result.services_failed:
+                # Find the service result
+                for result in upgrade_result.service_results:
+                    if result.service_name == service_name:
+                        print(f"  - {service_name}:", file=sys.stderr)
+                        for error in result.errors:
+                            print(f"    {error}", file=sys.stderr)
+                        break
+        
         # Offer rollback
         response = input("\nWould you like to rollback? (yes/no): ")
         if response.lower() == "yes":
