@@ -358,7 +358,7 @@ def handle_rollback(
         print("\n✓ Rollback completed successfully")
         return 0
     else:
-        print(f"\n✗ Rollback verification failed: {', '.join(verification.errors)}", file=sys.stderr)
+        print(f"\n✗ Rollback verification failed: {', '.join(verification.issues)}", file=sys.stderr)
         return 1
 
 
