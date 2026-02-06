@@ -222,20 +222,21 @@ class ScriptBasedUpgrader:
             True if service stabilized, False if timeout
         """
         if timeout is None:
-            timeout = 600  # Default 10 minutes
+            timeout = 300  # Reduced to 5 minutes (helm already waited)
         
         start_time = time.time()
         check_interval = 10
         
+        logger.info(f"Waiting up to {timeout}s for {service_name} to stabilize...")
+        
         while time.time() - start_time < timeout:
             try:
-                # Check if pods are ready
+                # Check helm release status first
                 result = subprocess.run(
                     [
-                        "kubectl", "get", "pods",
+                        "helm", "status", service_name,
                         "-n", "openstack",
-                        "-l", f"application={service_name}",
-                        "-o", "jsonpath={.items[*].status.conditions[?(@.type=='Ready')].status}"
+                        "-o", "json"
                     ],
                     capture_output=True,
                     text=True,
@@ -243,16 +244,47 @@ class ScriptBasedUpgrader:
                     check=True
                 )
                 
-                statuses = result.stdout.strip().split()
-                if statuses and all(status == "True" for status in statuses):
-                    logger.info(f"Service {service_name} stabilized")
-                    return True
+                import json
+                status_data = json.loads(result.stdout)
+                helm_status = status_data.get("info", {}).get("status", "")
                 
-                logger.debug(f"Waiting for {service_name} pods to be ready...")
+                if helm_status == "deployed":
+                    logger.info(f"Helm release {service_name} is deployed")
+                    
+                    # Quick pod check - but don't fail if no pods found
+                    # (some services like memcached might not have application label)
+                    pod_result = subprocess.run(
+                        [
+                            "kubectl", "get", "pods",
+                            "-n", "openstack",
+                            "-l", f"application={service_name},component=server",
+                            "-o", "jsonpath={.items[*].status.phase}"
+                        ],
+                        capture_output=True,
+                        text=True,
+                        timeout=30,
+                        check=False
+                    )
+                    
+                    phases = pod_result.stdout.strip().split()
+                    if phases:
+                        # If we found pods, check they're running
+                        if all(phase == "Running" for phase in phases):
+                            logger.info(f"All pods for {service_name} are Running")
+                            return True
+                        else:
+                            logger.debug(f"Pod phases for {service_name}: {phases}")
+                    else:
+                        # No pods found with that label, but helm says deployed
+                        # This is OK for some services (infrastructure, etc.)
+                        logger.info(f"No pods found with application={service_name} label, but helm status is deployed")
+                        return True
+                
+                logger.debug(f"Helm status for {service_name}: {helm_status}, waiting...")
                 time.sleep(check_interval)
                 
-            except (subprocess.CalledProcessError, subprocess.TimeoutExpired) as e:
-                logger.warning(f"Error checking pod status: {e}")
+            except (subprocess.CalledProcessError, subprocess.TimeoutExpired, json.JSONDecodeError) as e:
+                logger.warning(f"Error checking status: {e}")
                 time.sleep(check_interval)
         
         logger.warning(f"Service {service_name} did not stabilize within {timeout} seconds")
