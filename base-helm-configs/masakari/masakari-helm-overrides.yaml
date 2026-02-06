@@ -1,37 +1,20 @@
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-
----
 images:
   tags:
-    db_init: ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest
-    db_sync: ghcr.io/rackerlabs/genestack-images/masakari:2024.1-latest
-    db_drop: ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest
-    ks_endpoints: ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest
-    ks_service: ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest
-    ks_user: ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest
-    masakari_api: ghcr.io/rackerlabs/genestack-images/masakari:2024.1-latest
-    masakari_engine: ghcr.io/rackerlabs/genestack-images/masakari:2024.1-latest
+    db_init: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    db_sync: ghcr.io/rackerlabs/genestack-images/masakari:2025.1-latest
+    db_drop: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    ks_endpoints: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    ks_service: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    ks_user: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    masakari_api: ghcr.io/rackerlabs/genestack-images/masakari:2025.1-latest
+    masakari_engine: ghcr.io/rackerlabs/genestack-images/masakari:2025.1-latest
     masakari_host_monitor: ghcr.io/rackerlabs/genestack-images/masakari-monitors:master-latest
     masakari_process_monitor: ghcr.io/rackerlabs/genestack-images/masakari-monitors:master-latest
     masakari_instance_monitor: ghcr.io/rackerlabs/genestack-images/masakari-monitors:master-latest
     masakari_introspective_instance_monitor: ghcr.io/rackerlabs/genestack-images/masakari-monitors:master-latest
     rabbit_init: docker.io/rabbitmq:3.13-management
     dep_check: ghcr.io/rackerlabs/genestack-images/kubernetes-entrypoint:latest
-  pull_policy: "IfNotPresent"
-
-# NOTE: (brew) requests cpu/mem values based on a three node
-# hyperconverged lab (/scripts/hyperconverged-lab.sh).
-# limit values based on defaults from the openstack-helm charts unless defined
+  pull_policy: IfNotPresent
 pod:
   lifecycle:
     upgrades:
@@ -61,23 +44,22 @@ pod:
     enabled: true
     masakari_api:
       requests:
-        memory: "256Mi"
-        cpu: "100m"
+        memory: 256Mi
+        cpu: 100m
       limits:
-        memory: "1024Mi"
-        cpu: "2000m"
+        memory: 1024Mi
+        cpu: 2000m
     masakari_engine:
       requests: {}
       limits: {}
     masakari_host_monitor:
       requests:
-        memory: "192Mi"
-        cpu: "100m"
+        memory: 192Mi
+        cpu: 100m
       limits: {}
     masakari_instance_monitor:
       requests: {}
       limits: {}
-
 endpoints:
   identity:
     port:
@@ -93,7 +75,6 @@ endpoints:
         internal: 15868
         public: 80
         service: 15868
-
   oslo_db:
     host_fqdn_override:
       default: mariadb-cluster-primary.openstack.svc.cluster.local
@@ -109,7 +90,6 @@ endpoints:
       default: rabbitmq.openstack.svc.cluster.local
     hosts:
       default: rabbitmq-nodes
-
 conf:
   masakari:
     DEFAULT:
@@ -151,16 +131,9 @@ conf:
       rabbit_transient_quorum_queue: false
       use_queue_manager: false
       rabbit_interval_max: 10
-      # Send more frequent heartbeats and fail unhealthy nodes faster
-      # heartbeat_timeout / heartbeat_rate / 2.0 = 30 / 3 / 2.0 = 5
-      # https://opendev.org/openstack/oslo.messaging/commit/36fb5bceabe08a982ebd52e4a8f005cd26fdf6b8
       heartbeat_rate: 3
       heartbeat_timeout_threshold: 60
-      # DEPRECIATION:  (warning) heartbeat_in_pthread will be deprecated in 2024.2
       heartbeat_in_pthread: true
-      # Setting lower kombu_reconnect_delay should resolve issue with HA failing when one node is down
-      # https://lists.openstack.org/pipermail/openstack-discuss/2023-April/033314.html
-      # https://review.opendev.org/c/openstack/oslo.messaging/+/866617
       kombu_reconnect_delay: 0.5
     taskflow:
       connection: null
@@ -180,11 +153,12 @@ conf:
       guest_monitor_interval: 20
       guest_monitoring_failure_threshold: 5
     kubernetes:
-      monitoring_node_labels: "openstack-compute-node=enabled"
-  masakari_sudoers: |
-    Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:/var/lib/openstack/bin"
+      monitoring_node_labels: openstack-compute-node=enabled
+  masakari_sudoers: 'Defaults secure_path="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/snap/bin:/var/lib/openstack/bin"
+
     masakari-monitors ALL=(ALL:ALL) NOPASSWD: /var/lib/openstack/bin/privsep-helper
 
+    '
 manifests:
   job_ks_user: true
   job_db_sync: true
@@ -203,7 +177,6 @@ manifests:
   job_rabbit_init: false
   service_api: true
   pdb_api: true
-  # Genestack is using kubernetes check driver for Host-Monitor
   host_monitor: true
   instance_monitor: true
   process_monitor: false

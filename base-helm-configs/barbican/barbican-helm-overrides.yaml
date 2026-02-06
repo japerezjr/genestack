@@ -1,22 +1,17 @@
----
 images:
   tags:
-    barbican_api: ghcr.io/rackerlabs/genestack-images/barbican:2024.1-latest
-    barbican_db_sync: ghcr.io/rackerlabs/genestack-images/barbican:2024.1-latest
-    bootstrap: ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest
-    db_drop: ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest
-    db_init: ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest
+    barbican_api: ghcr.io/rackerlabs/genestack-images/barbican:2025.1-latest
+    barbican_db_sync: ghcr.io/rackerlabs/genestack-images/barbican:2025.1-latest
+    bootstrap: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    db_drop: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    db_init: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
     dep_check: ghcr.io/rackerlabs/genestack-images/kubernetes-entrypoint:latest
-    image_repo_sync:
-    ks_endpoints: ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest
-    ks_service: ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest
-    ks_user: ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest
-    rabbit_init:
-    scripted_test: ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest
-
-# NOTE: (brew) CPU requests values based on a three node
-# hyperconverged lab (/scripts/hyperconverged-lab.sh).
-# limits based on defaults from the openstack-helm charts unless defined
+    image_repo_sync: null
+    ks_endpoints: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    ks_service: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    ks_user: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    rabbit_init: null
+    scripted_test: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
 pod:
   resources:
     enabled: true
@@ -33,17 +28,15 @@ pod:
         rolling_update:
           max_unavailable: 20%
           max_surge: 3
-
 dependencies:
   static:
     db_sync:
-      jobs:
+      jobs: null
     api:
       jobs:
-        - barbican-db-sync
-        - barbican-ks-user
-        - barbican-ks-endpoints
-
+      - barbican-db-sync
+      - barbican-ks-user
+      - barbican-ks-endpoints
 conf:
   barbican:
     DEFAULT:
@@ -75,16 +68,9 @@ conf:
       rabbit_transient_quorum_queue: false
       use_queue_manager: false
       rabbit_interval_max: 10
-      # Send more frequent heartbeats and fail unhealthy nodes faster
-      # heartbeat_timeout / heartbeat_rate / 2.0 = 30 / 3 / 2.0 = 5
-      # https://opendev.org/openstack/oslo.messaging/commit/36fb5bceabe08a982ebd52e4a8f005cd26fdf6b8
       heartbeat_rate: 3
       heartbeat_timeout_threshold: 60
-      # DEPRECIATION:  (warning) heartbeat_in_pthread will be deprecated in 2024.2
       heartbeat_in_pthread: true
-      # Setting lower kombu_reconnect_delay should resolve issue with HA failing when one node is down
-      # https://lists.openstack.org/pipermail/openstack-discuss/2023-April/033314.html
-      # https://review.opendev.org/c/openstack/oslo.messaging/+/866617
       kombu_reconnect_delay: 0.5
     oslo_middleware:
       enable_proxy_headers_parsing: true
@@ -95,9 +81,8 @@ conf:
   logging:
     logger_root:
       handlers:
-        - stdout
+      - stdout
       level: INFO
-
 endpoints:
   fluentd:
     namespace: fluentbit
@@ -122,7 +107,6 @@ endpoints:
       default: rabbitmq.openstack.svc.cluster.local
     hosts:
       default: rabbitmq-nodes
-
 manifests:
   ingress_api: false
   job_db_init: false

@@ -1,27 +1,22 @@
----
 images:
   tags:
-    bootstrap: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
-    db_drop: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
-    db_init: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
-    dep_check: "ghcr.io/rackerlabs/genestack-images/kubernetes-entrypoint:latest"
-    heat_api: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
-    heat_cfn: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
-    heat_cloudwatch: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
-    heat_db_sync: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
-    heat_engine: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
-    heat_engine_cleaner: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
-    heat_purge_deleted: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    bootstrap: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    db_drop: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    db_init: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    dep_check: ghcr.io/rackerlabs/genestack-images/kubernetes-entrypoint:latest
+    heat_api: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    heat_cfn: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    heat_cloudwatch: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    heat_db_sync: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    heat_engine: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    heat_engine_cleaner: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    heat_purge_deleted: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
     image_repo_sync: null
-    ks_endpoints: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
-    ks_service: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
-    ks_user: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
+    ks_endpoints: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    ks_service: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    ks_user: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
     rabbit_init: null
     test: null
-
-# NOTE: (brew) requests cpu/mem values based on a three node
-# hyperconverged lab (/scripts/hyperconverged-lab.sh).
-# limit values based on defaults from the openstack-helm charts unless defined
 pod:
   lifecycle:
     upgrades:
@@ -51,20 +46,19 @@ pod:
     enabled: true
     api:
       requests:
-        memory: "256Mi"
-        cpu: "100m"
+        memory: 256Mi
+        cpu: 100m
       limits: {}
     cfn:
       requests:
-        memory: "256Mi"
-        cpu: "100m"
+        memory: 256Mi
+        cpu: 100m
       limits: {}
     engine:
       requests:
-        memory: "256Mi"
-        cpu: "100m"
+        memory: 256Mi
+        cpu: 100m
       limits: {}
-
 conf:
   heat:
     DEFAULT:
@@ -104,16 +98,9 @@ conf:
       rabbit_transient_quorum_queue: false
       use_queue_manager: false
       rabbit_interval_max: 10
-      # Send more frequent heartbeats and fail unhealthy nodes faster
-      # heartbeat_timeout / heartbeat_rate / 2.0 = 30 / 3 / 2.0 = 5
-      # https://opendev.org/openstack/oslo.messaging/commit/36fb5bceabe08a982ebd52e4a8f005cd26fdf6b8
       heartbeat_rate: 3
       heartbeat_timeout_threshold: 60
-      # DEPRECIATION:  (warning) heartbeat_in_pthread will be deprecated in 2024.2
       heartbeat_in_pthread: true
-      # Setting lower kombu_reconnect_delay should resolve issue with HA failing when one node is down
-      # https://lists.openstack.org/pipermail/openstack-discuss/2023-April/033314.html
-      # https://review.opendev.org/c/openstack/oslo.messaging/+/866617
       kombu_reconnect_delay: 0.5
   heat_api_cfn_uwsgi:
     uwsgi:
@@ -126,48 +113,46 @@ conf:
   logging:
     logger_root:
       handlers:
-        - stdout
+      - stdout
       level: INFO
   rabbitmq:
     policies: []
-
 dependencies:
   static:
     api:
       jobs:
-        - heat-db-sync
-        - heat-ks-user
-        - heat-trustee-ks-user
-        - heat-domain-ks-user
-        - heat-ks-endpoints
-        - heat-bootstrap
+      - heat-db-sync
+      - heat-ks-user
+      - heat-trustee-ks-user
+      - heat-domain-ks-user
+      - heat-ks-endpoints
+      - heat-bootstrap
     cfn:
       jobs:
-        - heat-db-sync
-        - heat-ks-user
-        - heat-trustee-ks-user
-        - heat-domain-ks-user
-        - heat-ks-endpoints
-        - heat-bootstrap
+      - heat-db-sync
+      - heat-ks-user
+      - heat-trustee-ks-user
+      - heat-domain-ks-user
+      - heat-ks-endpoints
+      - heat-bootstrap
     cloudwatch:
       jobs:
-        - heat-db-sync
-        - heat-ks-user
-        - heat-trustee-ks-user
-        - heat-domain-ks-user
-        - heat-ks-endpoints
-        - heat-bootstrap
+      - heat-db-sync
+      - heat-ks-user
+      - heat-trustee-ks-user
+      - heat-domain-ks-user
+      - heat-ks-endpoints
+      - heat-bootstrap
     db_sync:
       jobs: []
     engine:
       jobs:
-        - heat-db-sync
-        - heat-ks-user
-        - heat-trustee-ks-user
-        - heat-domain-ks-user
-        - heat-ks-endpoints
-        - heat-bootstrap
-
+      - heat-db-sync
+      - heat-ks-user
+      - heat-trustee-ks-user
+      - heat-domain-ks-user
+      - heat-ks-endpoints
+      - heat-bootstrap
 endpoints:
   cloudformation:
     port:
@@ -214,7 +199,6 @@ endpoints:
       default: rabbitmq.openstack.svc.cluster.local
     hosts:
       default: rabbitmq-nodes
-
 manifests:
   ingress_api: false
   ingress_cfn: false

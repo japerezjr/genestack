@@ -1,25 +1,23 @@
----
 images:
   tags:
-    bootstrap: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
-    db_drop: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
-    db_init: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
-    dep_check: "ghcr.io/rackerlabs/genestack-images/kubernetes-entrypoint:latest"
+    bootstrap: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    db_drop: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    db_init: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    dep_check: ghcr.io/rackerlabs/genestack-images/kubernetes-entrypoint:latest
     image_repo_sync: null
-    ks_endpoints: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
-    ks_service: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
-    ks_user: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
-    octavia_api: "ghcr.io/rackerlabs/genestack-images/octavia:2024.1-latest"
-    octavia_db_sync: "ghcr.io/rackerlabs/genestack-images/octavia:2024.1-latest"
-    octavia_health_manager: "ghcr.io/rackerlabs/genestack-images/octavia:2024.1-latest"
-    octavia_health_manager_init: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
-    octavia_housekeeping: "ghcr.io/rackerlabs/genestack-images/octavia:2024.1-latest"
-    octavia_worker_init: "ghcr.io/rackerlabs/genestack-images/heat:2024.1-latest"
-    octavia_worker: "ghcr.io/rackerlabs/genestack-images/octavia:2024.1-latest"
-    openvswitch_vswitchd: "ghcr.io/rackerlabs/genestack-images/ovs:v3.5.1-latest"
+    ks_endpoints: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    ks_service: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    ks_user: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    octavia_api: ghcr.io/rackerlabs/genestack-images/octavia:2025.1-latest
+    octavia_db_sync: ghcr.io/rackerlabs/genestack-images/octavia:2025.1-latest
+    octavia_health_manager: ghcr.io/rackerlabs/genestack-images/octavia:2025.1-latest
+    octavia_health_manager_init: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    octavia_housekeeping: ghcr.io/rackerlabs/genestack-images/octavia:2025.1-latest
+    octavia_worker_init: ghcr.io/rackerlabs/genestack-images/heat:2025.1-latest
+    octavia_worker: ghcr.io/rackerlabs/genestack-images/octavia:2025.1-latest
+    openvswitch_vswitchd: ghcr.io/rackerlabs/genestack-images/ovs:v3.5.1-latest
     rabbit_init: null
     test: null
-
 labels:
   api:
     node_selector_key: openstack-control-plane
@@ -39,54 +37,50 @@ labels:
   job:
     node_selector_key: openstack-control-plane
     node_selector_value: enabled
-
 bootstrap:
   enabled: false
-
 dependencies:
   static:
     api:
       jobs:
-        - octavia-db-sync
-        - octavia-ks-user
-        - octavia-ks-endpoints
+      - octavia-db-sync
+      - octavia-ks-user
+      - octavia-ks-endpoints
     driver_agent:
       jobs:
-        - octavia-db-sync
-        - octavia-ks-user
-        - octavia-ks-endpoints
+      - octavia-db-sync
+      - octavia-ks-user
+      - octavia-ks-endpoints
     db_sync:
       jobs: []
     health_manager:
       jobs:
-        - octavia-db-sync
-        - octavia-ks-user
-        - octavia-ks-endpoints
+      - octavia-db-sync
+      - octavia-ks-user
+      - octavia-ks-endpoints
     housekeeping:
       jobs:
-        - octavia-db-sync
-        - octavia-ks-user
-        - octavia-ks-endpoints
+      - octavia-db-sync
+      - octavia-ks-user
+      - octavia-ks-endpoints
     worker:
       jobs:
-        - octavia-db-sync
-        - octavia-ks-user
-        - octavia-ks-endpoints
-
+      - octavia-db-sync
+      - octavia-ks-user
+      - octavia-ks-endpoints
 conf:
   logging:
     logger_root:
       handlers:
-        - stdout
+      - stdout
       level: INFO
   octavia:
     amphora_agent:
       disable_local_log_storage: true
     api_settings:
       default_provider_driver: amphora
-      enabled_provider_drivers: >-
-        ovn: "The Octavia OVN driver",
-        amphora: "The Octavia Amphora driver"
+      enabled_provider_drivers: 'ovn: "The Octavia OVN driver", amphora: "The Octavia
+        Amphora driver"'
     certificates:
       endpoint_type: internalURL
     cinder:
@@ -123,7 +117,7 @@ conf:
       endpoint_type: internalURL
       valid_interfaces: internal
     nova:
-      enable_anti_affinity: "True"
+      enable_anti_affinity: 'True'
       endpoint_type: internalURL
     oslo_concurrency:
       lock_path: /tmp/octavia
@@ -134,25 +128,16 @@ conf:
       rabbit_transient_quorum_queue: false
       use_queue_manager: false
       rabbit_interval_max: 10
-      # Send more frequent heartbeats and fail unhealthy nodes faster
-      # heartbeat_timeout / heartbeat_rate / 2.0 = 30 / 3 / 2.0 = 5
-      # https://opendev.org/openstack/oslo.messaging/commit/36fb5bceabe08a982ebd52e4a8f005cd26fdf6b8
       heartbeat_rate: 3
       heartbeat_timeout_threshold: 60
-      # NOTE (deprecation warning) heartbeat_in_pthread will be deprecated in 2024.2
       heartbeat_in_pthread: true
-      # Setting lower kombu_reconnect_delay should resolve issue with HA failing when one node is down
-      # https://lists.openstack.org/pipermail/openstack-discuss/2023-April/033314.html
-      # https://review.opendev.org/c/openstack/oslo.messaging/+/866617
       kombu_reconnect_delay: 0.5
     ovn:
-      ovn_nb_connection: "tcp:127.0.0.1:6641"
-      ovn_sb_connection: "tcp:127.0.0.1:6642"
-
+      ovn_nb_connection: tcp:127.0.0.1:6641
+      ovn_sb_connection: tcp:127.0.0.1:6642
       ovn_nb_private_key: /etc/octavia/ovn/key
       ovn_nb_certificate: /etc/octavia/ovn/cert
       ovn_nb_ca_cert: /etc/octavia/ovn/cacert
-
       ovn_sb_private_key: /etc/octavia/ovn/key
       ovn_sb_certificate: /etc/octavia/ovn/cert
       ovn_sb_ca_cert: /etc/octavia/ovn/cacert
@@ -164,7 +149,6 @@ conf:
     uwsgi:
       processes: 2
       threads: 1
-
 endpoints:
   fluentd:
     namespace: fluentbit
@@ -223,12 +207,10 @@ endpoints:
       default: rabbitmq.openstack.svc.cluster.local
     hosts:
       default: rabbitmq-nodes
-
   valkey:
     name: valkey
     hosts:
       default: redis-replication-master.redis-systems.svc.cluster.local
-    # NOTE(rlin): we should only provide password when not using CA cert.
     password: null
     host_fqdn_override:
       default: redis-replication-master.redis-systems.svc.cluster.local
@@ -236,10 +218,6 @@ endpoints:
       server:
         default: 6379
         sentinel: 6379
-
-# NOTE: (brew) requests cpu/mem values based on a three node
-# hyperconverged lab (/scripts/hyperconverged-lab.sh).
-# limit values based on defaults from the openstack-helm charts unless defined
 pod:
   lifecycle:
     upgrades:
@@ -265,15 +243,15 @@ pod:
     enabled: true
     api:
       requests:
-        memory: "768Mi"
-        cpu: "300m"
+        memory: 768Mi
+        cpu: 300m
       limits:
-        memory: "3072Mi"
-        cpu: "2000m"
+        memory: 3072Mi
+        cpu: 2000m
     worker:
       requests:
-        memory: "256Mi"
-        cpu: "1000m"
+        memory: 256Mi
+        cpu: 1000m
       limits: {}
   affinity:
     anti:
@@ -284,38 +262,37 @@ pod:
       init_container: null
       octavia_api:
         volumeMounts:
-          - name: ovn-tls
-            mountPath: /etc/octavia/ovn
-            readOnly: true
-          - name: pod-run-octavia
-            mountPath: /var/run/octavia
+        - name: ovn-tls
+          mountPath: /etc/octavia/ovn
+          readOnly: true
+        - name: pod-run-octavia
+          mountPath: /var/run/octavia
         volumes:
-          - name: ovn-tls
-            secret:
-              secretName: ovn-client-tls
-          - name: pod-run-octavia
-            emptyDir: {}
+        - name: ovn-tls
+          secret:
+            secretName: ovn-client-tls
+        - name: pod-run-octavia
+          emptyDir: {}
     octavia_worker:
       init_container: null
       octavia_worker:
         volumeMounts:
-          - name: ovn-tls
-            mountPath: /etc/octavia/ovn
-            readOnly: true
-          - name: pod-run-octavia
-            mountPath: /var/run/octavia
+        - name: ovn-tls
+          mountPath: /etc/octavia/ovn
+          readOnly: true
+        - name: pod-run-octavia
+          mountPath: /var/run/octavia
         volumes:
-          - name: ovn-tls
-            secret:
-              secretName: ovn-client-tls
-          - name: pod-run-octavia
-            emptyDir: {}
+        - name: ovn-tls
+          secret:
+            secretName: ovn-client-tls
+        - name: pod-run-octavia
+          emptyDir: {}
     octavia_driver_agent:
       init_container: null
       octavia_bootstrap:
-        volumeMounts:
-        volumes:
-
+        volumeMounts: null
+        volumes: null
 manifests:
   ingress_api: false
   job_bootstrap: false
