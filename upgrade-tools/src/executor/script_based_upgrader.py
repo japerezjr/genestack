@@ -222,16 +222,16 @@ class ScriptBasedUpgrader:
             True if service stabilized, False if timeout
         """
         if timeout is None:
-            timeout = 300  # Reduced to 5 minutes (helm already waited)
+            timeout = 60  # Reduced to 1 minute (helm already waited up to 120m)
         
         start_time = time.time()
-        check_interval = 10
+        check_interval = 5
         
-        logger.info(f"Waiting up to {timeout}s for {service_name} to stabilize...")
+        logger.info(f"Verifying {service_name} deployment status (timeout: {timeout}s)...")
         
         while time.time() - start_time < timeout:
             try:
-                # Check helm release status first
+                # Check helm release status
                 result = subprocess.run(
                     [
                         "helm", "status", service_name,
@@ -249,35 +249,45 @@ class ScriptBasedUpgrader:
                 helm_status = status_data.get("info", {}).get("status", "")
                 
                 if helm_status == "deployed":
-                    logger.info(f"Helm release {service_name} is deployed")
+                    logger.info(f"✓ Helm release {service_name} status: deployed")
                     
-                    # Quick pod check - but don't fail if no pods found
-                    # (some services like memcached might not have application label)
-                    pod_result = subprocess.run(
-                        [
-                            "kubectl", "get", "pods",
-                            "-n", "openstack",
-                            "-l", f"application={service_name},component=server",
-                            "-o", "jsonpath={.items[*].status.phase}"
-                        ],
-                        capture_output=True,
-                        text=True,
-                        timeout=30,
-                        check=False
-                    )
+                    # Try to find pods with various label patterns
+                    # Different charts use different labeling schemes
+                    label_patterns = [
+                        f"application={service_name}",  # OpenStack-helm pattern
+                        f"app.kubernetes.io/name={service_name}",  # Standard k8s pattern
+                        f"release={service_name}",  # Helm release label
+                    ]
                     
-                    phases = pod_result.stdout.strip().split()
-                    if phases:
-                        # If we found pods, check they're running
-                        if all(phase == "Running" for phase in phases):
-                            logger.info(f"All pods for {service_name} are Running")
-                            return True
-                        else:
-                            logger.debug(f"Pod phases for {service_name}: {phases}")
-                    else:
-                        # No pods found with that label, but helm says deployed
-                        # This is OK for some services (infrastructure, etc.)
-                        logger.info(f"No pods found with application={service_name} label, but helm status is deployed")
+                    pods_found = False
+                    for label in label_patterns:
+                        pod_result = subprocess.run(
+                            [
+                                "kubectl", "get", "pods",
+                                "-n", "openstack",
+                                "-l", label,
+                                "-o", "jsonpath={.items[*].status.phase}"
+                            ],
+                            capture_output=True,
+                            text=True,
+                            timeout=30,
+                            check=False
+                        )
+                        
+                        phases = pod_result.stdout.strip().split()
+                        if phases:
+                            pods_found = True
+                            if all(phase == "Running" for phase in phases):
+                                logger.info(f"✓ All {len(phases)} pod(s) for {service_name} are Running (label: {label})")
+                                return True
+                            else:
+                                logger.debug(f"Pod phases for {service_name} (label: {label}): {phases}")
+                                break  # Found pods but not all running, keep waiting
+                    
+                    if not pods_found:
+                        # No pods found with any label pattern
+                        # For some services (like jobs, configmaps-only releases), this is OK
+                        logger.info(f"✓ No pods found for {service_name}, but helm status is deployed (may be job/config-only release)")
                         return True
                 
                 logger.debug(f"Helm status for {service_name}: {helm_status}, waiting...")
