@@ -55,6 +55,11 @@ class ScriptBasedUpgrader:
         self.genestack_base_dir = genestack_base_dir
         self.genestack_overrides_dir = genestack_overrides_dir
         
+        logger.info(f"ScriptBasedUpgrader initialized:")
+        logger.info(f"  scripts_dir: {self.scripts_dir}")
+        logger.info(f"  genestack_base_dir: {self.genestack_base_dir}")
+        logger.info(f"  genestack_overrides_dir: {self.genestack_overrides_dir}")
+        
         if not self.scripts_dir.exists():
             raise ValueError(f"Scripts directory not found: {scripts_dir}")
     
@@ -104,6 +109,9 @@ class ScriptBasedUpgrader:
             
             # Step 2: Execute install script
             logger.info(f"Executing install script for {service_name}: {script_path}")
+            print(f"\n{'='*70}")
+            print(f"Upgrading {service_name} using {script_path}")
+            print(f"{'='*70}")
             
             env = {
                 **subprocess.os.environ,
@@ -123,9 +131,15 @@ class ScriptBasedUpgrader:
                 
                 script_output = result.stdout + result.stderr
                 
+                # Always print script output for visibility
+                print(f"\n--- Script Output for {service_name} ---")
+                print(script_output)
+                print(f"--- End Script Output ---\n")
+                
                 if result.returncode != 0:
                     errors.append(f"Install script failed with exit code {result.returncode}")
-                    errors.append(f"Script output: {script_output[-500:]}")  # Last 500 chars
+                    errors.append(f"Script output: {script_output[-1000:]}")  # Last 1000 chars
+                    logger.error(f"Install script failed for {service_name}: exit code {result.returncode}")
                     duration = time.time() - start_time
                     return ServiceUpgradeResult(
                         service_name=service_name,

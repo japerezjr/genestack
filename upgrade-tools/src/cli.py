@@ -557,10 +557,21 @@ def handle_full_upgrade(
     from executor.script_based_upgrader import ScriptBasedUpgrader
     
     health_aggregator = HealthAggregator()
+    
+    # Determine paths based on where we're running from
+    # config.overrides_base_path is ../base-helm-configs from upgrade-tools/
+    # So parent is the genestack-upgrade directory
+    genestack_base = Path(config.overrides_base_path).parent.resolve()
+    scripts_directory = genestack_base / "bin"
+    
+    logger.info(f"Initializing ScriptBasedUpgrader with:")
+    logger.info(f"  Base directory: {genestack_base}")
+    logger.info(f"  Scripts directory: {scripts_directory}")
+    
     service_upgrader = ScriptBasedUpgrader(
         health_aggregator=health_aggregator,
-        scripts_dir=str(Path(config.overrides_base_path).parent / "bin"),
-        genestack_base_dir=str(Path(config.overrides_base_path).parent),
+        scripts_dir=str(scripts_directory),
+        genestack_base_dir=str(genestack_base),
         genestack_overrides_dir="/etc/genestack"
     )
     orchestrator = UpgradeOrchestrator(service_upgrader=service_upgrader)
