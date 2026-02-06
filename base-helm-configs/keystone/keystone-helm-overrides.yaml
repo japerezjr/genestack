@@ -137,6 +137,10 @@ conf:
     CustomLog /dev/stdout combined env=!forwarded
     CustomLog /dev/stdout proxy env=forwarded
 
+    <Directory /usr/local/bin>
+        Require all granted
+    </Directory>
+
     <VirtualHost *:{{ $portInt }}>
         WSGIDaemonProcess keystone-public processes={{ .Values.conf.keystone_api_wsgi.wsgi.processes }} threads={{ .Values.conf.keystone_api_wsgi.wsgi.threads }} user=keystone group=keystone display-name=%{GROUP}
         WSGIProcessGroup keystone-public
