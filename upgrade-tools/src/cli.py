@@ -553,15 +553,15 @@ def handle_full_upgrade(
     # Phase 4: Upgrade execution
     print_section("Phase 4: Upgrade Execution", args.quiet)
     
-    # Initialize upgrade components
-    helm_executor = HelmExecutor(namespace=config.namespace)
+    # Initialize upgrade components using script-based upgrader
+    from executor.script_based_upgrader import ScriptBasedUpgrader
+    
     health_aggregator = HealthAggregator()
-    service_upgrader = ServiceUpgrader(
-        helm_executor=helm_executor,
+    service_upgrader = ScriptBasedUpgrader(
         health_aggregator=health_aggregator,
-        chart_versions_path=config.chart_versions_path,
-        overrides_base_path=config.overrides_base_path,
-        custom_overrides_dir="/etc/genestack/helm-configs"  # Genestack custom overrides location
+        scripts_dir=str(Path(config.overrides_base_path).parent / "bin"),
+        genestack_base_dir=str(Path(config.overrides_base_path).parent),
+        genestack_overrides_dir="/etc/genestack"
     )
     orchestrator = UpgradeOrchestrator(service_upgrader=service_upgrader)
     
