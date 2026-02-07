@@ -35,8 +35,8 @@ if [ -f "$REPO_VERSIONS_FILE" ]; then
         latest=$(get_latest_version "$service")
         if [ -n "$latest" ]; then
             echo "  $service: $latest"
-            # Use perl for in-place editing with proper YAML syntax
-            perl -i -pe "s/^(\s*${service}:\s+).*$/\$1${latest}/" "$REPO_VERSIONS_FILE"
+            # Use sed with proper escaping for YAML
+            sed -i "s/^  ${service}: .*$/  ${service}: ${latest}/" "$REPO_VERSIONS_FILE"
         else
             echo "  $service: no 2025.1 version found, skipping"
         fi
@@ -57,7 +57,7 @@ if [ -f "$SYSTEM_VERSIONS_FILE" ]; then
     for service in "${SERVICES[@]}"; do
         latest=$(get_latest_version "$service")
         if [ -n "$latest" ]; then
-            sudo perl -i -pe "s/^(\s*${service}:\s+).*$/\$1${latest}/" "$SYSTEM_VERSIONS_FILE"
+            sudo sed -i "s/^  ${service}: .*$/  ${service}: ${latest}/" "$SYSTEM_VERSIONS_FILE"
         fi
     done
     
