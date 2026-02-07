@@ -24,7 +24,7 @@ from validation.validator import ConfigurationValidator
 from breaking_changes.detector import BreakingChangeDetector
 from health.validator import PreUpgradeValidator
 from executor.upgrade_orchestrator import UpgradeOrchestrator
-from executor.service_upgrader import ServiceUpgrader
+from executor.script_based_upgrader import ScriptBasedUpgrader
 from executor.helm_executor import HelmExecutor
 from rollback.backup_manager import BackupManager
 from rollback.rollback_verifier import RollbackVerifier
@@ -536,8 +536,22 @@ def handle_full_upgrade(
     print_section("Phase 4: Upgrade Execution", args.quiet)
     
     # Initialize upgrade components
-    helm_executor = HelmExecutor(namespace=config.namespace)
-    service_upgrader = ServiceUpgrader(helm_executor=helm_executor)
+    from health.aggregator import HealthAggregator
+    from pathlib import Path
+    
+    health_aggregator = HealthAggregator(namespace=config.namespace)
+    
+    # Determine genestack base directory (parent of upgrade-tools)
+    current_dir = Path(__file__).parent
+    genestack_base = current_dir.parent
+    scripts_directory = genestack_base / "bin"
+    
+    service_upgrader = ScriptBasedUpgrader(
+        health_aggregator=health_aggregator,
+        scripts_dir=str(scripts_directory),
+        genestack_base_dir=str(genestack_base),
+        genestack_overrides_dir="/etc/genestack"
+    )
     orchestrator = UpgradeOrchestrator(service_upgrader=service_upgrader)
     
     # Determine services to upgrade
