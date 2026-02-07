@@ -539,7 +539,7 @@ def handle_full_upgrade(
     from health.aggregator import HealthAggregator
     from pathlib import Path
     
-    health_aggregator = HealthAggregator(namespace=config.namespace)
+    health_aggregator = HealthAggregator()
     
     # Determine genestack base directory (parent of upgrade-tools)
     current_dir = Path(__file__).parent
