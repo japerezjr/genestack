@@ -182,15 +182,47 @@ class UpgradeOrchestrator:
         chart_resolver = ChartResolver(chart_versions_path="../helm-chart-versions.yaml")
         openstack_services = [s for s in all_services if chart_resolver.is_openstack_service(s)]
         
+        # Filter to only deployed services (check helm releases)
+        deployed_services = self._get_deployed_services()
+        services_to_upgrade = [s for s in openstack_services if s in deployed_services]
+        
         self._log_action(f"Filtered {len(all_services)} services to {len(openstack_services)} OpenStack services")
+        self._log_action(f"Found {len(deployed_services)} deployed services: {', '.join(sorted(deployed_services))}")
+        self._log_action(f"Will upgrade {len(services_to_upgrade)} services: {', '.join(sorted(services_to_upgrade))}")
         
         return self.orchestrate_upgrade(
-            services=openstack_services,
+            services=services_to_upgrade,
             chart_base_path=chart_base_path,
             skip_optional=skip_optional,
             halt_on_failure=halt_on_failure,
             timeout_per_service=timeout_per_service
         )
+    
+    def _get_deployed_services(self) -> set:
+        """Get list of currently deployed helm releases in openstack namespace.
+        
+        Returns:
+            Set of deployed service names
+        """
+        import subprocess
+        import json
+        
+        try:
+            result = subprocess.run(
+                ["helm", "list", "-n", "openstack", "-o", "json"],
+                capture_output=True,
+                text=True,
+                timeout=30,
+                check=True
+            )
+            
+            releases = json.loads(result.stdout)
+            deployed = {release["name"] for release in releases}
+            return deployed
+            
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired, json.JSONDecodeError) as e:
+            self._log_action(f"Warning: Could not get deployed services: {e}")
+            return set()
     
     def _log_action(self, message: str):
         """Log an action with timestamp.

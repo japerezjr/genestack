@@ -277,11 +277,19 @@ class ScriptBasedUpgrader:
                         phases = pod_result.stdout.strip().split()
                         if phases:
                             pods_found = True
-                            if all(phase == "Running" for phase in phases):
-                                logger.info(f"✓ All {len(phases)} pod(s) for {service_name} are Running (label: {label})")
+                            # Filter out Completed and Succeeded pods (jobs)
+                            # Only check Running pods for stability
+                            active_phases = [p for p in phases if p not in ("Completed", "Succeeded")]
+                            
+                            if not active_phases:
+                                # All pods are completed jobs, service is stable
+                                logger.info(f"✓ All {len(phases)} pod(s) for {service_name} are Completed/Succeeded (label: {label})")
+                                return True
+                            elif all(phase == "Running" for phase in active_phases):
+                                logger.info(f"✓ All {len(active_phases)} active pod(s) for {service_name} are Running (label: {label})")
                                 return True
                             else:
-                                logger.debug(f"Pod phases for {service_name} (label: {label}): {phases}")
+                                logger.debug(f"Pod phases for {service_name} (label: {label}): active={active_phases}, all={phases}")
                                 break  # Found pods but not all running, keep waiting
                     
                     if not pods_found:
