@@ -51,8 +51,23 @@ load_config() {
         return 1
     fi
     
-    # Store the config file path for later use
-    CONFIG_FILE="$config_file"
+    # Convert to absolute path to avoid issues with relative paths
+    # when called from sourced libraries
+    if [[ "$config_file" = /* ]]; then
+        # Already absolute path
+        CONFIG_FILE="$config_file"
+    else
+        # Convert relative path to absolute
+        CONFIG_FILE="$(cd "$(dirname "$config_file")" && pwd)/$(basename "$config_file")"
+    fi
+    
+    # Debug output
+    if [ "${DEBUG:-false}" = "true" ]; then
+        echo "[DEBUG] load_config: Original path='$config_file'" >&2
+        echo "[DEBUG] load_config: Absolute path='$CONFIG_FILE'" >&2
+        echo "[DEBUG] load_config: File exists=$([ -f "$CONFIG_FILE" ] && echo 'YES' || echo 'NO')" >&2
+        echo "[DEBUG] load_config: File readable=$([ -r "$CONFIG_FILE" ] && echo 'YES' || echo 'NO')" >&2
+    fi
     
     return 0
 }
