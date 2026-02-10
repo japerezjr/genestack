@@ -53,6 +53,7 @@ generate_gateway() {
     local gateway_class="$3"
     local gateway_type="$4"
     
+    # Start the gateway manifest
     cat <<EOF
 ---
 apiVersion: gateway.networking.k8s.io/v1
@@ -67,9 +68,63 @@ metadata:
     gateway.envoyproxy.io/gateway-type: ${gateway_type}
 spec:
   gatewayClassName: ${gateway_class}
-  listeners: []
+  listeners:
 EOF
+    
+    # Generate listeners from configuration if auto_listeners is enabled
+    if is_auto_listeners_enabled && [ -n "$CONFIG_FILE" ]; then
+        local listener_count
+        listener_count=$(get_gateway_listeners "$gateway_name")
+        
+        if [ -n "$listener_count" ] && [ "$listener_count" != "null" ] && [ "$listener_count" -gt 0 ]; then
+            for ((i=0; i<listener_count; i++)); do
+                local listener_name
+                local port
+                local protocol
+                local hostname
+                local cert_ref
+                
+                listener_name=$(get_config_value "gateways.$gateway_name.listeners[$i].name")
+                port=$(get_config_value "gateways.$gateway_name.listeners[$i].port")
+                protocol=$(get_config_value "gateways.$gateway_name.listeners[$i].protocol")
+                hostname=$(get_config_value "gateways.$gateway_name.listeners[$i].hostname" "")
+                
+                if [ "$protocol" = "HTTPS" ]; then
+                    cert_ref="${gateway_name}-cert-tls"
+                else
+                    cert_ref=""
+                fi
+                
+                # Generate listener inline
+                echo "  - name: ${listener_name}"
+                echo "    port: ${port}"
+                echo "    protocol: ${protocol}"
+                
+                if [ -n "$hostname" ]; then
+                    echo "    hostname: ${hostname}"
+                fi
+                
+                if [ "$protocol" = "HTTPS" ] && [ -n "$cert_ref" ]; then
+                    echo "    tls:"
+                    echo "      mode: Terminate"
+                    echo "      certificateRefs:"
+                    echo "      - name: ${cert_ref}"
+                fi
+                
+                echo "    allowedRoutes:"
+                echo "      namespaces:"
+                echo "        from: All"
+            done
+        else
+            # No listeners configured, output empty array
+            echo "  []"
+        fi
+    else
+        # auto_listeners disabled, output empty array
+        echo "  []"
+    fi
 }
+
 
 # Function to generate listener for gateway
 generate_listener() {
