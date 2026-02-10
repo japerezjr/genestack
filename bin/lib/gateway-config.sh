@@ -68,8 +68,18 @@ get_config_value() {
         return 1
     fi
     
+    # Debug output
+    if [ "${DEBUG:-false}" = "true" ]; then
+        echo "[DEBUG] get_config_value: path='$path', CONFIG_FILE='$CONFIG_FILE'" >&2
+    fi
+    
     local value
     value=$(yq eval "$path" "$CONFIG_FILE" 2>/dev/null)
+    
+    # Debug output
+    if [ "${DEBUG:-false}" = "true" ]; then
+        echo "[DEBUG] get_config_value: yq returned='$value'" >&2
+    fi
     
     if [ -z "$value" ] || [ "$value" = "null" ]; then
         if [ -n "$default" ]; then
@@ -79,7 +89,15 @@ get_config_value() {
     fi
     
     # Substitute environment variables
-    substitute_env_vars "$value"
+    local result
+    result=$(substitute_env_vars "$value")
+    
+    # Debug output
+    if [ "${DEBUG:-false}" = "true" ]; then
+        echo "[DEBUG] get_config_value: after substitute_env_vars='$result'" >&2
+    fi
+    
+    echo "$result"
     return 0
 }
 
