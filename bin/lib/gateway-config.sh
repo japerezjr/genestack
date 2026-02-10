@@ -83,6 +83,11 @@ get_config_value() {
         return 1
     fi
     
+    # Ensure path starts with a dot for yq v4 compatibility
+    if [[ ! "$path" =~ ^\. ]]; then
+        path=".$path"
+    fi
+    
     # Debug output
     if [ "${DEBUG:-false}" = "true" ]; then
         echo "[DEBUG] get_config_value: path='$path', CONFIG_FILE='$CONFIG_FILE'" >&2
