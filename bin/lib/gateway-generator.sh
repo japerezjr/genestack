@@ -52,6 +52,7 @@ generate_gateway() {
     local namespace="$2"
     local gateway_class="$3"
     local gateway_type="$4"
+    local metallb_pool="${5:-}"
     
     # Start the gateway manifest
     cat <<EOF
@@ -66,6 +67,17 @@ metadata:
     app.kubernetes.io/component: gateway
     app.kubernetes.io/instance: ${gateway_name}
     gateway.envoyproxy.io/gateway-type: ${gateway_type}
+EOF
+    
+    # Add MetalLB annotation if pool is specified
+    if [ -n "$metallb_pool" ]; then
+        cat <<EOF
+  annotations:
+    metallb.universe.tf/address-pool: ${metallb_pool}
+EOF
+    fi
+    
+    cat <<EOF
 spec:
   gatewayClassName: ${gateway_class}
   listeners:
@@ -488,7 +500,7 @@ generate_gateway_config() {
     echo ""
     
     # Generate gateway
-    generate_gateway "$gateway_name" "$namespace" "$gateway_class" "$gateway_type"
+    generate_gateway "$gateway_name" "$namespace" "$gateway_class" "$gateway_type" "$metallb_pool"
     echo ""
     
     # Generate certificate based on provider
