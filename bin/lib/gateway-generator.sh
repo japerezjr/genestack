@@ -462,6 +462,7 @@ generate_gateway_config() {
     local namespace
     local gateway_type
     local domain
+    local gateway_class
     local cert_provider
     local email
     local acme_challenge
@@ -471,6 +472,7 @@ generate_gateway_config() {
     namespace=$(get_config_value "gateways.$gateway_name.namespace")
     gateway_type=$(get_config_value "gateways.$gateway_name.type")
     domain=$(get_config_value "gateways.$gateway_name.domain")
+    gateway_class=$(get_config_value "gateways.$gateway_name.gateway_class" "eg")
     cert_provider=$(get_config_value "gateways.$gateway_name.certificate.provider" "self-signed")
     email=$(get_config_value "gateways.$gateway_name.certificate.email" "")
     acme_challenge=$(get_config_value "gateways.$gateway_name.certificate.acme_challenge" "http01")
@@ -482,11 +484,11 @@ generate_gateway_config() {
     echo ""
     
     # Generate gateway class (if needed)
-    generate_gateway_class "eg"
+    generate_gateway_class "$gateway_class"
     echo ""
     
     # Generate gateway
-    generate_gateway "$gateway_name" "$namespace" "eg" "$gateway_type"
+    generate_gateway "$gateway_name" "$namespace" "$gateway_class" "$gateway_type"
     echo ""
     
     # Generate certificate based on provider
