@@ -89,7 +89,19 @@ get_config_value() {
     fi
     
     local value
-    value=$(yq eval "$path" "$CONFIG_FILE" 2>/dev/null)
+    local yq_stderr
+    # Capture both stdout and stderr when in debug mode
+    if [ "${DEBUG:-false}" = "true" ]; then
+        yq_stderr=$(mktemp)
+        value=$(yq eval "$path" "$CONFIG_FILE" 2>"$yq_stderr")
+        if [ -s "$yq_stderr" ]; then
+            echo "[DEBUG] get_config_value: yq stderr:" >&2
+            cat "$yq_stderr" >&2
+        fi
+        rm -f "$yq_stderr"
+    else
+        value=$(yq eval "$path" "$CONFIG_FILE" 2>/dev/null)
+    fi
     
     # Debug output
     if [ "${DEBUG:-false}" = "true" ]; then
