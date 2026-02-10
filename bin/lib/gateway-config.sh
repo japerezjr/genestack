@@ -93,7 +93,10 @@ get_config_value() {
     # Capture both stdout and stderr when in debug mode
     if [ "${DEBUG:-false}" = "true" ]; then
         yq_stderr=$(mktemp)
+        echo "[DEBUG] get_config_value: Running command: yq eval '$path' '$CONFIG_FILE'" >&2
         value=$(yq eval "$path" "$CONFIG_FILE" 2>"$yq_stderr")
+        local yq_exit_code=$?
+        echo "[DEBUG] get_config_value: yq exit code: $yq_exit_code" >&2
         if [ -s "$yq_stderr" ]; then
             echo "[DEBUG] get_config_value: yq stderr:" >&2
             cat "$yq_stderr" >&2
