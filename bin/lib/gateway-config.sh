@@ -102,6 +102,14 @@ is_gateway_enabled() {
     
     enabled=$(get_config_value "gateways.$gateway_name.enabled" "false")
     
+    # Debug output (can be removed later)
+    if [ "${DEBUG:-false}" = "true" ]; then
+        echo "[DEBUG] Gateway: $gateway_name, enabled value: '$enabled'" >&2
+    fi
+    
+    # Handle both boolean and string values, and trim whitespace
+    enabled=$(echo "$enabled" | tr -d '[:space:]' | tr '[:upper:]' '[:lower:]')
+    
     if [ "$enabled" = "true" ]; then
         return 0
     fi
