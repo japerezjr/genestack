@@ -217,9 +217,27 @@ validate_all_gateways() {
     local gateway_names
     gateway_names=$(get_gateway_names)
     
+    # Check if get_gateway_names failed
+    if [ $? -ne 0 ]; then
+        add_error "Failed to retrieve gateway names from configuration"
+        return 1
+    fi
+    
+    # Check if gateway_names is empty
+    if [ -z "$gateway_names" ]; then
+        add_error "No gateways found in configuration"
+        return 1
+    fi
+    
     local has_errors=0
     
     while IFS= read -r gateway_name; do
+        # Skip empty lines
+        if [ -z "$gateway_name" ]; then
+            echo "WARNING: Skipping empty gateway name" >&2
+            continue
+        fi
+        
         if is_gateway_enabled "$gateway_name"; then
             if ! validate_gateway "$gateway_name"; then
                 has_errors=1

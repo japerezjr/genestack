@@ -72,6 +72,42 @@ load_config() {
     return 0
 }
 
+# Function to build a proper yq path that handles hyphenated keys
+# Usage: build_yq_path "gateways.rackspace-internal.enabled"
+build_yq_path() {
+    local path="$1"
+    
+    # Ensure path starts with a dot for yq v4 compatibility
+    if [[ ! "$path" =~ ^\. ]]; then
+        path=".$path"
+    fi
+    
+    # Split path by dots and rebuild with bracket notation for hyphenated keys
+    local result=""
+    local IFS='.'
+    local parts=($path)
+    
+    for part in "${parts[@]}"; do
+        if [ -z "$part" ]; then
+            continue
+        fi
+        
+        # If part contains a hyphen, use bracket notation
+        if [[ "$part" =~ - ]]; then
+            result="${result}[\"${part}\"]"
+        else
+            # Use dot notation for non-hyphenated keys
+            if [ -z "$result" ]; then
+                result=".${part}"
+            else
+                result="${result}.${part}"
+            fi
+        fi
+    done
+    
+    echo "$result"
+}
+
 # Function to get a value from the configuration
 # Usage: get_config_value "gateways.external.domain"
 get_config_value() {
@@ -83,14 +119,13 @@ get_config_value() {
         return 1
     fi
     
-    # Ensure path starts with a dot for yq v4 compatibility
-    if [[ ! "$path" =~ ^\. ]]; then
-        path=".$path"
-    fi
+    # Build proper yq path that handles hyphenated keys
+    local yq_path
+    yq_path=$(build_yq_path "$path")
     
     # Debug output
     if [ "${DEBUG:-false}" = "true" ]; then
-        echo "[DEBUG] get_config_value: path='$path', CONFIG_FILE='$CONFIG_FILE'" >&2
+        echo "[DEBUG] get_config_value: original path='$path', yq_path='$yq_path', CONFIG_FILE='$CONFIG_FILE'" >&2
     fi
     
     local value
@@ -98,8 +133,8 @@ get_config_value() {
     # Capture both stdout and stderr when in debug mode
     if [ "${DEBUG:-false}" = "true" ]; then
         yq_stderr=$(mktemp)
-        echo "[DEBUG] get_config_value: Running command: yq eval '$path' '$CONFIG_FILE'" >&2
-        value=$(yq eval "$path" "$CONFIG_FILE" 2>"$yq_stderr")
+        echo "[DEBUG] get_config_value: Running command: yq eval '$yq_path' '$CONFIG_FILE'" >&2
+        value=$(yq eval "$yq_path" "$CONFIG_FILE" 2>"$yq_stderr")
         local yq_exit_code=$?
         echo "[DEBUG] get_config_value: yq exit code: $yq_exit_code" >&2
         if [ -s "$yq_stderr" ]; then
@@ -108,7 +143,7 @@ get_config_value() {
         fi
         rm -f "$yq_stderr"
     else
-        value=$(yq eval "$path" "$CONFIG_FILE" 2>/dev/null)
+        value=$(yq eval "$yq_path" "$CONFIG_FILE" 2>/dev/null)
     fi
     
     # Debug output
@@ -144,7 +179,40 @@ get_gateway_names() {
         return 1
     fi
     
-    yq eval '.gateways | keys | .[]' "$CONFIG_FILE" 2>/dev/null
+    local gateway_names
+    local yq_stderr
+    
+    # Don't suppress errors - we need to know if yq fails
+    if [ "${DEBUG:-false}" = "true" ]; then
+        yq_stderr=$(mktemp)
+        echo "[DEBUG] get_gateway_names: Running command: yq eval '.gateways | keys | .[]' '$CONFIG_FILE'" >&2
+        gateway_names=$(yq eval '.gateways | keys | .[]' "$CONFIG_FILE" 2>"$yq_stderr")
+        local yq_exit_code=$?
+        echo "[DEBUG] get_gateway_names: yq exit code: $yq_exit_code" >&2
+        if [ -s "$yq_stderr" ]; then
+            echo "[DEBUG] get_gateway_names: yq stderr:" >&2
+            cat "$yq_stderr" >&2
+        fi
+        rm -f "$yq_stderr"
+    else
+        gateway_names=$(yq eval '.gateways | keys | .[]' "$CONFIG_FILE" 2>&1)
+        local yq_exit_code=$?
+    fi
+    
+    # Check if yq command failed
+    if [ $yq_exit_code -ne 0 ]; then
+        echo "ERROR: Failed to get gateway names from config file" >&2
+        return 1
+    fi
+    
+    # Check if result is empty
+    if [ -z "$gateway_names" ]; then
+        echo "ERROR: No gateways found in configuration file" >&2
+        return 1
+    fi
+    
+    echo "$gateway_names"
+    return 0
 }
 
 # Function to check if a gateway is enabled
@@ -179,7 +247,10 @@ get_gateway_config() {
         return 1
     fi
     
-    yq eval ".gateways.$gateway_name" "$CONFIG_FILE" 2>/dev/null
+    local yq_path
+    yq_path=$(build_yq_path "gateways.$gateway_name")
+    
+    yq eval "$yq_path" "$CONFIG_FILE" 2>/dev/null
 }
 
 # Function to get all routes for a gateway
@@ -192,7 +263,10 @@ get_gateway_routes() {
         return 1
     fi
     
-    yq eval ".gateways.$gateway_name.routes | length" "$CONFIG_FILE" 2>/dev/null
+    local yq_path
+    yq_path=$(build_yq_path "gateways.$gateway_name.routes")
+    
+    yq eval "$yq_path | length" "$CONFIG_FILE" 2>/dev/null
 }
 
 # Function to get a specific route for a gateway
@@ -206,7 +280,10 @@ get_gateway_route() {
         return 1
     fi
     
-    yq eval ".gateways.$gateway_name.routes[$route_index]" "$CONFIG_FILE" 2>/dev/null
+    local yq_path
+    yq_path=$(build_yq_path "gateways.$gateway_name.routes")
+    
+    yq eval "$yq_path[$route_index]" "$CONFIG_FILE" 2>/dev/null
 }
 
 # Function to get all listeners for a gateway
@@ -219,7 +296,10 @@ get_gateway_listeners() {
         return 1
     fi
     
-    yq eval ".gateways.$gateway_name.listeners | length" "$CONFIG_FILE" 2>/dev/null
+    local yq_path
+    yq_path=$(build_yq_path "gateways.$gateway_name.listeners")
+    
+    yq eval "$yq_path | length" "$CONFIG_FILE" 2>/dev/null
 }
 
 # Function to get a specific listener for a gateway
@@ -233,7 +313,10 @@ get_gateway_listener() {
         return 1
     fi
     
-    yq eval ".gateways.$gateway_name.listeners[$listener_index]" "$CONFIG_FILE" 2>/dev/null
+    local yq_path
+    yq_path=$(build_yq_path "gateways.$gateway_name.listeners")
+    
+    yq eval "$yq_path[$listener_index]" "$CONFIG_FILE" 2>/dev/null
 }
 
 # Function to get global configuration
